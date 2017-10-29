@@ -1,0 +1,209 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relative_activity_chat"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    tools:context="com.nd.sdp.myapplication.MainActivity">
+    <!--导航栏的布局-->
+    <RelativeLayout android:id="@+id/I050_titlebar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#3192ff"
+        >
+        <!--返回的按钮-->
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:id="@+id/i040_back"
+            android:src="@drawable/icon_back" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/tv_bar_title"
+            android:textColor="@color/white"
+            android:textSize="20sp"/>
+        <LinearLayout
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dip"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+
+            android:layout_height="match_parent">
+
+        </LinearLayout>
+        </RelativeLayout>
+
+    <LinearLayout
+        android:layout_below="@id/I050_titlebar"
+        android:id="@+id/chat_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/send_msg_layout"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true" >
+<android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/chat_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#F0F1F3"
+        android:divider="@android:color/transparent"
+        android:listSelector="@android:color/transparent"
+        android:transcriptMode="normal"
+    >
+    <ListView
+        android:id="@+id/chat_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#F0F1F3"
+        android:divider="@android:color/transparent"
+        android:listSelector="@android:color/transparent"
+        android:transcriptMode="normal"></ListView>
+</android.support.v4.widget.SwipeRefreshLayout>
+
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/send_msg_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#E5E5E5"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="visible" >
+
+            <!--ImageButton
+                android:id="@+id/switch_voice_ib"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:background="#E5E5E5"
+                android:src="@drawable/icon_yuyin" /-->
+
+            <RelativeLayout
+                android:id="@+id/chat_input_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="horizontal" >
+
+                <EditText
+                    android:id="@+id/chat_input_et"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="1dp"
+                    android:layout_marginLeft="1dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/item_round_white"
+                    android:cursorVisible="true"
+
+                    android:inputType="textMultiLine"
+                    android:padding="2dp"
+                    android:textColor="#000000"
+                   />
+
+                <!--use native biaoqing ImageButton
+                    android:id="@+id/expression_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/icon_biaoqing"
+                    android:visibility="visible" /-->
+
+
+            </RelativeLayout>
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="1dp" >
+
+                <Button
+                    android:id="@+id/send_msg_btn"
+                    android:layout_width="45dp"
+                    android:layout_height="30dp"
+                    android:gravity="center_horizontal|center_vertical"
+                    android:padding="5dp"
+                    android:text="发送"
+                    android:textColor="@android:color/black"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+                <ImageButton
+                    android:id="@+id/add_file_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/icon_jiahao"
+                    android:focusable="true"
+                    />
+            </FrameLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#D0D0CF" />
+
+        <TableLayout
+            android:id="@+id/more_menu_tl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#F0F1F3"
+            android:orientation="horizontal"
+           android:paddingTop="10dip"
+            android:visibility="gone"
+            >
+            <TableRow>
+                <ImageView
+                    android:id="@+id/img_photo"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/btn_selector_picture"
+                    android:layout_gravity="center"/>
+                    
+
+                <ImageView
+                    android:id="@+id/img_camera"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/btn_selector_take_photo"
+                    android:layout_gravity="center"/>  
+                <!--ImageView
+                    android:id="@+id/img_card"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/btn_selector_card"
+                    android:layout_gravity="center"/>  
+                <ImageView
+                    android:id="@+id/img_map"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/btn_selector_map"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"/>   
+                <ImageView
+                    android:id="@+id/img_video"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/btn_selector_video"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"/--> 
+            </TableRow>
+        </TableLayout>
+    </LinearLayout>
+</RelativeLayout>

@@ -1,0 +1,32 @@
+<div class="i002">
+    <div class="title">
+        <p><a ng-click="cancel()">后台用户管理</a> > 用户密码修改</p>
+    </div>
+    <form class="ibox">
+        <div>
+            <label>用户名：</label>
+            <input type=text size=20 ng-model="user.name"/>
+            <p style="float: right;padding-left: 10px;color: #888">超级管理员可以修改他人密码</p>
+        </div>
+        <div>
+            <label>用户电话：</label>
+            <input type=text size=20 ng-model="user.mobile"/>
+        </div>
+        <div>
+            <label>当前密码：</label>
+            <input type=password size=20 ng-model="user.oldPwd"/>
+        </div>
+        <div>
+            <label>新密码：</label>
+            <input type=password size=20 ng-model="user.newPwd"/>
+        </div>
+        <div>
+            <label>再次确认密码：</label>
+            <input type=password size=20 ng-model="user.notPwd"/>
+        </div>
+        <div class="isubmit">
+            <button size=20 ng-click="enter(user)">修改/重置</button>
+            <button size=20 ng-click="cancel()">取消</button>
+        </div>
+    </form>
+</div>

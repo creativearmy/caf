@@ -1,0 +1,8 @@
+revision note - update this file will trigger syncing and restart of production server
+
+ga - Gernal Release
+	
+	production server share the same code base with development
+	with minor difference in production specific configuration
+
+

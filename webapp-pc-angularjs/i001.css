@@ -1,0 +1,58 @@
+/**/
+.i001{
+}
+.i001 p {
+	margin-top:10px;
+}
+
+.i001 .container1{
+	background-color: #F2F2F2;
+	height: 40px;
+	line-height: 40px;
+	padding: 0 10px;
+	color: #A8A8A8;
+}
+.i001 .container2{
+	padding: 20px;
+}
+.i001 .container2>*{
+	float: left;
+	display: inline-block;
+	height: 26px;
+	margin-left: 18px;
+	border-radius: 3px;
+	border: 1px solid #D6D6D6;
+}
+
+.i001 .container2 button{
+	display: inline;
+	height: 26px;
+	padding: 0 5px;
+	line-height: 26px;
+	background-color: #F3F3F3;
+}
+.i001 .container2 button:hover{
+	background-color: #DEDEDE;
+}
+.i001 .container2 button:active{
+	background-color: #E8E8E8;
+}
+.i001 .container2 input{
+	width: 300px;
+}
+.i001 .xiugai:hover{
+	cursor: pointer;
+	color: #26313A;
+}
+.i001 table{
+	position: absolute;
+	float: left;
+	width: 800px;
+	margin-left: 40px;
+	margin-top:10px;
+	color: #465C71;
+}
+
+.i001 .node_date{
+	text-align: center;
+}

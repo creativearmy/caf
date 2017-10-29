@@ -1,0 +1,44 @@
+  <div ng-include src="'menu.html'"></div>
+ 
+     <div class="i072">
+
+        <div class="ContactDetailsFace">
+            <img ng-src="{{headURL}}" id="edit_img"  style="width: 60px;height: 60px;cursor:pointer;" ng-click="updataImg()"/>
+            <div style="height:30px;line-height:30px;">
+            	点击上面上传修改头像，然后保存。进度：<span id="_progressNumber"></span>
+                <input type="file" id="editImg" style="width:200px;display:none" onchange="angular.element(this).scope().editImgChanged()"/>
+            </div>
+
+            <br />
+            <span>
+                {{personData.name}}
+            </span>
+
+        </div>
+<br /><br /><p>
+        <div style="width:350px;">
+            <div class="edit-user-data-item">
+                <img src="img/icon_location.png" />
+                <span>姓名</span>
+                <input id="name" type="text" ng-model="personData.name" class="none-border-text" style="height:30px;" />
+            </div>
+            
+            <div class="edit-user-data-item">
+                <img src="img/icon_location.png" />
+                <span>省份</span>
+                <input id="address" type="text" ng-model="personData.province" class="none-border-text" style="height:30px;" />
+            </div>
+            <div class="edit-user-data-item">
+                <img src="img/icon_location.png" />
+                <span>城市（县）</span>
+                <input id="address" type="text" ng-model="personData.city" class="none-border-text" style="height:30px;" />
+            </div>
+	    <br>
+	    
+	    <button id="inputButton" ng-click="weixin_pay($event)"> Weixin Pay </button>
+	    <div id="weixin_pay_return"></div>
+	    
+        </div>
+
+    </div>
+

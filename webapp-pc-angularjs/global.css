@@ -1,0 +1,27 @@
+/* 全局 CSS 风格 */
+body {
+	width: 100%;
+}
+ul.pages{height:50px;}
+ul.pages li{float:left;line-height:30px;padding:0 10px;border-top:1px solid #ddd;border-right:1px solid #ddd;border-bottom:1px solid #ddd;list-style:none;color:#428bca;cursor:pointer;}
+ul.pages li:hover{color:red;}
+ul.pages li.shen{color:#428bca;width:45px;text-align: center;}
+ul.pages .first{border:1px solid #ddd;border-radius:4px 0 0 4px;}
+ul.pages .last{border:1px solid #ddd;border-radius: 0 4px 4px 0;border-left:none;}
+ul.pages li.active{background:#428bca;color:#fff;border-color:#428bca;}
+ul.pages li.no{color:#ccc;cursor:not-allowed;}
+ul.pages li.num{width:45px;text-align: center;}
+
+.content-list-table{
+	/*border:1px solid #ccc;*/
+	border-collapse: collapse;
+	width:90%;
+	margin:10px 0 10px 38px;
+	color:#666;
+	min-width:1100px;
+}
+.content-list-table td,.content-list-table th{
+	border-bottom:1px solid #ccc;
+	height:35px;
+}
+

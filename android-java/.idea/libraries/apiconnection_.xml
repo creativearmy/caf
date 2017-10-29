@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="apiconnection-">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.creativearmy.sdk/apiconnection/res" />
+      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.creativearmy.sdk/apiconnection/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

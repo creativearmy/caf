@@ -1,0 +1,25 @@
+<div class="main">
+	<div class="Title"><center>
+		<img src="main_icon_logo_WE.png" style="width: 65px;height: 65px;margin-top:20px" /></center>
+	</div>
+	<div class="InputView">
+		<form action="" method="post">
+			<button disabled="disabled" class="username"></button>
+			<input type="text" placeholder="账号" class="inputName" ng-model="login_name"/>
+			<br />
+			<button disabled="disabled" class="userpassword"></button>
+			<input type="password" placeholder="密码" class="inputName" ng-model="login_passwd"
+			onkeydown="if (event.keyCode == 13) document.getElementById('loginButton').click(); return true"
+			/>
+			<br/>
+			<input disabled="disabled" style="background-color:gray" type="button" id="loginButton" class="loginButton" ng-click="login()" value="登录"/>
+			
+			<table><tr><td><a href="#/i000" style="font-size: 14px;">注册</a></td>
+			<td><a href="#/i000" class="forgetPassword">忘记密码？</a></td></tr></table>
+		</form>
+	</div>
+	<div class="Footer">
+		<img src="main_logo.png" style="width: 35px;height: 35px;" />
+		<span style="color: #696969;">福州禾火网络科技有限公司</span>
+	</div>
+</div>

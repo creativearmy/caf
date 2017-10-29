@@ -1,0 +1,42 @@
+
+
+.i002  p{
+    padding: 0px;
+    margin: 0px;
+}
+
+.i002 .title{
+    background-color: #eeeeee;
+    border-bottom: 1px solid #CCCCCC;
+    line-height: 30px;
+    height: 30px;
+}
+.i002 .ibox{
+    margin-top: 5px;
+    position: absolute;
+    left: 210px;
+}
+.i002 .ibox div{
+    margin-top: 5px;
+    height: 29px;
+}
+.i002 .ibox input{
+    width: 160px;
+}
+.i002 .ibox label{
+    width: 100px;
+    text-align: left;
+    color:#555555;
+}
+.i002 .isubmit{
+    margin-top: 20px!important;
+}
+.i002 .isubmit button{
+    width: 100px;
+    border: 1px solid #aaaaaa;
+    border-radius: 5px;
+    margin-left: 20px;
+}
+.i002 .isubmit button:hover{
+    color: #888;
+}

@@ -1,0 +1,25 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "81cc07f2-81a8-4fd2-9395-83f4128e4602",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+    "81cc07f2-81a8-4fd2-9395-83f4128e4602" : {
+
+    }
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "81cc07f2-81a8-4fd2-9395-83f4128e4602" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "B1A00170-52D3-4D60-A0E5-B216219BDA1F",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "81cc07f2-81a8-4fd2-9395-83f4128e4602" : "hehuo\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "ixcode",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "www80\/t304 客户端文件上传和下载\/file-ios\/ixcode.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "http:\/\/121.199.0.53\/svn\/hehuo",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Subversion",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "81cc07f2-81a8-4fd2-9395-83f4128e4602"
+    }
+  ]
+}
