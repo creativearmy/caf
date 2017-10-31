@@ -37,7 +37,6 @@ package="com.creativearmy.template" >
 
 
 
-    <!-- *********************  拷贝到你自己的项目 ************************ -->
     <receiver
         android:name="com.creativearmy.sdk.APIConnection"
         android:enabled="true">

@@ -8,13 +8,6 @@ import com.creativearmy.template.R;
 
 public class TimeFormatter {
 
-	/**
-	 * ��ʽ������ֵ��ʱ�䵽�ַ��ʱ��
-	 * 
-	 * @param timeSec
-	 *            ����ֵ��ʱ��
-	 * @return �ַ��ʱ��
-	 */
 	public static String formatTime(long timeSec) {
 		Date date = new Date(timeSec);
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -31,9 +24,6 @@ public class TimeFormatter {
 		String date = format.format(timeStamp);
 	}
 
-	/**
-	 * ������ʾ�Ựʱ��
-	 * */
 	public String getTime()
 	{
 		long currentTime 		= System.currentTimeMillis();
@@ -43,7 +33,7 @@ public class TimeFormatter {
 		SimpleDateFormat format1= new SimpleDateFormat("yyyy-MM-dd HH:mm ");
 		String date 			= format.format(mTimeStamp);
 		int hour 				= Integer.parseInt(date.substring(0, 2));
-		//����
+
 		if (date1.getDate() - date2.getDate() == 0)
 		{
 			if (hour < 6)
@@ -53,7 +43,7 @@ public class TimeFormatter {
 			else if (hour < 18)
 				return mContext.getString(R.string.afternoon) + " " + date;
 			else return mContext.getString(R.string.night) + " " + date;
-			//����
+
 		}
 		else if (date1.getDate() - date2.getDate() == 1)
 		{
@@ -84,9 +74,6 @@ public class TimeFormatter {
 			return format1.format(mTimeStamp);
 	}
 
-	/**
-	 * ������ʾ��Ϣ����ʱ��
-	 * */
 	public String getDetailTime()
 	{
     	long currentTime = System.currentTimeMillis();
@@ -97,7 +84,7 @@ public class TimeFormatter {
 		String date 				= format.format(mTimeStamp);
 //        String dat1 				= format.format(currentTime0);
 //        String dat2 				= format.format(currentTime);
-		SimpleDateFormat format1 	= new SimpleDateFormat("yyyy��-MM��-dd��");
+		SimpleDateFormat format1 	= new SimpleDateFormat("yyyy-MM-dd");
 		String date3 				= format1.format(mTimeStamp);
 		int hour 					= Integer.parseInt(date.substring(0, 2));
 		if (date1.getDate() - date2.getDate() == 0)

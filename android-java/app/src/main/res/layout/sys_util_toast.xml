@@ -16,6 +16,6 @@
     android:textSize="14sp" 
     android:paddingLeft="2dp"
     android:paddingRight="2dp"
-    android:text="网络连接失败"/>
+    android:text="Connection Failed"/>
 
 </RelativeLayout>

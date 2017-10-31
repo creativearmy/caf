@@ -21,7 +21,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="INPUT 点击可以在工具箱看到效果"
+        android:text="Check on Project Toolbox for output"
         android:id="@+id/INPUT"
         android:layout_below="@+id/OUTPUT"/>
 

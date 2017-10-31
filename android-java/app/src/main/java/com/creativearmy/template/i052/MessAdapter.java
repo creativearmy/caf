@@ -47,11 +47,6 @@ public class MessAdapter extends BaseAdapter
     }
     private String currentHeader;
 
-    /**
-     * ���һ��
-     *
-     * @param msg
-     */
     public void addNetMessage(JSONObject msg) {
         msgs.add(msg);
         notifyDataSetChanged();
@@ -62,21 +57,11 @@ public class MessAdapter extends BaseAdapter
     // this.currentHeader=currentHeader;
 //    }
 
-    /**
-     * ��һ��
-     *
-     * @param msges
-     */
     public void addNetMessage(ArrayList<JSONObject> msges) {
         msgs.addAll(msges);
         notifyDataSetChanged();
     }
 
-    /**
-     * ��һ��
-     *
-     * @param msges
-     */
     public void addHistory(ArrayList<JSONObject> msges) {
         ArrayList<JSONObject> temp = new ArrayList<JSONObject>();
         temp.addAll(msges);
@@ -107,11 +92,11 @@ public class MessAdapter extends BaseAdapter
 //        }
 
         options = new DisplayImageOptions.Builder()
-                .showImageOnLoading(R.mipmap.icon_biaoqing_i073)          // 设置图片下载期间显示的图片
-                .showImageForEmptyUri(R.mipmap.icon_biaoqing_i073)  // 设置图片Uri为空或是错误的时候显示的图片
-                .showImageOnFail(R.mipmap.icon_biaoqing_i073)    // 设置图片加载或解码过程中发生错误显示的图片
-                .cacheInMemory(true)// 设置下载的图片是否缓存在内存中
-                        //.displayer(new RoundedBitmapDisplayer(0))  // 设置成圆角图片
+                .showImageOnLoading(R.mipmap.icon_biaoqing_i073)          // 
+                .showImageForEmptyUri(R.mipmap.icon_biaoqing_i073)  // 
+                .showImageOnFail(R.mipmap.icon_biaoqing_i073)    // 
+                .cacheInMemory(true)// 
+                        //.displayer(new RoundedBitmapDisplayer(0))  // 
                 .cacheOnDisk(true).build();
 
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
@@ -165,7 +150,7 @@ public class MessAdapter extends BaseAdapter
             if (position != 0)
             {
                 long lastDate = (long)msgs.get(position - 1).i("send_time");
-                // ���������Ϣ֮��ļ������2��������ʾʱ��
+
                 if (nowDate - lastDate > 120)
                 {
                     TimeFormatter timeFormat = new TimeFormatter(mContext, nowDate*1000);
@@ -254,14 +239,14 @@ public class MessAdapter extends BaseAdapter
     private void openFile(File file){
         Intent intent = new Intent();
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        //设置intent的Action属性
+
         intent.setAction(Intent.ACTION_VIEW);
-        //获取文件file的MIME类型
+
         String type = FileUtils.getMIMEType(file);
 
-        //设置intent的data和Type属性。
+
         intent.setDataAndType(/*uri*/Uri.fromFile(file), type);
-        //跳转
+
         mContext.startActivity(intent);
     }
 

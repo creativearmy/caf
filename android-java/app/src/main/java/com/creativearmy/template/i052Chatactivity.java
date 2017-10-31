@@ -70,14 +70,14 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
     private String mNowId;
     private String mNextId;
 
-    private String mode = "person"; // 聊天室：task, topic, person(私聊)
-    public  String Title; // 聊天室标题
+    private String mode = "person"; // 
+    public  String Title; // 
 
-    public static String mTopicId; // 话题ID
+    public static String mTopicId; // 
 
-    public static String mTaskId; // 任务 ID
+    public static String mTaskId; // 
 
-    public static String mPersonId; // 私聊对方ID
+    public static String mPersonId; // 
 
     private String CREATOR_ID = ""; // task creator
     private String CREATOR_NAME = ""; // task creator name
@@ -95,8 +95,8 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
 
     private String currentHeader;
 
-    private int imageMaxWidth;      //压缩上传IM图片宽度
-    private int imageMaxSize;      //压缩上传IM图片大小
+    private int imageMaxWidth;      //
+    private int imageMaxSize;      //
     private ImageView img_video;
     private ImageView img_card;
     private ImageView img_map;
@@ -109,7 +109,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        //获取键盘高度
+
         mKeyboradHeigth = getisKeyboardHeight();
         APIConnection.registerHandler(handler);
 
@@ -133,10 +133,10 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    // 此处为得到焦点时的处理内容
+
                     i052Chatactivity.this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                 } else {
-                    // 此处为失去焦点时的处理内容
+
                 }
             }
         });
@@ -187,10 +187,10 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
         }
         */
         mode = "person";
-        // 工具箱用的登录的用户ID
+
         mPersonId = "o14509039359136660099";
 
-        Title = "私聊：i052Chatactivity.java mPersonId";
+        Title = "personal chat: i052Chatactivity.java mPersonId";
 
         mTvTitle.setText(Title);
         mTvTitle.setTextColor(Color.WHITE);
@@ -212,7 +212,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
             req.put("act", "chat_get");
 		
             JSONArray ja = new JSONArray();
-            // 这个ID 是我自己
+
             ja.put(APIConnection.user_info.optString("_id"));
             ja.put(mPersonId);
 
@@ -222,7 +222,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
 		// FIXME
 	    }
 
-        // 通常还有用户在界面输入的其他数据，一起发送好了
+
         req.put("person_id", APIConnection.user_info.optString("_id"));
         Log.e("I052", String.format("PID = %s\tTID = %s", "", mTopicId));
         APIConnection.send(req);
@@ -285,7 +285,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                     } else {
                         //guanzhu.setBackgroundResource(R.mipmap.icon_eye_gclose);
                     }
-                    //拉取历史消息
+
                     if (null != jo.optJSONObject("chatRecord"))
                     {
                         JSONObject object =jo.optJSONObject("chatRecord");
@@ -350,7 +350,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                      || jo.optString("act").equals("chat_task") && mode.equals("task") && jo.optString("task_id").equals(mTaskId)
                      || jo.optString("act").equals("chat_person") && mode.equals("person") && jo.optString("from_id").equals(mPersonId)
                     )) {
-                    //群里新消息
+
                     ArrayList<JSONObject> listMsges = new ArrayList<JSONObject>();
 
                     String from_name = jo.optString("from_name");
@@ -362,7 +362,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
 
                     JSONObject netMessage1 = new JSONObject();
                     try {
-                        if (from_id.equals(APIConnection.user_info.optString("_id"))) {//本人
+                        if (from_id.equals(APIConnection.user_info.optString("_id"))) {//
                             netMessage1.put("type_tran", "SEND");
                         } else {
                             netMessage1.put("type_tran", "RECV");
@@ -388,7 +388,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
 //                    req.put("obj","topic");
 //                    req.put("act","follow");
                 } else if ((jo.optString("obj").equals("topic") || jo.optString("obj").equals("task")) && jo.optString("act").equals("follow")) {
-                    ToastUtil.showShortToast(i052Chatactivity.this, "关注修改成功!");
+                    ToastUtil.showShortToast(i052Chatactivity.this, "Follow success");
 
                     if (!isfollowing) {
                         //guanzhu.setBackgroundResource(R.mipmap.icon_eye_gopen);
@@ -417,7 +417,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
 
             JSONObject netMessage1 = new JSONObject();
             try {
-                if (jo.s("from_id").equals(APIConnection.user_info.optString("_id"))) {//本人
+                if (jo.s("from_id").equals(APIConnection.user_info.optString("_id"))) {
                     netMessage1.put("type_tran", "SEND");
                 } else {
                     netMessage1.put("type_tran", "RECV");
@@ -530,7 +530,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
         int id = view.getId();
         switch (id) {
             case R.id.add_file_btn:
-                //如果Tab已经打开，再次点击关闭
+
                 mIsNeedshowTab = !mIsNeedshowTab;
                 if (mIsShowMoreMenu) {
                     if (!isKeyboardShow) {
@@ -593,7 +593,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
 		}
 
                 req.put("from_id", APIConnection.user_info.optString("_id"));
-                // 通常还有用户在界面输入的其他数据，一起发送好了
+
                 req.put("chat_type", "text");
                 req.put("chat_content", mEditChatInput.getText().toString());
                 APIConnection.send(req);
@@ -624,12 +624,12 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
 //                tempFile = new File(getCacheDir()+"/"+getInstance().getTimeInMillis()
 //                        + ".jpg");
 //                imageUri = Uri.fromFile(tempFile);
-                // 指定调用相机拍照后照片的储存路径
+
                 //intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
 //                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 //                intent.putExtra(MediaStore.Images.Media.ORIENTATION, 0);
 //                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                // 开启一个带有返回值的Activity，请求码为PHOTO_REQUEST_GALLERY
+
 //                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 //                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
 //                intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
@@ -640,7 +640,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
             //case R.id.img_card:
             //case R.id.img_map:
             //case R.id.img_video:
-                //Toast.makeText(this,"该功能未开放",Toast.LENGTH_SHORT).show();
+
                 //break;
 
             default:
@@ -654,10 +654,10 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
     }
 
     private void saveKeyboardHeight(int height) {
-        SharedPreferences sharedPreferences = getSharedPreferences("keyboardheight", Context.MODE_PRIVATE); //私有数据
-        SharedPreferences.Editor editor = sharedPreferences.edit();//获取编辑器
+        SharedPreferences sharedPreferences = getSharedPreferences("keyboardheight", Context.MODE_PRIVATE); //
+        SharedPreferences.Editor editor = sharedPreferences.edit();//
         editor.putInt("height", height);
-        editor.apply();//提交修改
+        editor.apply();//
     }
 
     @Override
@@ -699,7 +699,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
 //                .getHeight();
 //        int key=KeyboardView.EDGE_TOP-Keyboard.EDGE_BOTTOM;
 //        int mm= InputMethodManager.RESULT_UNCHANGED_SHOWN;
-//        Log.e("键盘高度", screenHeight + ":" + mm);
+
 //        if(softKeyboardHeight > 0)
 //        {
         // int hieght = dip2px(this, 270);
@@ -723,7 +723,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
     }
 
     public void dismissSoftInput() {
-        //隐藏软键盘
+
         InputMethodManager imm = ((InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE));
         if (this.getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
             if (this.getCurrentFocus() != null)
@@ -744,12 +744,6 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
     }
 
     private void follow(boolean is) {
-//        {
-//            "obj":"topic",
-//                "act":"follow",
-//                "unfollow":"1", // 如果设置了就取消关注
-//                "topic_id":"o14477397324317851066"   //话题的id
-//        }
 
         HashMap req = new HashMap();
 
@@ -765,7 +759,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
             req.put("task_id", mTaskId);
             req.put("unfollow", is ? "0" : "1");
 
-        } else if (mode.equals("person")) { // 对于私聊，这个加号是添加联系人
+        } else if (mode.equals("person")) { // 
             req.put("obj", "person");
             req.put("act", "contact_add");
             req.put("person_id", mPersonId);
@@ -781,7 +775,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK &&requestCode == REQUEST_PHOTO) {
             if (data != null) {
-                // 得到图片的全路径
+
                 //Uri uri = data.getData();
                 //crop(uri, requestCode);
                 upLoadImg(data);
@@ -802,7 +796,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
 
 
     private void upLoadImg(Intent data) {
-        Toast.makeText(i052Chatactivity.this, "图片上传中", Toast.LENGTH_LONG).show();
+        Toast.makeText(i052Chatactivity.this, "upload", Toast.LENGTH_LONG).show();
         RequestParams rp = new RequestParams();
         if (data != null) {
             File f = null;
@@ -825,7 +819,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                         String mime = jb.s("type");
 
                         if (jb.optString("fid") != null && !jb.optString("fid").equals("")) {
-                            Toast.makeText(i052Chatactivity.this, "图片上传成功", Toast.LENGTH_LONG).show();
+                            Toast.makeText(i052Chatactivity.this, "upload succeeded", Toast.LENGTH_LONG).show();
                             HashMap req = new HashMap();
 
                             if (mode.equals("topic")) {
@@ -838,7 +832,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                                 req.put("act", "chat_send");
                                 req.put("task_id", mTaskId);
 
-                            } else if (mode.equals("person")) { // 对于私聊
+                            } else if (mode.equals("person")) { // 
                                 req.put("obj", "person");
                                 req.put("act", "chat_send");
                                 req.put("to_id", mPersonId);
@@ -867,7 +861,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                             }
 //                                updateInfo();
                         }
-                        // 将临时文件删除
+
                         tempFile.delete();
 
                     } catch (JSONException e) {
@@ -880,7 +874,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                 @Override
                 public void onFailure(HttpException e, String s) {
                     Log.i("Test", s);
-                    Toast.makeText(i052Chatactivity.this, "图片上传错误", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(i052Chatactivity.this, "upload failed", Toast.LENGTH_SHORT).show();
                 }
             });
         }

@@ -57,35 +57,19 @@ public class i072MainActivity extends Activity {
     private String fid = null;
     private String pid = null;
 
-    /**
-     * 请求码为调用相机
-     */
     private static final int PHOTO_REQUEST_CAREMA = 0;
 
     private Uri     rawImageUri = Uri.parse("file://" + "/" + Environment.getExternalStorageDirectory().getPath() + "/" + "raw.jpg");
     private String  smallImageFileName = Environment.getExternalStorageDirectory().getPath() + "/" + "small.jpg";
     private Uri     smallImageURI = Uri.parse("file://" + "/" + smallImageFileName);;
 
-    /**
-     * 负责人ImageView
-     */
     private CircleImageView iv_personImage;
-    /**
-     * 缓存
-     */
     private File tempFile;
     private Bitmap bitmapTemp = null;
-    /**
-     * 请求码为调用相册，并且最终生成圆形图片
-     */
-    /**
-     * 照片剪切状态判定常量
-     */
     private static final int PHOTO_REQUEST_GALLERY_CIRCLE = 3;
     private static final int PHOTO_REQUEST_CUT_CIRCLE = 5;
     private ImageView ivTemp;
 
-    //选择性别
     private ImageView iv_choosemale;
     private ImageView iv_choosefemale;
     private ImageView iv_male;
@@ -95,7 +79,7 @@ public class i072MainActivity extends Activity {
     private ImageLoader imageLoader = null;
     private DisplayImageOptions options;
 
-    //擅长
+
     private Spinner sp_goodat;
     ArrayList<String> goodatList;
     ArrayAdapter<String> adapter;
@@ -109,20 +93,17 @@ public class i072MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         goodatList = new ArrayList<>();
-        goodatList.add("语文");
-        goodatList.add("数学");
-        goodatList.add("英语");
         mdata = new ArrayList<>();
         setContentView(R.layout.i072_activity_main);
         APIConnection.registerHandler(handler);
         imageLoader = ((MyApplication)getApplication()).getImageLoader();
         options = new DisplayImageOptions.Builder()
-                .showImageOnLoading(R.mipmap.icon_biaoqing_i073)          // 设置图片下载期间显示的图片
-                .showImageForEmptyUri(R.mipmap.icon_biaoqing_i073)  // 设置图片Uri为空或是错误的时候显示的图片
-                .showImageOnFail(R.mipmap.icon_biaoqing_i073)       // 设置图片加载或解码过程中发生错误显示的图片
-                .cacheInMemory(true)                        // 设置下载的图片是否缓存在内存中
-                .cacheOnDisk(true)                          // 设置下载的图片是否缓存在SD卡中
-//            .displayer(new RoundedBitmapDisplayer(20))  // 设置成圆角图片
+                .showImageOnLoading(R.mipmap.icon_biaoqing_i073)          
+                .showImageForEmptyUri(R.mipmap.icon_biaoqing_i073)  
+                .showImageOnFail(R.mipmap.icon_biaoqing_i073)       
+                .cacheInMemory(true)                        
+                .cacheOnDisk(true)                          
+//            .displayer(new RoundedBitmapDisplayer(20))  
                 .build();
         init();
 
@@ -133,18 +114,15 @@ public class i072MainActivity extends Activity {
         }
         getInfo();
 //
-        // 【2】 初始化环境
+
 //        mock_startup();
 
     }
     @Override
     protected void onResume() {
-//        if (imageLoader != null && iv_personImage != null){
-//            imageLoader.displayImage(APIConnection.server_info.optString("download_path")+APIConnection.user_info.optString("headFid"), iv_personImage, options);
-//        }
         super.onResume();
     }
-    //初始化
+
     private void init(){
         iv_male=(ImageView) findViewById(R.id.iv_male_i072);
         iv_female=(ImageView) findViewById(R.id.iv_female_i072);
@@ -194,13 +172,13 @@ public class i072MainActivity extends Activity {
     }
     public String selectSex(){
         if(iv_choosefemale.getVisibility() == View.INVISIBLE){
-            return "男";
+            return "male";
         }else{
-            return "女";
+            return "female";
         }
     }
     public void setSex(String sex){
-        if (sex.equals("男")){
+        if (sex.equals("male")){
             iv_choosemale.setVisibility(ViewGroup.VISIBLE);
             iv_choosefemale.setVisibility(ViewGroup.INVISIBLE);
         }else{
@@ -208,7 +186,7 @@ public class i072MainActivity extends Activity {
             iv_choosemale.setVisibility(ViewGroup.INVISIBLE);
         }
     }
-    //选择性别
+
     public void ivmaleClick(View v){
         iv_choosemale.setVisibility(ViewGroup.VISIBLE);
         iv_choosefemale.setVisibility(ViewGroup.INVISIBLE);
@@ -217,26 +195,14 @@ public class i072MainActivity extends Activity {
         iv_choosefemale.setVisibility(ViewGroup.VISIBLE);
         iv_choosemale.setVisibility(ViewGroup.INVISIBLE);
     }
-    /**
-     * 改变负责人头像
-     */
     public void changePersonImage(View v){
         showPhotoDialog();
-//        HashMap data = new HashMap();
-//        data.put("obj", "test");
-//        data.put("act", "input1");
-//        // 通常还有用户在界面输入的其他数据，一起发送好了
-//        data.put("上传头像", "click");
-//        input(data);
     }
-    /**
-     * 从相册获取
-     */
     public void gallery(View view,int requestCode) {
-        // 激活系统图库，选择一张图片
+
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
-        // 开启一个带有返回值的Activity，请求码为PHOTO_REQUEST_GALLERY
+
         startActivityForResult(intent, requestCode);
     }
     private File saveImg(Bitmap b){
@@ -251,7 +217,7 @@ public class i072MainActivity extends Activity {
             out.flush();
             out.close();
             return f;
-//                    Log.i(TAG, "已经保存");
+
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -261,15 +227,12 @@ public class i072MainActivity extends Activity {
         }
         return null;
     }
-    /**
-     * 从相册获取
-     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PHOTO_REQUEST_GALLERY_CIRCLE) {
-            // 从相册返回的数据
+
             if (data != null) {
-                // 得到图片的全路径
+
                 Uri uri = data.getData();
 //                tempFile = new File(getCacheDir()+"/call/"+getInstance().getTimeInMillis()
 //                        + ".jpg");
@@ -281,7 +244,7 @@ public class i072MainActivity extends Activity {
             cropRawImageUri(rawImageUri);
 
         }else if (requestCode == PHOTO_REQUEST_CUT_CIRCLE) {
-            // 从剪切图片返回的数据，设置为头像
+
 //            if (data != null) {
                 Log.i("Test", APIConnection.server_info.optString("upload_to"));
                 RequestParams rp = new RequestParams();
@@ -309,11 +272,11 @@ public class i072MainActivity extends Activity {
                             fid = jb.optString("fid");
                             Log.i("upload return fid:", fid);
                             if (jb.optString("fid") != null && !jb.optString("fid").equals("")) {
-                                Toast.makeText(i072MainActivity.this, "头像上传成功", Toast.LENGTH_LONG).show();
+                                Toast.makeText(i072MainActivity.this, "Upload success", Toast.LENGTH_LONG).show();
 
 //                                updateInfo();
                             }
-                            // 将临时文件删除
+
 //                            tempFile.delete();
 
                         } catch (Exception e) {
@@ -324,7 +287,7 @@ public class i072MainActivity extends Activity {
                     @Override
                     public void onFailure(HttpException e, String s) {
                         Log.i("Test", s);
-                        Toast.makeText(i072MainActivity.this, "头像上传错误", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(i072MainActivity.this, "Avatar upload failed", Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -338,32 +301,29 @@ public class i072MainActivity extends Activity {
 
         super.onActivityResult(requestCode, resultCode, data);
     }
-    /**
-     * 剪切图片
-     */
     public void crop(Uri uri, int requestCode) {
-        // 裁剪图片意图
+
         Intent intent = new Intent("com.android.camera.action.CROP");
         intent.setDataAndType(uri, "image/*");
         intent.putExtra("crop", "true");
-        // 裁剪框的比例，1：1
+
         intent.putExtra("aspectX", 1);
         intent.putExtra("aspectY", 1);
-        // 裁剪后输出图片的尺寸大小
+
         intent.putExtra("outputX", 250);
         intent.putExtra("outputY", 250);
-        intent.putExtra("outputFormat", "JPEG");// 图片格式
-        intent.putExtra("noFaceDetection", true);// 取消人脸识别
+        intent.putExtra("outputFormat", "JPEG");// 
+        intent.putExtra("noFaceDetection", true);// 
         intent.putExtra("return-data", false);
 //        uritempFile = Uri.parse("file://" + "/" + smallImageFileName);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, smallImageURI);
-//        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri); // 指定图片输出地址
-        // 开启一个带有返回值的Activity，请求码为PHOTO_REQUEST_CUT
+//        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri); // 
+
         startActivityForResult(intent, PHOTO_REQUEST_CUT_CIRCLE);
     }
     private void cropRawImageUri(Uri uri) {
 
-        // 系统带的这个不稳定，用自己的
+
         Intent intent = new Intent("com.android.camera.action.CROP");
 
         intent.setType("image/*");
@@ -381,12 +341,12 @@ public class i072MainActivity extends Activity {
         intent.putExtra("outputY", 250);
         //smallImageURI = Uri.parse("file://" + "/" + smallImageFileName);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, smallImageURI);
-//        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri); // 指定图片输出地址
-        intent.putExtra("outputFormat", "JPEG");// 图片格式
-        intent.putExtra("noFaceDetection", true);// 取消人脸识别
+//        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri); // 
+        intent.putExtra("outputFormat", "JPEG");// 
+        intent.putExtra("noFaceDetection", true);// 
         intent.putExtra("return-data", true);
 
-        // 开启一个带有返回值的Activity，请求码为PHOTO_REQUEST_CUT
+
         startActivityForResult(intent, PHOTO_REQUEST_CUT_CIRCLE);
 
 
@@ -406,12 +366,10 @@ public class i072MainActivity extends Activity {
         final AlertDialog dlg = new AlertDialog.Builder(this).create();
         dlg.show();
         Window window = dlg.getWindow();
-        // *** 主要就是在这里实现这种效果的.
-        // 设置窗口的内容页面,shrew_exit_dialog.xml文件中定义view内容
         window.setContentView(R.layout.i072_search_local_image_dialog);
-        // 为确认按钮添加事件,执行退出应用操作
+
         TextView tv_paizhao = (TextView) window.findViewById(R.id.tv_content1);
-        tv_paizhao.setText("拍照");
+        tv_paizhao.setText("Camera");
         tv_paizhao.setOnClickListener(new OnClickListener() {
             @SuppressLint("SdCardPath")
             public void onClick(View v) {
@@ -424,13 +382,13 @@ public class i072MainActivity extends Activity {
                 //        + ".jpg");
 
                 //imageUri = Uri.fromFile(tempFile);
-                // 指定调用相机拍照后照片的储存路径
+
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, rawImageUri);
-                // 开启一个带有返回值的Activity，请求码为PHOTO_REQUEST_GALLERY
+
                 startActivityForResult(intent, PHOTO_REQUEST_CAREMA);
 
                 ivTemp =iv_personImage;
-                // 指定调用相机拍照后照片的储存路径
+
 //	                intent.putExtra(MediaStore.EXTRA_OUTPUT,
 //	                        Uri.fromFile(new File("/sdcard/fanxin/", imageName)));
                 //startActivityForResult(intent, PHOTO_REQUEST_TAKEPHOTO);
@@ -438,11 +396,11 @@ public class i072MainActivity extends Activity {
             }
         });
         TextView tv_xiangce = (TextView) window.findViewById(R.id.tv_content2);
-        tv_xiangce.setText("相册");
+        tv_xiangce.setText("album");
         tv_xiangce.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_PICK, null);
-                //通过相册获得图片，并裁剪成圆形
+
                 gallery(v, PHOTO_REQUEST_GALLERY_CIRCLE);
                 ivTemp = iv_personImage;
                 dlg.cancel();
@@ -460,24 +418,21 @@ public class i072MainActivity extends Activity {
                 JSONObject jo = (JSONObject) msg.obj;
                 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-                // 【3】 工具箱那里发送 "send input" 后，会发送数据到本APP。这个是模拟服务器 “输出”
-                // 如果APP 要响应服务器的输出，像请求响应，或服务器的推送，就可以在这里定义要做的处理
-                // 工具箱那里发送"send input"这个：
                 // {"obj":"associate","act":"mock","to_login_name":"test6977","data":{"obj":"test","act":"output1","data":"blah"}}
                 if (jo.optString("obj").equals("test") && jo.optString("act").equals("output1")) {
-                    // 服务器输出，简单的在屏幕上打印这条信息
+
                     output.setText(jo.optString("data"));
                 }else if(jo.optString("obj").equals("person") && jo.optString("act").equals("update")){
                     if (jo.optString("status").equals("success")){
                         Log.e("success------", jo.toString());
-                        Toast.makeText(i072MainActivity.this, "用户信息更新成功", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(i072MainActivity.this, "update success", Toast.LENGTH_SHORT).show();
                         Intent intent=new Intent();
                         intent.putExtra("name",name.getEditableText().toString());
                         intent.putExtra("uri",String.valueOf(smallImageURI));
                         setResult(0x123, intent);
                         finish();
                     }else{
-                        Toast.makeText(i072MainActivity.this, "用户信息更新失败", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(i072MainActivity.this, "update success", Toast.LENGTH_SHORT).show();
                     }
                 }else if(jo.optString("obj").equals("person") && jo.optString("act").equals("get")){
                     JSONObject data = jo.optJSONObject("data");

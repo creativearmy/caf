@@ -1,7 +1,7 @@
 # Creativearmy App Framework (CAF)
 
 
-WebSocket web and mobile real-time app framework, with backend coding in Perl
+WebSocket web and mobile real-time app framework, with backend coding in Perl.
 
 
 <br><b>Architecture Overview</b>
@@ -15,7 +15,12 @@ WebSocket web and mobile real-time app framework, with backend coding in Perl
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Projects contain server and client SDKs in binary form which are not open sourced.
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If your project is not commercial for profit in nature, please make a request and<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sample apps work as it is. It will connect to our demo server. You can add new API
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; or make change to our deom server API logic through our Project Toolbox.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;To have your own app server running:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If your project is not commercial or for profit in nature, please make a request and<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;we will provision your server to work with these client SDKs and our cloud<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IDE environment called Project Toolbox. It is free of charge.<br>
 
@@ -25,7 +30,7 @@ WebSocket web and mobile real-time app framework, with backend coding in Perl
 <br><b>Sample Project Toolbox</b>
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Each project comes with its own online IDE coding environment Project Toolbox<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<http://www.hehuo168.com/dev/qMRUqc7mbpatAeXUWEE6Supkt98.html>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<http://www.hehuo168.com/dev/c9sALD5OrfBMbzUYda4Yaw36QQU.html>
 
 <br><b>FREE Online Wireframe Tool</b>
 

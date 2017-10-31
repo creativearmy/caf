@@ -1,29 +1,10 @@
 package com.creativearmy.template.i052;
 
-/**
- * Created by 王杰 on 2015/12/22.
- */
 public class ItemBody {
-    /**
-     * 头像
-     */
     private String headImage;
-    /**
-     * 名字
-     */
     private String Name;
-    /**
-     * 内容
-     */
     private String message;
-
-    /**
-     * 日期
-     */
     private String date;
-    /**
-     * 消息的数目
-     */
     private Integer number;
 
     private String cid;

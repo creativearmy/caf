@@ -1,11 +1,3 @@
-//
-//  userLoginViewController.m
-//  i011
-//
-//  Created by 李志远 on 15/12/8.
-//  Copyright © 2015年 李志远. All rights reserved.
-//
-
 #import "MBProgressHUD+ND.h"
 #import "AppDelegate.h"
 #import "UtilsMacro.h"
@@ -19,13 +11,13 @@
     NSString *login_passwd;
 }
 
-@property (strong, nonatomic) IBOutlet UITextField *account; //账号
-@property (strong, nonatomic) IBOutlet UITextField *password;//密码
-@property (weak, nonatomic) IBOutlet UIButton *loginBtn;//登陆按键属性
+@property (strong, nonatomic) IBOutlet UITextField *account; //
+@property (strong, nonatomic) IBOutlet UITextField *password;//
+@property (weak, nonatomic) IBOutlet UIButton *loginBtn;//
 
-- (IBAction)forgotPasswordClick:(UIButton *)sender;//忘记密码点击事件
-- (IBAction)landingClick:(UIButton *)sender;//登陆点击事件
-- (IBAction)registeredClick:(UIButton *)sender;//注册We点击事件
+- (IBAction)forgotPasswordClick:(UIButton *)sender;//
+- (IBAction)landingClick:(UIButton *)sender;//
+- (IBAction)registeredClick:(UIButton *)sender;//
 
 @end
 
@@ -45,8 +37,8 @@
     // singleton, init once, used through out app, this happens BEFORE didFinishLaunchingWithOptions !!
     if (globalConn == nil) globalConn = [[APIConnection alloc] init];
     
-    login_name  = [NSString stringWithFormat:@"test1"];//账号
-    login_passwd= [NSString stringWithFormat:@"1"];     //密码
+    login_name  = [NSString stringWithFormat:@"test1"];//
+    login_passwd= [NSString stringWithFormat:@"1"];     //
     _loginBtn.layer.cornerRadius = 5;
 
     if (globalConn.state < LOGIN_SCREEN_ENABLED) {
@@ -112,7 +104,7 @@
 
     if ([[response s:@"ustr"] isEqualToString:@""]) {
         
-        [MBProgressHUD showSuccess:@"登录成功"];
+        [MBProgressHUD showSuccess:@"login succeed!"];
         
         // check apns_device_token and update if needed
         /*
@@ -133,13 +125,13 @@
     }
     else {
         if ([response[@"derr"] containsString:@"does not exist"]) {
-            [MBProgressHUD showError:@"该手机号码还未注册"];
+            [MBProgressHUD showError:@"mobile phone not registered"];
         }
         else if ([response[@"derr"] containsString:@"login passwd not correct"]) {
-            [MBProgressHUD showError:@"密码错误请重新输入"];
+            [MBProgressHUD showError:@"password not match"];
         }
         else {
-            [MBProgressHUD showError:@"手机或密码错误，请重新输入"];
+            [MBProgressHUD showError:@"phone or password not match"];
         }
         [MBProgressHUD hideHUDForView:self.view];
     }
@@ -155,11 +147,11 @@
 - (IBAction)landingClick:(UIButton *)sender {
     
     if (self.account.text.length <= 0) {
-        [MBProgressHUD showError:@"请输入账号!"];
+        [MBProgressHUD showError:@"enter phone number"];
         return;
     }
     if (self.password.text.length <= 0) {
-       [MBProgressHUD showError:@"请输入密码!"];
+       [MBProgressHUD showError:@"enter password"];
         return;
     }
     [MBProgressHUD showMessage:@"" toView:self.view];
@@ -170,7 +162,7 @@
 }
 
 - (void)createNavBar {
-//    [self addNavigatorTitle:NSLocalizedString(@"登录", nil) parent:self.view];
+//    [self addNavigatorTitle:NSLocalizedString(@"login", nil) parent:self.view];
 //    
 //    self.barViewControl.view.backgroundColor = RGB(52, 51, 52);
 //    [self AddLeftBtnAction:nil normal:@"icon_back" selected:@"icon_back" action:^{

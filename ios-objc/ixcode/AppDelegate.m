@@ -68,7 +68,6 @@ APIConnection *globalConn;
 {
     UIViewController * vc = nil;
     
-    // 添加界面控制器到这里就可以用工具箱那边的 Switch 按键把这个界面调到前面做测试什么的
     
     if ([ixxx isEqualToString:@"i000"]) vc = [[i000ViewController alloc] initWithNibName:@"i000View" bundle:nil];
     if ([ixxx isEqualToString:@"i072"]) vc = [[i072ViewController alloc] initWithNibName:@"i072ViewBlank" bundle:nil];
@@ -77,7 +76,7 @@ APIConnection *globalConn;
         ChatViewController* c = [[ChatViewController alloc] init];
         c.obj = @"person";
         c.to_id = @"o14509039359136660099";
-        c.title_text = @"私聊：AppDelegate.m vc.to_id";
+        c.title_text = @"Personal Chat: AppDelegate.m vc.to_id";
         vc = c;
     }
     

@@ -1,10 +1,3 @@
-//
-//  MMBMNavBarViewController.h
-//  makeMoney
-//
-//  Created by zwd on 14-8-21.
-//  Copyright (c) 2014年 zwd. All rights reserved.
-//
 
 #import <UIKit/UIKit.h>
 

@@ -24,7 +24,7 @@ public class SysUtils {
         Canvas canvas = new Canvas(output);
 
         final Paint paint = new Paint();
-        //保证是方形，并且从中心画
+
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
         int w;
@@ -42,7 +42,7 @@ public class SysUtils {
 
         paint.setAntiAlias(true);
         canvas.drawARGB(0, 0, 0, 0);
-        //圆形，所有只用一个
+
         
         int radius = (int) (Math.sqrt(w * w * 2.0d) / 2);
         canvas.drawRoundRect(rectF, radius, radius, paint);
@@ -53,17 +53,11 @@ public class SysUtils {
     }
 
 
-    /** 
-     * 根据手机的分辨率从 px(像素) 的单位 转成为 dp 
-     */  
     public static int px2dip(Context context, float pxValue) {  
         final float scale = context.getResources().getDisplayMetrics().density;  
         return (int) (pxValue / scale + 0.5f);  
     }  
     
-    /** 
-     * 根据手机的分辨率从 dp 的单位 转成为 px(像素) 
-     */  
     public static int dip2px(Context context, float dpValue) {  
         final float scale = context.getResources().getDisplayMetrics().density;  
         return (int) (dpValue * scale + 0.5f);  
@@ -76,10 +70,10 @@ public class SysUtils {
             NetworkInfo info = connectivity.getActiveNetworkInfo();
             if (info != null && info.isConnected())
             {
-                // 当前网络是连接的
+
                 if (info.getState() == NetworkInfo.State.CONNECTED)
                 {
-                    // 当前所连接的网络可用
+
                     return true;
                 }
             }

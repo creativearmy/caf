@@ -1,20 +1,20 @@
 <div class="main very_centered"><br><br>
-	<div style="text-align:center;font-size:18px">后台管理系统</div>
+	<div style="text-align:center;font-size:18px">Admin Console</div>
 	<div class="InputView">
 		<form action="" method="post">
 		
 			<button disabled="disabled" class="username"></button>
-			<input type="text" placeholder="账号" class="inputName" ng-model="login_name"/>
+			<input type="text" placeholder="Account" class="inputName" ng-model="login_name"/>
 			<br />
 			<button disabled="disabled" class="userpassword"></button>
-			<input type="password" placeholder="密码" class="inputName" ng-model="login_passwd"
+			<input type="password" placeholder="Password" class="inputName" ng-model="login_passwd"
 			onkeydown="if (event.keyCode == 13) document.getElementById('loginButton').click(); return true"
 			/>
 			<br/>
-			<input disabled="disabled" style="background-color:gray" type="button" id="loginButton" class="loginButton" ng-click="login()" value="登录"/>
+			<input disabled="disabled" style="background-color:gray" type="button" id="loginButton" class="loginButton" ng-click="login()" value="Login"/>
 			
-			<!--table><tr><td><a href="#/i000" style="font-size: 14px;">注册</a></td>
-			<td><a href="#/i000" class="forgetPassword">忘记密码？</a></td></tr></table-->
+			<!--table><tr><td><a href="#/i000" style="font-size: 14px;">Register</a></td>
+			<td><a href="#/i000" class="forgetPassword">Forgot your password?</a></td></tr></table-->
 		</form>
 	</div>
 </div>

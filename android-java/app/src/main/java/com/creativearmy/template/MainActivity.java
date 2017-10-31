@@ -27,25 +27,10 @@ import java.io.File;
 import java.util.HashMap;
 
 public class MainActivity extends Activity implements View.OnClickListener {
-    /**
-     * 登录按钮
-     */
     private Button btnLogin;
-    /**
-     * 账号的编辑框
-     */
     private EditText edtAccount;
-    /**
-     * 密码的编辑框
-     */
     private EditText edtPassword;
-    /**
-     * 忘记密码的TextView
-     */
     private TextView tvForgetPassword;
-    /**
-     * 注册we的TextView
-     */
     private TextView tvRegister;
 
     private TextView mTextVersion;
@@ -75,7 +60,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private int getVersionCode() {
         PackageManager pm = getPackageManager();
         try {
-            PackageInfo pi = pm.getPackageInfo(getPackageName(), 0);//getPackageName()是你当前类的包名，0代表是获取版本信息
+            PackageInfo pi = pm.getPackageInfo(getPackageName(), 0);//
             return pi.versionCode;
         } catch (Exception e) {
             e.printStackTrace();
@@ -100,7 +85,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     public void run() {
                         mProgress.dismiss();
                         mIsDownloa=false;
-                        Toast.makeText(MainActivity.this,"新版本apk下载成功，开始安装",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this,"apk downloaded, install in process",Toast.LENGTH_SHORT).show();
                         installAPK(file.getAbsolutePath());
                     }
                 });
@@ -113,7 +98,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     private void showDialog() {
         mProgress = new ProgressDialog(this);
-        mProgress.setTitle("正在下载新版本");
+        mProgress.setTitle("apk being downloaded");
         mProgress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         mProgress.setCanceledOnTouchOutside(false);
         mProgress.setProgress(0);
@@ -139,12 +124,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private File downLoadFile(String uri, String name,Handler hand) {
         HttpDownloader downloader = new HttpDownloader();
         String path = Environment.getExternalStorageDirectory() + "/test/";
-        Log.v("zmh", "downLoadFile 开始下载文件");
+        Log.v("zmh", "downLoadFile started");
         return downloader.downFile(uri, path, name, hand);
     }
-    /**
-     * 处理所有的初始化
-     */
     private void initViews() {
         btnLogin = (Button) this.findViewById(R.id.i011_btn_login);
 
@@ -164,11 +146,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
             @Override
             public void onClick(View v) {
                 if (mIsDownloa) {
-                    Toast.makeText(MainActivity.this, "正在下载新版本，请不要重复下载", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "download already started", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (!SysUtils.isNetworkAvailable(MainActivity.this)) {
-                    Toast.makeText(MainActivity.this, "网络不可用", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "network failed", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 int local = getVersionCode();
@@ -177,9 +159,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
         });
     }
 
-    /**
-     * 绑定用户名输入框的监听
-     */
     private void binEdt() {
         String UserName = SharepreferenceUserInfo.getValue(getApplicationContext(), "Account", "Uname");
         if(!"".equals(UserName))
@@ -192,51 +171,33 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     }
 
-    /**
-     * 设置所有的监听事件
-     */
     private void setListener() {
         tvForgetPassword.setOnClickListener(this);
         tvRegister.setOnClickListener(this);
         btnLogin.setOnClickListener(this);
     }
 
-    /**
-     * 处理所有的点击事件
-     */
     @Override
     public void onClick(View v) {
 
         HashMap data = new HashMap();
 
         switch (v.getId()) {
-            /**
-             * 登录按钮事件,获取账号和密码
-             * */
             case R.id.i011_btn_login:
                 String strPassword = edtPassword.getText().toString();
                 String strAccount = edtAccount.getText().toString();
-                /**
-                 *账号和密码都是空
-                 * */
                 if(strAccount.equals("")&&strPassword.equals("")){
-                    Toast.makeText(this,"账号密码不能为空",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this,"password can not be empty",Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                 /**
-                 * 账号不为空，密码等于空的时候
-                 * */
                 else if(!strAccount.equals("")&&strPassword.equals("")) {
-                    Toast.makeText(this, "请输入密码", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "enter password", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                /**
-                 * 账号等于空，密码不为空
-                 * */
                 else if (!strPassword.equals("")&&strAccount.equals("")){
-                    Toast.makeText(this,"请输入账号",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this,"enter account number",Toast.LENGTH_SHORT).show();
                     return;
                 }
 				
@@ -245,9 +206,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 APIConnection.login(strAccount, strPassword);
                 break;
 
-            /**
-             * 注册We>>的TextView事件
-             * */
             case R.id.i011_tv_register:
                 tvRegister.setTextColor(0xff95c040);
                 Intent intent = new Intent();
@@ -256,9 +214,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
                 break;
 
-            /**
-             * 忘记密码的TextView事件
-             * */
             case R.id.i011_tv_forget_password:
                 tvForgetPassword.setTextColor(0xff95c040);
                 Intent intent1 = new Intent();
@@ -277,7 +232,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private final Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             if(APIConnection.server_info!=null){
-                mTextVersion.setText("我的版本:" + getVersionCode() +"  可更新版本:"+getServeVersion());
+                mTextVersion.setText("my ver:" + getVersionCode() +"  downloadable ver:"+getServeVersion());
             }
            // TextView output = (TextView) findViewById(R.id.OUTPUT);
                 JSONObject jo = (JSONObject) msg.obj;
@@ -296,7 +251,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 if (APIConnection.state == APIConnection.States.LOGIN_SCREEN_ENABLED) {
                     if (APIConnection.from_state == APIConnection.States.INITIAL_LOGIN || APIConnection.from_state == APIConnection.States.SESSION_LOGIN) {
 
-                        Toast.makeText(MainActivity.this,"登陆失败",Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this,"login failed",Toast.LENGTH_LONG).show();
 
                     } else {
 
@@ -306,7 +261,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
                 } else if (APIConnection.state == APIConnection.States.IN_SESSION) {
 
-                        //登陆成功保存用户账号
+
                         SharepreferenceUserInfo.putValue(getApplicationContext(), "Account", "Uname", edtAccount.getText().toString());
                         SharepreferenceUserInfo.putValue(getApplicationContext(), "Account", "Passwd", edtPassword.getText().toString());
 

@@ -156,13 +156,6 @@ public class FileUtils {
 
 
 
-    /**
-     * 将一个InputStream里面的数据写入到SD卡中
-     * @param path
-     * @param fileName
-     * @param input
-     * @return
-     */
 
     public File write2LocalFromInput(String path, String fileName, InputStream input){
         return write2LocalFromInput(path,fileName,input,null,0);
@@ -209,16 +202,11 @@ public class FileUtils {
         }
         return file;
     }
-    /**
-     * 根据文件后缀名获得对应的MIME类型。
-     *
-     * @param file
-     */
     public static String getMIMEType(File file) {
 
         String type = "*/*";
         String fName = file.getName();
-        //获取后缀名前的分隔符"."在fName中的位置。
+
         int dotIndex = fName.lastIndexOf(".");
         if (dotIndex < 0) {
 
@@ -228,11 +216,11 @@ public class FileUtils {
 
             return mime;
         }
-	/* 获取文件的后缀名 */
+
         String end = fName.substring(dotIndex, fName.length()).toLowerCase();
         if (end == "") return type;
-        //在MIME和文件类型的匹配表中找到对应的MIME类型。
-        for (int i = 0; i < FileConstant.MIME_MapTable.length; i++) { //MIME_MapTable??在这里你一定有疑问，这个MIME_MapTable是什么？
+
+        for (int i = 0; i < FileConstant.MIME_MapTable.length; i++) { //
             if (end.equals(FileConstant.MIME_MapTable[i][0]))
                 type = FileConstant.MIME_MapTable[i][1];
         }

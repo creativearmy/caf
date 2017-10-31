@@ -21,7 +21,7 @@ public class OnCopyListener implements View.OnLongClickListener {
     public boolean onLongClick(View v) {
         SysUtils.copy(content, mContext);
         if(showToast)
-            Toast.makeText(mContext, "文本复制成功！", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, "copy succeed", Toast.LENGTH_SHORT).show();
         return false;
     }
 }

@@ -5,7 +5,7 @@
     android:background="#f2f2f2"
     tools:context=".I011Activity">
 
-    <!-- 账号的行的线性布局-->
+
     <LinearLayout
         android:id="@+id/i011_llt_account"
         android:layout_width="332dp"
@@ -36,14 +36,14 @@
             />
     </LinearLayout>
 
-    <!--账号与密码之间的线-->
+
     <TextView
         android:layout_width="332dp"
         android:layout_height="2dp"
         android:layout_below="@id/i011_llt_account"
         android:layout_centerHorizontal="true"
         android:background="#bbbbbb" />
-    <!-- 密码的行的线性布局-->
+
     <LinearLayout
         android:id="@+id/i011_llt_password"
         android:layout_width="332dp"
@@ -70,7 +70,7 @@
             android:textColor="#000000"
             android:textColorHint="#bbbbbb" />
     </LinearLayout>
-    <!--忘记密码的TextView-->
+
     <TextView
         android:id="@+id/i011_tv_forget_password"
         android:layout_width="wrap_content"
@@ -81,7 +81,7 @@
         android:text="@string/i011_forget_password"
         android:textColor="#253049"
         android:textSize="16sp" />
-    <!--登录按钮-->
+
     <Button
         android:id="@+id/i011_btn_login"
         android:layout_width="332dp"
@@ -90,10 +90,10 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:background="#95c040"
-        android:text="登录"
+        android:text="Login"
         android:textColor="#ffffff"
         android:textSize="30sp" />
-    <!--注册we的TextView-->
+
     <TextView
         android:id="@+id/i011_tv_register"
         android:layout_width="wrap_content"
@@ -102,7 +102,7 @@
         android:layout_below="@id/i011_llt_password"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="80dp"
-        android:text="注册"
+        android:text="Register"
         android:textColor="#4c5966"
         android:textSize="16sp" />
 
@@ -114,7 +114,7 @@
         android:layout_marginTop="50dp"
         android:src="@drawable/icon_logo" />
 
-    <!-- 公司的行的线性布局-->
+
     <LinearLayout
         android:id="@+id/i011_llt_company"
         android:layout_width="match_parent"

@@ -1,11 +1,3 @@
-//
-//  MMBMBaseViewController.m
-//  makeMoney
-//
-//  Created by zwd on 14-8-21.
-//  Copyright (c) 2014年 zwd. All rights reserved.
-//
-
 #import "DDBMBaseViewController.h"
 //#import "UIImageView+WebCache.h"
 //#import "SFTAppInfo.h"
@@ -53,7 +45,7 @@ typedef void (^btnAction)(void);
     [[NSNotificationCenter defaultCenter]removeObserver:self name:@"wcuser_oporator_notification" object:nil];
 }
 
-#pragma mark - 用户操作通知
+
 - (void)onUserOporatrerNoti:(NSNotification *)notification{
 }
 
@@ -128,26 +120,26 @@ typedef void (^btnAction)(void);
 - (void)setBtnImage:(UIButton*) btn title:(NSString*) title normal:(NSString*)normal selected:(NSString*)selected action:(void (^)(void))action isLeft:(BOOL)isLeft
 {
     if (title) {
-        btn.titleLabel.adjustsFontSizeToFitWidth = YES;//自适应
+        btn.titleLabel.adjustsFontSizeToFitWidth = YES;//
 
         CGSize size = [self autoSizeOfTitle:title font:[UIFont fontWithName:@"Arial" size:19.0] size:CGSizeMake(1000, 44)];
         btn.frame = CGRectMake(btn.frame.origin.x, btn.frame.origin.y, size.width, btn.frame.size.height);
-        //如果按钮是个人资料的导航右按钮，则偏移
-        if ([title  isEqual: @" 编辑"]) {
+
+        if ([title  isEqual: @" edit"]) {
             btn.titleEdgeInsets = UIEdgeInsetsMake(25, 0, 0, 0);
         }
         
     }
     
     if (isLeft && !title) {
-        //调整图片在btn中的偏移
+
         //btn.frame = CGRectMake(20, 20, 64,64);
         btn.imageEdgeInsets = UIEdgeInsetsMake(25, 15, 0, 0);
     }
     //
-    //设置导航栏右侧按钮的位置
+
     if (!isLeft && !title) {
-        //调整图片在btn中的偏移
+
         btn.imageEdgeInsets = UIEdgeInsetsMake(25, 0, 0, 0);
     }
     //btn.backgroundColor = [UIColor blueColor];
@@ -164,7 +156,7 @@ typedef void (^btnAction)(void);
 - (void)setBtnImage:(UIButton*) btn title:(NSString*) title normal:(NSString*)normal selected:(NSString*)selected action:(void (^)(void))action isSecondLeft:(BOOL)isSecondLeft
 {
     if (title) {
-        btn.titleLabel.adjustsFontSizeToFitWidth = YES;//自适应
+        btn.titleLabel.adjustsFontSizeToFitWidth = YES;//
         CGSize size = [self autoSizeOfTitle:title font:[UIFont fontWithName:@"Arial" size:17.0] size:CGSizeMake(1000, 44)];
         btn.frame = CGRectMake(btn.frame.origin.x, btn.frame.origin.y, size.width, 44);
     }
@@ -310,7 +302,7 @@ typedef void (^btnAction)(void);
 }
 
 
-#pragma mark - 私有方法
+
 -(float) xPostiong:(UIView *)view sp:(float)sp
 {
     return view.frame.size.width+view.frame.origin.x + sp;
@@ -321,7 +313,7 @@ typedef void (^btnAction)(void);
     return view.frame.size.height+view.frame.origin.y + sp;
 }
 
-//自适应
+
 -(CGSize) autoSizeOfTitle:(NSString *)title font:(UIFont *)font size:(CGSize)maxSize
 {
     NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc]init];
@@ -331,27 +323,25 @@ typedef void (^btnAction)(void);
     return labelSize;
 }
 
-#pragma mark - 屏幕方向
-// 允许自动旋转，在支持的屏幕中设置了允许旋转的屏幕方向。
 - (BOOL)shouldAutorotate
 {
     return YES;
 }
 
-// 支持的屏幕方向，这个方法返回 UIInterfaceOrientationMask 类型的值。
+
 - (NSUInteger)supportedInterfaceOrientations
 {
     return UIInterfaceOrientationMaskPortrait;
 }
 
-// 视图展示的时候优先展示为 home键在右边的 横屏
+
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
 {
     return UIInterfaceOrientationPortrait;
 }
 
 
-//设置网络图像
+
 //- (void)setProfile:(NSString *)profileString profileImage:(UIImageView *)imageView placeholderImage:(UIImage *)pImage{
 ////    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:SERVER_IMAGE_URL,profileString]];
 //    if (!profileString) {

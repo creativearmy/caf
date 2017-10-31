@@ -13,7 +13,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="编辑资料"
+            android:text="Edit"
             android:textColor="#fff"
             android:textSize="60px" />
 
@@ -427,7 +427,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="19dp"
-                    android:text="收款帐号"
+                    android:text="Account"
                     android:textSize="15sp"
                     android:textColor="#252f48"/>
 

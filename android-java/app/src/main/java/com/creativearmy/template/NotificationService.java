@@ -26,16 +26,16 @@ import java.util.List;
 
 public class NotificationService extends Service {
 
-	// 获取消息线程
+
 	//private MessageThread messageThread = null;
 
-	/** App获取全局变量 */
+
 	private MyApplication app;
-	// 点击查看
+
 	//private Intent I052ChatIntent;
 	//private PendingIntent I052ChatPendingIntent = null;
 
-	// 通知栏消息
+
 
 	public int messageChatID = 1000;
 
@@ -53,9 +53,9 @@ public class NotificationService extends Service {
 
 	@Override
 	public void onCreate() {
-		// // 获取应用
+
 		app = (MyApplication) getApplication();
-		// // 连接服务器
+
 		APIConnection.registerHandler(handler);
 		messageNotificatioManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		super.onCreate();
@@ -89,13 +89,13 @@ public class NotificationService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		System.out.println("Notification Service: 开始启动服务");
+		System.out.println("Notification Service: Start the Service");
 		return START_STICKY;
 	}
 
 	@Override
 	public void onDestroy() {
-		System.out.println("Notification Service: 中止了服务");
+		System.out.println("Notification Service: Stop the Service");
 		super.onDestroy();
 	}
 
@@ -129,9 +129,9 @@ public class NotificationService extends Service {
 
 		@Override
 		public void handleMessage(Message msg) {
-			System.out.println("Notification Service: 收到消息");
+			System.out.println("Notification Service: Message Received");
 
-			/*当前Activity*/
+
 			ActivityManager am = (ActivityManager) app.context.getSystemService(app.context.ACTIVITY_SERVICE);
 			List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
 			ComponentName componentInfo = taskInfo.get(0).topActivity;
@@ -159,22 +159,22 @@ public class NotificationService extends Service {
 					Intent openintent = new Intent(app.context, i000MainActivity.class);
 					PendingIntent pendingIntent = PendingIntent.getActivity(app.context, 0, openintent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-					notifification(pendingIntent, "push:test 消息测试", "消息内容");
+					notifification(pendingIntent, "push:test message", "message content");
 				}
 
-				// 私聊推送
+
 				if (jo.optString("obj").equals("push")
 						&& jo.optString("act").equals("chat_person")) {
 						/*
 					Chat = jo.optString("chat_content");
 
-					//如果在聊天界面，不提示
+
 					if (clsName.equals(I052ChatActivity.class.getName())&&jo.optString("from_id").equals(I052ChatActivity.mPersonId)) {
 						return;
 					}
-					// 更新通知栏
+
 					if (Chat != null && !"".equals(Chat)) {
-						// 每次通知完，通知ID递增一下，避免消息覆盖掉
+
 						//messageChatID++;
 //						guyuanbeipingjiacishu = 0;
 

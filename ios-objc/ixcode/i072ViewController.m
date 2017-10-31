@@ -1,10 +1,3 @@
-//
-//  i072ViewController.m
-//  i072
-//
-//  Created by 寒光 on 15/12/11.
-//  Copyright © 2015年 寒光. All rights reserved.
-//
 #import "AppDelegate.h"
 #import "i072ViewController.h"
 #import <AssetsLibrary/AssetsLibrary.h>
@@ -20,9 +13,9 @@
     CGFloat width;
     NSString *imageData;
     NSMutableArray *_fileDataArray;
-    NSFileManager *fileManager;//文件管理
-    NSString *fileDirectory;//沙盒目录
-    NSString *imageName;//存储图片名字
+    NSFileManager *fileManager;
+    NSString *fileDirectory;
+    NSString *imageName;
     int type;
     NSString *imageFid;
     NSMutableArray *_fields;
@@ -61,14 +54,14 @@
 @implementation i072ViewController
 
 
-#pragma mark -监听数据请求
+
 - (void)addNotification {
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(response_received)
                                                  name:globalConn.responseReceivedNotification object:nil];
 }
 - (void)response_received {
-    //response模板
+
     NSString*ustr=globalConn.response[@"ustr"];
     if (ustr&&![ustr isEqualToString:@""]) {
         return;
@@ -167,7 +160,7 @@
 
 
 
-#pragma mark -取消监听
+
 -(void )removeNotification{
     [[NSNotificationCenter defaultCenter]removeObserver:self];
     
@@ -198,7 +191,7 @@
 }
 
 //-(void)input:(NSMutableDictionary*)date {
-//    //发送数据
+
 //    NSMutableDictionary *person_update = [NSMutableDictionary dictionary];
 //
 //    [person_update setObject:self.headFid.image forKey:@"headFid"];
@@ -253,10 +246,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    //代理
+
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
     
-    //获取屏幕宽度
+
     width = [UIScreen mainScreen].bounds.size.width;
     CGRect frame = [UIScreen mainScreen].bounds;
     self.mainView.frame =frame;
@@ -269,10 +262,10 @@
     //
     //    self.address.delegate=self;
     
-    // 隐藏水平滚动条
+
     scrollview.showsVerticalScrollIndicator = NO;
     scrollview.showsVerticalScrollIndicator = NO;
-    //设置溢出区的范围,弹跳效果
+
     scrollview.bounces = NO;
     //    scrollview.backgroundColor = [UIColor redColor];
     scrollview.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
@@ -303,7 +296,7 @@
     
     
     
-    //    发送数据
+
     //        NSMutableDictionary *person_update = [NSMutableDictionary dictionary];
     //
     //        [person_update setObject:self.headFid.image forKey:@"headFid"];
@@ -368,7 +361,7 @@
     if (self.manRight.tag==10) {
         self.manRight.alpha=1;
         self.manRight.tag=11;
-        self.gender =@"男";
+        self.gender =@"male";
         NSLog(@"%@",self.gender);
         self.womanRight.alpha=0;
         self.womanRight.tag=20;
@@ -377,11 +370,11 @@
 }
 -(void)showSex:(NSString*)sex
 {
-    if([sex isEqualToString:@"男"])
+    if([sex isEqualToString:@"male"])
     {
         self.manRight.alpha=1;
         self.manRight.tag=11;
-        self.gender =@"男";
+        self.gender =@"male";
         NSLog(@"%@",self.gender);
         self.womanRight.alpha=0;
         self.womanRight.tag=20;
@@ -390,7 +383,7 @@
     {
         self.womanRight.alpha=1;
         self.womanRight.tag=21;
-        self.gender =@"女";
+        self.gender =@"female";
         NSLog(@"%@",self.gender);
         
         self.manRight.alpha=0;
@@ -402,7 +395,7 @@
     if (self.womanRight.tag==20) {
         self.womanRight.alpha=1;
         self.womanRight.tag=21;
-        self.gender =@"女";
+        self.gender =@"female";
         NSLog(@"%@",self.gender);
         
         self.manRight.alpha=0;
@@ -411,18 +404,18 @@
     }
 }
 
-#pragma mark - 键盘操作
-//计算键盘弹起高度
+
+
 - (void)keyboardWillChangeFrame:(NSNotification *)note{
     NSLog(@"%@",note.userInfo);
     
     //    self.PleaseEvaluation.alpha=0;
     CGFloat duration = [note.userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
     
-    //获得键盘的最后的FRAME
+
     CGRect keyboardFrame = [note.userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
     
-    //计算控制器的VIEW需要平移的距离
+
     CGFloat deltaY = keyboardFrame.origin.y - scrollview.frame.size.height;
     
     [UIView animateWithDuration:duration animations:^{
@@ -436,7 +429,7 @@
 //}
 
 
-//回车收起键盘
+
 - (IBAction)qwe:(UITextField *)sender {
     
     
@@ -456,34 +449,34 @@
 
 - (void)dealloc{
     
-    [[NSNotificationCenter defaultCenter] removeObserver:self]; //删除通知，很重要，否则会向僵尸对象发信息，导致闪退。
+    [[NSNotificationCenter defaultCenter] removeObserver:self]; //
     
 }
 
-#pragma mark - 选择拍照或从相册选择
+
 
 - (IBAction)uphead:(UIButton *)sender {
     //    UIActionSheet *action;
     //    if([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]){
-    //        action = [[UIActionSheet alloc] initWithTitle:@" " delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"拍照",@"从相册选择",nil];
+    //        action = [[UIActionSheet alloc] initWithTitle:@" " delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Camera",@"Album",nil];
     //    }
     //    else
     //    {
-    //        action = [[UIActionSheet alloc] initWithTitle:@" " delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"从相册选择",nil];
+    //        action = [[UIActionSheet alloc] initWithTitle:@" " delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Album",nil];
     //    }
     //    [action showInView:self.view];
     
     UIActionSheet *action;
     if([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]){
-        action = [[UIActionSheet alloc] initWithTitle:@"获取图片" delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"拍照",@"从相册选择",nil];
+        action = [[UIActionSheet alloc] initWithTitle:@"Pick a photo" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Album",@"Album",nil];
     }
     else
     {
-        action = [[UIActionSheet alloc] initWithTitle:@"获取图片" delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"从相册选择",nil];
+        action = [[UIActionSheet alloc] initWithTitle:@"Pick a photo" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Album",nil];
     }
     [action showInView:self.view];
 }
-#pragma mark - 调用UIActionSheet iOS7使用
+
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
     NSUInteger sourceType = 0;
@@ -512,7 +505,7 @@
     imagePickerController.sourceType = sourceType;
     [self presentViewController:imagePickerController animated:YES completion:nil];
 }
-#pragma mark - 确定所选择的图片
+
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info{
     
     UIImage *image = [info objectForKey:UIImagePickerControllerEditedImage];
@@ -530,12 +523,12 @@
     [self performSelector:@selector(saveImage:) withObject:image afterDelay:0.5];
     [picker dismissViewControllerAnimated:YES completion:nil];
 }
-#pragma mark - 取消所选择的图片
+
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker{
     [picker dismissViewControllerAnimated:YES completion:nil];
 }
 
-#pragma mark - 保存图片到相应的位置上
+
 - (void)saveImage:(UIImage *)image{
     
     
@@ -546,14 +539,14 @@
     NSString *documentsDirectory = [path firstObject];
     NSString *imagePath = [documentsDirectory stringByAppendingPathComponent:@"offersPhoto.jpg"];
     [UIImageJPEGRepresentation(image, 1.0f) writeToFile:imagePath atomically:YES];
-    //获取相册图片
+
     UIImage *portrait = [UIImage imageWithContentsOfFile:imagePath];
-    //获取图片的字节
+
     NSData *imageData = UIImageJPEGRepresentation(portrait, 1.0);
     Byte *bytes = (Byte *)[imageData bytes];
-    //把图片的名字拆分
+
     NSArray *images = [imageName componentsSeparatedByString:@"."];
-    //获取时间+8小时
+
     NSDate *date = [NSDate date];
     NSTimeZone *zone = [NSTimeZone systemTimeZone];
     NSInteger interval = [zone secondsFromGMTForDate: date];
@@ -571,7 +564,7 @@
                            failure:^(NSString *error){
                                return;
                            }];
-    //    //发送数据的字典
+
     //    NSMutableDictionary *file_data = [[NSMutableDictionary alloc] init];
     //    [file_data setObject:imageFid forKey:@"file_fid"];
     //    [file_data setObject:[images[1] lowercaseString] forKey:@"file_type"];
@@ -593,7 +586,7 @@
     
 }
 
-#pragma mark - 限制字符数
+
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text{
     if (range.location>=5000)
     {

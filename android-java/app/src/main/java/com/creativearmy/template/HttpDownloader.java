@@ -20,14 +20,6 @@ public class HttpDownloader {
 
     private URL url = null;
 
-    /**
-     * @param urlStr
-     * @param path
-     * @param fileName
-     * @return -1:文件下载出错
-     * 0:文件下载成功
-     * 1:文件已经存在
-     */
 
     public File downFile(String urlStr, String path, String fileName){
       return  downFile( urlStr,  path,  fileName,null);
@@ -56,12 +48,6 @@ public class HttpDownloader {
         return null;
     }
 
-    /**
-     * 根据URL得到输入流
-     *
-     * @param urlStr
-     * @return
-     */
     /*private InputStream getInputStreamFromURL(String urlStr) {
         HttpURLConnection urlConn;
         InputStream inputStream = null;
@@ -70,7 +56,7 @@ public class HttpDownloader {
             urlConn = (HttpURLConnection) url.openConnection();
             urlConn .setRequestProperty("Accept-Encoding", "identity");
             inputStream = urlConn.getInputStream();
-            Log.v("zmh","文件大小："+urlConn.getContentLength());
+            Log.v("zmh","size:"+urlConn.getContentLength());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {

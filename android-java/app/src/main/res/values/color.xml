@@ -16,22 +16,22 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
-    <!--背景色-->
+
     <color name="backgroundColor_i031">#f2f2f2</color>
 
-    <!--标题栏背景色-->
+
     <color name="titleBackgroundColor_i031">#343434</color>
 
-    <!-- 字体颜色-->
+
     <color name="textColor_i031">#aba9a9</color>
 
-    <!-- Toast字体颜色-->
+
     <color name="dark_gray_i031">#FFA1A1A1</color>
 
-    <!-- RelativeLayout默认颜色-->
+
     <color name="RelativeLayout_i031">#ffffffff</color>
 
-    <!-- RelativeLayout点击颜色-->
+
     <color name="RelativeLayout_btn_i031">#FF00FF00</color>
     <color name="red">#ffff0000</color>
     <color name="nochoose_i042">#ffffff</color>
@@ -42,22 +42,22 @@
     <color name="i040_00000000">#00000000</color>
     <color name="i040_ffcccccc">#ffcccccc</color>
     <color name="i040_fff2f2f2">#fff2f2f2</color>
-    <!--背景色-->
+
     <color name="backgroundColor_i041">#f2f2f2</color>
 
-    <!--标题栏背景色-->
+
     <color name="titleBackgroundColor_i041">#343434</color>
 
-    <!-- 字体颜色-->
+
     <color name="textColor_i041">#aba9a9</color>
 
-    <!-- Toast字体颜色-->
+
     <color name="dark_gray_i041">#FFA1A1A1</color>
 
-    <!-- RelativeLayout默认颜色-->
+
     <color name="RelativeLayout_i041">#ffffffff</color>
 
-    <!-- RelativeLayout点击颜色-->
+
     <color name="RelativeLayout_btn_i041">#FF00FF00</color>
 
     <color name="waiht_i043">#ffffff</color>

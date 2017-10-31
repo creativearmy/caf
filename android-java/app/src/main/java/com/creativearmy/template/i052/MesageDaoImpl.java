@@ -13,9 +13,6 @@ import com.creativearmy.sdk.JSONArray;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by 王杰 on 2015/12/26.
- */
 public class MesageDaoImpl implements MesageDao{
 
     private List<ItemBody> tasks = new ArrayList<ItemBody>();
@@ -25,18 +22,6 @@ public class MesageDaoImpl implements MesageDao{
     }
     @Override
     public List<ItemBody> loadData(JSONArray jsonArray) {
-//        int length = jsonArray.length();
-//        JSONObject taskItem;
-//        for (int index = 0; index < length; index++) {
-//            taskItem = jsonArray.optJSONObject(index);
-//
-//            String headImage = taskItem.optString("headfid");//头像
-//            String name = taskItem.optString("name");//名字
-//            String message = taskItem.optString("message");//内容
-//            String time = taskItem.optString("time");//消息时间
-//            Integer number = taskItem.optInt("num");//未读消息数目
-//            tasks.add(new ItemBody(headImage, name, message, time,number));
-//        }
 
 
 
