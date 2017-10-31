@@ -1,0 +1,4 @@
+android-java/* linguist-vendored
+ios-objc/* linguist-vendored
+webapp-mobile-angularjs/* linguist-vendored
+webapp-pc-angularjs/* linguist-vendored
