@@ -15,7 +15,7 @@ WebSocket web and mobile real-time app framework, with backend coding in Perl.
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Projects contain server and client SDKs in binary form which are not open sourced.
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sample apps work as it is. It will connect to our demo server. You can add new API
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sample apps work as it is. It will connect to our demo server. You can add new API<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; or make change to our deom server API logic through our Project Toolbox.
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;To have your own app server running:
