@@ -8,7 +8,7 @@ use Net::APNS::Persistent;
 
 ################################################################################
 #                                                                              #
-#             SERVER INFO, USER REGISTERATION, LOGIN AND LOGOUT                #
+#            SERVER INFO, PERSON REGISTERATION, LOGIN AND LOGOUT               #
 #                                                                              #
 ################################################################################
 
