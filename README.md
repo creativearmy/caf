@@ -16,7 +16,7 @@ WebSocket web and mobile real-time app framework, with backend coding in Perl.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Project contains server and client SDKs in binary form which are not open sourced.
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This sample app works as it is. It will connect to our demo server. You can add new APIs<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;or make change to our existing demo server API logics on its Project Toolbox.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;or make changes to our existing demo server API logics on its Project Toolbox.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;On Project Toolbox click on "Server APIs" to see a [list of APIs implemented](http://112.124.70.60/manual_demo.html).
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;To have your own app server and start developing your project:
@@ -42,7 +42,7 @@ WebSocket web and mobile real-time app framework, with backend coding in Perl.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and log into them with login name "test1" and "test2", and password "1". After login,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;you will see person id displayed on top of Project Toolbox. On one Project Toolbox<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where you log in with "test1", send the following JSON api request, and make sure<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from_id and to_id matches what is displayed on top of Project Toolbox.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from_id and to_id matches what is displayed on top of the two Project Toolbox.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Observe on the other Project Toolbox to see a push message displayed in the output area.<br>
 ```
 {
