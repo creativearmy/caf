@@ -408,12 +408,12 @@ sub p_message_chat_send {
         }
     }
 
+    my $chat_header = obj_read("chat", $chat_id);
+
     # create new chat block record for new message or simply added to current block
     # chat data are stored with multiple chained blocks where each block stores maximum of 50
     # chat entries.
-    return jr() unless add_new_messages_block($chat_id, $gr->{from_id}, $gr->{chat_type}, $gr->{chat_content});
-
-    my $chat_header = obj_read("chat", $chat_id);
+    return jr() unless add_new_message_entry($chat_header, $gr->{from_id}, $gr->{chat_type}, $gr->{chat_content});
     
     # Third param "2" will cause system to siliently create an obj of this type with specified id
     # Obj is created as needed instead of assertion failure when obj is accessed before creation.
@@ -475,14 +475,14 @@ retrieve personal chat, get a list of chat contents entries
 
 INPUT:
     users:["o14477397324317851066","o14477630553830869197"]    //sender and receiver pid
-    chat_block_id: // to request next block of chat entries, use the block id from the last block record
+    block_id: // to request next block of chat entries, use the block id from the last block record
 
 OUTPUT:
-    chat_block: {
+    block: {
         _id: "o14489513231757400035", 
         next_id: 0,
 		
-        records: [
+        entries: [
 		
         {
             content:    "Hello?",                    // message content
@@ -555,26 +555,26 @@ sub p_message_chat_get {
         my $chat = $col->find_one({pair => join("", @{$gr->{users}})});
         
         # No chat message entry found. Block is null.
-        return jr({chat_block => {
+        return jr({block => {
             _id => 0,
             type => "messages_block",
             next_id => 0,
-            records => [],
+            entries => [],
             et => time,
             ut => time,        
         }}) unless $chat->{block_id};
 
         my $block_record = obj_read("messages_block", $chat->{block_id});
         
-        return jr({ chat_block => $block_record });
+        return jr({ block => $block_record });
 
     } else {
     
-        return jr() unless assert($gr->{chat_block_id}, "chat_block_id is missing", "ERR_BLOCK_ID", "Chat entries block is null.");
+        return jr() unless assert($gr->{block_id}, "block_id is missing", "ERR_BLOCK_ID", "Chat entries block is null.");
         
-        my $block_record = obj_read("messages_block", $gr->{chat_block_id});
+        my $block_record = obj_read("messages_block", $gr->{block_id});
         
-        return jr({ chat_block => $block_record });
+        return jr({ block => $block_record });
     }
 }
 
@@ -640,17 +640,15 @@ sub p_message_inbox_get {
     return jr({ changed => 1, ut => $inbox->{ut}, inbox => \@messages });
 }
 
-sub add_new_messages_block{
+sub add_new_message_entry{
 
-    my ($chat_id, $from_id, $xtype, $content) = @_;
-
-    my $chat_header = obj_read("chat", $chat_id);
+    my ($header, $from_id, $xtype, $content) = @_;
     
-    return unless assert($chat_header, "", "ERR_CHAT_HEADER", "Invalid chat header id.");
+    return unless assert($header, "", "ERR_HEADER", "Invalid header data structure.");
     
     my $from_person = obj_read("person", $from_id);  
     
-    # Chat message entry in a chat block.
+    # Message entry in a chat block.
     my $message = {
         from_name    => $from_person->{name},
         from_id      => $from_id,
@@ -663,51 +661,51 @@ sub add_new_messages_block{
     $message->{from_image} = $DEFAULT_IMAGE_FID unless $message->{from_image};
         
     # This is the first message. New block will be created
-    if (!$chat_header->{block_id}) {
+    if (!$header->{block_id}) {
 
-        my $chat_block;
+        my $block;
         
-        $chat_block->{_id}     = obj_id();
-        $chat_block->{type}    = "messages_block";
-        $chat_block->{next_id} = 0;
-        $chat_block->{records} = [];
+        $block->{_id}     = obj_id();
+        $block->{type}    = "messages_block";
+        $block->{next_id} = 0;
+        $block->{entries} = [];
         
-        push @{$chat_block->{records}}, $message;
+        push @{$block->{entries}}, $message;
 
-        obj_write($chat_block);
+        obj_write($block);
 
-        $chat_header->{block_id} = $chat_block->{_id}; 
+        $chat_header->{block_id} = $block->{_id}; 
         
         obj_write($chat_header);
         
     } else {
 
-        my $block = obj_read("messages_block", $chat_header->{block_id});
+        my $block = obj_read("messages_block", $header->{block_id});
         
-        my $count = $block->{records};
+        my $count = $block->{entries};
         
         # Maximum number of chat entries is 50.
         # This is the first message of a new block. New block will be created
-        if ((scalar(@{$block->{records}}) + 1) > 50) {
+        if ((scalar(@{$block->{entries}}) + 1) > 50) {
 
-            my $chat_block;
+            my $block;
             
-            $chat_block->{_id}     = obj_id();
-            $chat_block->{type}    = "messages_block";
-            $chat_block->{next_id} = $block->{_id};
-            $chat_block->{records} = [];
+            $block->{_id}     = obj_id();
+            $block->{type}    = "messages_block";
+            $block->{next_id} = $block->{_id};
+            $block->{entries} = [];
             
-            push @{$chat_block->{records}}, $message;
+            push @{$block->{entries}}, $message;
 
-            obj_write($chat_block); 
+            obj_write($block); 
 
-            $chat_header->{block_id} = $chat_block->{_id};
+            $header->{block_id} = $block->{_id};
             
-            obj_write($chat_header);
+            obj_write($header);
             
         } else {
 
-            push @{$block->{records}}, $message;
+            push @{$block->{entries}}, $message;
 
             obj_write($block); 
         }  
@@ -1141,7 +1139,7 @@ message entries block record, conversation messages are divided into chained blo
     // chat entries block contains 50 entries max
     // all the new entries will be placed on new block
 
-    records: [
+    entries: [
     {
         from_id:     chat entry sender
         from_name:   chat entry sender
