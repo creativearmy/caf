@@ -1,5 +1,5 @@
 package XXX;
-# leave the above package name as is, it will be replaced with project code when deployed
+# Leave the above package name as is, it will be replaced with project code when deployed.
 
 use utf8;
 use LWP::UserAgent;
@@ -55,7 +55,7 @@ $p_server_info = <<EOF;
 system configuration data, all configuration data are stored on server
 
     Client apps use the configuration received through this interface.
-    This interface is called automatically on client SDK initialization.
+    This api is called automatically on client SDK initialization.
 
 EOF
 
@@ -237,7 +237,7 @@ sub p_person_login {
 }
 
 $p_person_qr_get = <<EOF;
-get the connection id to display in QR code login usually called by web app
+get the connection id to display on QR code login screen, normally called by webapp
 
 OUTPUT:
     conn: // connection id
@@ -249,7 +249,7 @@ sub p_person_qr_get {
 }
 
 $p_person_qr_login = <<EOF;
-log in web app by scanning QR code displayed on the webapp with mobile device
+log in webapp by scanning QR code displayed on the webapp with mobile device
 
 INPUT:
     conn: // connection id
@@ -296,11 +296,18 @@ sub p_person_logout {
 
 ################################################################################
 #                                                                              #
-#              CONVERSATION AND MESSAGING RELATED SAMPLE CODE                  #
+#                   CONVERSATION AND MESSAGING RELATED CODE                    #
 #                                                                              #
 ################################################################################
+
+# To implement other forms of conversations, define a new header structure, 
+# push message format, and mailbox entry format, and implement message get and send api.
+# Header structure shall at least contain a field named "block_id". 
+
 $p_push_message_chat = <<EOF;
 push notification: personal chat message received
+
+    This is a notification sent from server. Not a callable api by client.
 
 PUSH:
     obj              // push
@@ -312,7 +319,7 @@ PUSH:
     from_image       // sender avatar
 EOF
 
-sub p_push_chat_person {
+sub p_push_message_chat {
     return jr() unless assert(0, "", "ERROR", "push data only, not a callable API");
 }
 
@@ -360,26 +367,26 @@ sub p_message_chat_send {
         my $col = mdb()->get_collection("chat");
         
         # pair field consist of ordered two person id, is the key to find the chat header record.
-        my $chat_header = $col->find_one({pair => join("",sort($gr->{from_id}, $gr->{to_id}))});
+        my $header = $col->find_one({pair => join("",sort($gr->{from_id}, $gr->{to_id}))});
         
-        if(!$chat_header) {
+        if(!$header) {
 
-            $chat_header->{_id} = obj_id();
-            $chat_header->{type} = "chat";
-            $chat_header->{pair} = join("",sort($gr->{from_id}, $gr->{to_id}));
-            $chat_header->{block_id} = 0;
+            $header->{_id} = obj_id();
+            $header->{type} = "chat";
+            $header->{pair} = join("",sort($gr->{from_id}, $gr->{to_id}));
+            $header->{block_id} = 0;
 
-            obj_write($chat_header);
+            obj_write($header);
         }
         
-        $chat_id = $chat_header->{_id};
+        $chat_id = $header->{_id};
     }
     
     my $from_person = obj_read("person", $gr->{from_id});
     
     my $message = {
         obj             => "push",
-        act             => "chat_person",
+        act             => "message_chat",
         chat_content    => $gr->{chat_content},
         chat_time       => time,
         chat_type       => $gr->{chat_type},
@@ -408,70 +415,70 @@ sub p_message_chat_send {
         }
     }
 
-    my $chat_header = obj_read("chat", $chat_id);
+    my $header = obj_read("chat", $chat_id);
 
     # create new chat block record for new message or simply added to current block
     # chat data are stored with multiple chained blocks where each block stores maximum of 50
     # chat entries.
-    return jr() unless add_new_message_entry($chat_header, $gr->{from_id}, $gr->{chat_type}, $gr->{chat_content});
+    return jr() unless add_new_message_entry($header, $gr->{from_id}, $gr->{chat_type}, $gr->{chat_content});
     
     # Third param "2" will cause system to siliently create an obj of this type with specified id
     # Obj is created as needed instead of assertion failure when obj is accessed before creation.
-    my $inbox = obj_read("inbox", $gr->{to_id}, 2);
+    my $mailbox = obj_read("mailbox", $gr->{to_id}, 2);
     
-    # Add an entry in chat sender's message center.
-    $inbox->{ut} = time;
-    $inbox->{messages}->{$gr->{from_id}}->{xtype}  = "person";
-    $inbox->{messages}->{$gr->{from_id}}->{id}     = $gr->{from_id};
-    $inbox->{messages}->{$gr->{from_id}}->{ut}     = time;
-    $inbox->{messages}->{$gr->{from_id}}->{count} ++;
-    $inbox->{messages}->{$gr->{from_id}}->{cid}    = $chat_header->{block_id};
+    # Add an entry in chat sender's message center as well.
+    $mailbox->{ut} = time;
+    $mailbox->{messages}->{$gr->{from_id}}->{xtype}  = "chat";
+    $mailbox->{messages}->{$gr->{from_id}}->{id}     = $gr->{from_id};
+    $mailbox->{messages}->{$gr->{from_id}}->{ut}     = time;
+    $mailbox->{messages}->{$gr->{from_id}}->{count} ++;
+    $mailbox->{messages}->{$gr->{from_id}}->{cid}    = $header->{block_id};
     
     # Generate label to display on their message center.
     if ($gr->{chat_type} eq "text") {
-        $inbox->{messages}->{$gr->{from_id}}->{last} = substr($gr->{chat_content}, 0, 30);
+        $mailbox->{messages}->{$gr->{from_id}}->{last} = substr($gr->{chat_content}, 0, 30);
     } else {
-        $inbox->{messages}->{$gr->{from_id}}->{last} = "[".$gr->{chat_type}."]";
+        $mailbox->{messages}->{$gr->{from_id}}->{last} = "[".$gr->{chat_type}."]";
     }
     
-    $inbox->{messages}->{$gr->{from_id}}->{fid} = $from_person->{avatar_fid};
-    $inbox->{messages}->{$gr->{from_id}}->{title} = $from_person->{name};
+    $mailbox->{messages}->{$gr->{from_id}}->{fid} = $from_person->{avatar_fid};
+    $mailbox->{messages}->{$gr->{from_id}}->{title} = $from_person->{name};
     
-    obj_write($inbox);
+    obj_write($mailbox);
 
     # Now do the same for the other chat party.
     
     # Obj is created as needed instead of causing assertion fails when obj is not created yet.
-    my $inbox =obj_read("inbox", $gr->{from_id}, 2);
+    my $mailbox =obj_read("mailbox", $gr->{from_id}, 2);
 
     my $to_person = obj_read("person", $gr->{to_id});
     
     # Add an entry in chat receiver's message center.
-    $inbox->{ut} = time;
-    $inbox->{messages}->{$gr->{to_id}}->{xtype}  = "person";
-    $inbox->{messages}->{$gr->{to_id}}->{id}     = $gr->{to_id};
-    $inbox->{messages}->{$gr->{to_id}}->{ut}     = time;
-    $inbox->{messages}->{$gr->{to_id}}->{vt}     = time;
-    $inbox->{messages}->{$gr->{to_id}}->{count}  = 0;
-    $inbox->{messages}->{$gr->{to_id}}->{cid}    = $chat_header->{block_id};
+    $mailbox->{ut} = time;
+    $mailbox->{messages}->{$gr->{to_id}}->{xtype}  = "chat";
+    $mailbox->{messages}->{$gr->{to_id}}->{id}     = $gr->{to_id};
+    $mailbox->{messages}->{$gr->{to_id}}->{ut}     = time;
+    $mailbox->{messages}->{$gr->{to_id}}->{vt}     = time;
+    $mailbox->{messages}->{$gr->{to_id}}->{count}  = 0;
+    $mailbox->{messages}->{$gr->{to_id}}->{cid}    = $header->{block_id};
     
     # Generate label to display on their message center.
     if ($gr->{chat_type} eq "text") {
-        $inbox->{messages}->{$gr->{to_id}}->{last} = substr($gr->{chat_content}, 0, 30);
+        $mailbox->{messages}->{$gr->{to_id}}->{last} = substr($gr->{chat_content}, 0, 30);
     } else {
-        $inbox->{messages}->{$gr->{to_id}}->{last} = "[".$gr->{chat_type}."]";
+        $mailbox->{messages}->{$gr->{to_id}}->{last} = "[".$gr->{chat_type}."]";
     }
     
-    $inbox->{messages}->{$gr->{to_id}}->{fid} = $to_person->{avatar_fid};
-    $inbox->{messages}->{$gr->{to_id}}->{title} = $to_person->{name};
+    $mailbox->{messages}->{$gr->{to_id}}->{fid} = $to_person->{avatar_fid};
+    $mailbox->{messages}->{$gr->{to_id}}->{title} = $to_person->{name};
     
-    obj_write($inbox);
+    obj_write($mailbox);
     
     return jr({ chat_id => $chat_id });
 }
 
 $p_message_chat_get =<<EOF;
-retrieve personal chat, get a list of chat contents entries
+retrieve personal chat, get a list of chat content entries
 
 INPUT:
     users:["o14477397324317851066","o14477630553830869197"]    //sender and receiver pid
@@ -540,13 +547,13 @@ sub p_message_chat_get {
         my $theother = $gr->{users}->[0];
         $theother = $gr->{users}->[1] if $theother eq $gs->{pid};
         
-        my $inbox = obj_read("inbox", $gs->{pid}, 2);
+        my $mailbox = obj_read("mailbox", $gs->{pid}, 2);
         
-        if ($inbox->{messages}->{$theother}) {
+        if ($mailbox->{messages}->{$theother}) {
             # Update the message center visit status. reset new message count to 0.
-            $inbox->{messages}->{$theother}->{vt} = time;
-            $inbox->{messages}->{$theother}->{count} = 0;
-            obj_write($inbox);
+            $mailbox->{messages}->{$theother}->{vt} = time;
+            $mailbox->{messages}->{$theother}->{count} = 0;
+            obj_write($mailbox);
         }
         
         # Find chat header record to locate the chat block chain header.
@@ -578,17 +585,17 @@ sub p_message_chat_get {
     }
 }
 
-$p_message_inbox_get = <<EOF;
-retrieve list of received messages on user message center
+$p_message_mailbox_get = <<EOF;
+retrieve list of received and outgoing messages on user message center
 
 INPUT:
     ut: // client cache the returned list, timestamp of lass call
 
 OUTPUT:
     changed: 0/1     // check against input valur ut, and set 1 if any new messages
-    ut: inbox        // last update timestamp
+    ut: unix time    // last update timestamp
 	
-    inbox: [
+    mailbox: [
 	
     {
         cid:   null, 
@@ -598,7 +605,7 @@ OUTPUT:
         title: "Message One", 
         ut:    1462579955, 
         vt:    1462579955, 
-        xtype: "task"
+        xtype: "group"
     }
 	
     {
@@ -610,34 +617,34 @@ OUTPUT:
         title: "Message Two", 
         ut:    1462583109, 
         vt:    1462583111, 
-        xtype: "person"
+        xtype: "chat"
     }
 	
     ]
 EOF
 
-sub p_message_inbox_get {
+sub p_message_mailbox_get {
 
     # $gs stores the data for this log in session. It contains pid of the api caller.
     return jr() unless assert($gs->{pid}, "login first", "ERR_LOGIN", "Login first");
     
     my @messages = (); 
     
-    my $inbox = obj_read("inbox", $gs->{pid}, 2);
+    my $mailbox = obj_read("mailbox", $gs->{pid}, 2);
     
     # No new message.
-    return jr({ changed => 0 }) if $gr->{ut} && $gr->{ut} < $inbox->{ut};
+    return jr({ changed => 0 }) if $gr->{ut} && $gr->{ut} < $mailbox->{ut};
     
-    my @ids = keys %{$inbox->{messages}};
+    my @ids = keys %{$mailbox->{messages}};
     
     # Sort the messages, newer first.
-    @ids = sort { $inbox->{messages}->{$b}->{ut} <=> $inbox->{messages}->{$a}->{ut} } @ids;
+    @ids = sort { $mailbox->{messages}->{$b}->{ut} <=> $mailbox->{messages}->{$a}->{ut} } @ids;
     
     foreach my $id (@ids) {
-        push @messages, $inbox->{messages}->{$id}; 
+        push @messages, $mailbox->{messages}->{$id}; 
     }
     
-    return jr({ changed => 1, ut => $inbox->{ut}, inbox => \@messages });
+    return jr({ changed => 1, ut => $mailbox->{ut}, mailbox => \@messages });
 }
 
 sub add_new_message_entry{
@@ -674,9 +681,9 @@ sub add_new_message_entry{
 
         obj_write($block);
 
-        $chat_header->{block_id} = $block->{_id}; 
+        $header->{block_id} = $block->{_id}; 
         
-        obj_write($chat_header);
+        obj_write($header);
         
     } else {
 
@@ -720,7 +727,7 @@ sub add_new_message_entry{
 #                                                                              #
 ################################################################################
 $p_test_geo = <<EOF;
-MongoDB geo location LBS api test
+MongoDB geo location LBS algorithm test
 
     geotest table needs the following index record
 
@@ -1066,9 +1073,18 @@ sub load_configuration {
 
 ################################################################################
 #                                                                              #
-#  DATA STRUCTURE DEFINITIONS - DATASTRUCTURE DEFINITIONS REQUIRED BEFORE USE  #
+#                          DATA STRUCTURE DEFINITIONS                          #
 #                                                                              #
 ################################################################################
+
+# Data structure definitions are required before use.
+# Each data structure start with $man_ds_* prefix, and document will be generated automatically.
+# type, _id are reserved key names, and ut/et are normally for update/entry timestamp.
+# And use xtype, subtype, cat, category, class etc. for classification label.
+# *_fid, *_id are normall added to key name to show the nature of those keys.
+# Hash structure is preferred to store list of items before adding/removing/soring
+# is easier on hash then on list.
+
 $man_ds_person = <<EOF;
 user record, store personal information other than account information
 
@@ -1082,20 +1098,24 @@ user record, store personal information other than account information
     et: entry time
 EOF
 
-$man_ds_inbox = <<EOF;
-user inbox, message center
+$man_ds_mailbox = <<EOF;
+user mailbox, message center, in coming and out going message list
 
     // id of this record reuses owner's person id
-    // cache the last record for each type of chat
-    // for most of the push, there shall be a record here
+    // cache the last record for each type of conversation.
+    // For most of the push, there shall be a record here for user 
+    // later viewing purpose just in case user misses the push notification.
 
-    ut: // inbox update time
+    ut: // mailbox update time
 
-    // record the last message, and new message count for each type of message
+    // store the last message, and new message count for each type of message
     messages: {
     
-        id1: { 
-            xtype: person/topic, two party chat (private) or group chat, group chat header not used in this demo 
+        id1: {
+
+            xtype: chat/topic/group
+            // two party chat (private) or group conversion (not yet implemented)
+
             id: same as id1
             ut: unix time, last update time
             vt: unix time, last visit time
@@ -1110,19 +1130,20 @@ user inbox, message center
 EOF
 
 $man_ds_chat = <<EOF;
-personal chat header record
+personal two-party conversation header structure
     
-    // chat is for two party private personal chat
+    // "chat" in this app is meant for two-party private personal conversation only.
     // Other forms of conversation, group conversation, conversation under certain topics
     // all have similar header structure storing group/topic data, participants, assets, members etc.
     // And each member shall have list of conversation header ids that they are part of.
     
-    // Ordered two person ids.
-    pair: $id1.$id2
+    // Ordered two person ids. Use two ids to look up the header structure
+    pair: "id1.id2"
     
-    // Instead of storing header object id, paired ids of counter party and self 
-    // are good enough to find the chat record.
+    // Instead of each person storing header object id, paired person ids of counter party and self 
+    // are good enough to locate the chat record.
 
+    // Required field for all conversation header structure.
     block_id: last message entries block record id, for new chat, this fields is set to 0
 EOF
 
@@ -1131,34 +1152,34 @@ message entries block record, conversation messages are divided into chained blo
 
     // next message entries block id. 0 if this is the first block
     // conversation header structure contains the latest block
-    next_id:
+    next_id: 0
 
     et: entry time, when this block was first created
     ut: update time, last time when this block was updated
    
-    // chat entries block contains 50 entries max
-    // all the new entries will be placed on new block
+    // Conversation entries block contains 50 entries max.
+    // All the new entries will be placed on an additional new blocks.
 
     entries: [
     {
-        from_id:     chat entry sender
-        from_name:   chat entry sender
-        xtype:       text/image/voice/link
-        content:     chat entry content, text, file id, link address
-        send_time:   chat entry timestamp
+        from_id:     sender id
+        from_name:   sender name
+        xtype:       text/image/voice/link ...
+        content:     content, text, file id, link address etc.
+        send_time:   timestamp
     },
     {
-        from_id:     chat entry sender
-        from_name:   chat entry sender
-        xtype:       text/image/voice/link
-        content:     chat entry content, text, file id, link address
-        send_time:   chat entry timestamp
+        from_id:     sender id
+        from_name:   sender name
+        xtype:       text/image/voice/link ...
+        content:     content, text, file id, link address etc.
+        send_time:   timestamp
     }
     ]
 EOF
 
 $man_geotest = <<EOF;
-MongoDB geo location based algorithms api test
+MongoDB geo location based algorithms test
 
     "loc": {
         "type": "Point",
