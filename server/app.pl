@@ -488,9 +488,9 @@ OUTPUT:
     block: {
         _id: "o14489513231757400035", 
         next_id: 0,
-		
+        
         entries: [
-		
+        
         {
             content:    "Hello?",                    // message content
             from_name:  "Tom",                       // sender name
@@ -499,7 +499,7 @@ OUTPUT:
             sender_pid: "o14477397324317851066",     // sender pid
             xtype:      "text"                       // message type: text/image/voice/link/file
         },
-		
+        
         {
             content:    "Hi, whats up", 
             from_name:  "Smith",
@@ -508,7 +508,7 @@ OUTPUT:
             sender_pid: "o14477630553830869197", 
             xtype:      "text"
         },
-		
+        
         {
             content:    "Jane", 
             from_image: "f100055555", 
@@ -516,9 +516,9 @@ OUTPUT:
             sender_pid: "o14477397324317851066", 
             xtype:      "text"
         }
-		
+        
         ],
-		
+        
         type: "messages_block"
     }
     
@@ -594,9 +594,9 @@ INPUT:
 OUTPUT:
     changed: 0/1     // check against input valur ut, and set 1 if any new messages
     ut: unix time    // last update timestamp
-	
+    
     mailbox: [
-	
+    
     {
         cid:   null, 
         count: 0, 
@@ -607,7 +607,7 @@ OUTPUT:
         vt:    1462579955, 
         xtype: "group"
     }
-	
+    
     {
         cid:   "o14625831090064589977", 
         count: 0, 
@@ -619,7 +619,7 @@ OUTPUT:
         vt:    1462583111, 
         xtype: "chat"
     }
-	
+    
     ]
 EOF
 
@@ -1078,7 +1078,7 @@ sub load_configuration {
 ################################################################################
 
 # Data structure definitions are required before use.
-# Each data structure start with $man_ds_* prefix, and document will be generated automatically.
+# Each data structure starts with $man_ds_* prefix, and document will be generated automatically.
 # type, _id are reserved key names, and ut/et are normally for update/entry timestamp.
 # And use xtype, subtype, cat, category, class etc. for classification label.
 # *_fid, *_id are normall added to key name to show the nature of those keys.
