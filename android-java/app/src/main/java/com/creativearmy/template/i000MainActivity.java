@@ -8,10 +8,10 @@ import android.widget.TextView;
 import android.widget.Button;
 import android.os.Handler;
 import android.os.Message;
-import java.util.HashMap;
 
 import com.creativearmy.sdk.APIConnection;
 import com.creativearmy.sdk.JSONObject;
+import com.creativearmy.sdk.JSONArray;
 
 
 public class i000MainActivity extends Activity implements OnClickListener {
@@ -46,10 +46,10 @@ public class i000MainActivity extends Activity implements OnClickListener {
     public void onClick(View v) {
         if (v.getId() == R.id.INPUT) {
 
-            HashMap data = new HashMap();
-            data.put("obj","test");
-            data.put("act","input1");
-            data.put("data", "click");
+            JSONObject data = new JSONObject();
+            data.xput("obj","test");
+            data.xput("act","input1");
+            data.xput("data", "click");
             mock_capture_input(data);
         }
     }
@@ -71,7 +71,7 @@ public class i000MainActivity extends Activity implements OnClickListener {
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             // {"obj":"associate","act":"mock","to_login_name":"ISTUDIO_ACCOUNT","data":{"obj":"test","act":"output1","data":"blah"}}
-            if (jo.optString("obj").equals("test") && jo.optString("act").equals("output1")) {
+            if (jo.s("obj").equals("test") && jo.s("act").equals("output1")) {
                 //output.setText(jo.optJSONArray("data").optJSONObject(5).optString("show"));
                 //output.setText(jo.a("data").o(5).s("show"));
                 //output.setText(jo.optString("data"));
@@ -90,12 +90,12 @@ public class i000MainActivity extends Activity implements OnClickListener {
     
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void mock_capture_input(HashMap data) {
-        HashMap req = new HashMap();
-        req.put("obj", "associate");
-        req.put("act", "mock");
-        req.put("to_login_name", MyApplication.TOOLBOX_ACCOUNT);
-        req.put("data", data);
+    private void mock_capture_input(JSONObject data) {
+        JSONObject req = new JSONObject();
+        req.xput("obj", "associate");
+        req.xput("act", "mock");
+        req.xput("to_login_name", MyApplication.TOOLBOX_ACCOUNT);
+        req.xput("data", data);
         APIConnection.send(req);
     }
 }

@@ -46,7 +46,7 @@ import org.json.JSONException;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
+import com.creativearmy.sdk.JSONObject;
 
 public class i052Chatactivity extends Activity implements OnLayoutChangeListener, SwipeRefreshLayout.OnRefreshListener, SizeNotifierRelativeLayout.SizeNotifierRelativeLayoutDelegate, View.OnClickListener, TextWatcher {
     MessAdapter mMessAdapter;
@@ -136,35 +136,21 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
         mTvTitle.setText(Title);
         mTvTitle.setTextColor(Color.WHITE);
 
-        HashMap req = new HashMap();
+        JSONObject req = new JSONObject();
 
-        if (mode.equals("topic")) {
-            req.put("obj", "topic");
-            req.put("act", "chat_get");
-            req.put("topic_id", mTopicId);
-
-        } else if (mode.equals("task")) {
-            req.put("obj", "task");
-            req.put("act", "chat_get");
-            req.put("task_id", mTaskId);
-
-        } else if (mode.equals("person")) {
-            req.put("obj", "person");
-            req.put("act", "chat_get");
+        if (mode.equals("chat")) {
+            req.xput("obj", "message");
+            req.xput("act", "chat_get");
 		
             JSONArray ja = new JSONArray();
 
             ja.put(APIConnection.user_info.optString("_id"));
             ja.put(mPersonId);
 
-            req.put("users", ja);
+            req.xput("users", ja);
+        }
 
-        } else {
-		// FIXME
-	    }
-
-
-        req.put("person_id", APIConnection.user_info.optString("_id"));
+        req.xput("person_id", APIConnection.user_info.optString("_id"));
         Log.e("I052", String.format("PID = %s\tTID = %s", "", mTopicId));
         APIConnection.send(req);
 
@@ -370,16 +356,15 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
 
                 if (null == mNextId || "".equals(mNextId) || "0".equals(mNextId)) return;
 
-                HashMap req = new HashMap();
+                JSONObject req = new JSONObject();
 
-                req.put("obj", "message");
+                req.xput("obj", "message");
+
                 if (mode.equals("chat")) {
-                    req.put("act", "chat_get");
+                    req.xput("act", "chat_get");
                 }
 
-
-
-                req.put("chatRecords_id", mNextId);
+                req.xput("block_id", mNextId);
 
                 APIConnection.send(req);
             }
@@ -462,20 +447,19 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                 break;
             case R.id.send_msg_btn:
 
-                HashMap req = new HashMap();
+                JSONObject req = new JSONObject();
 
                 if (mode.equals("chat")) {
-                    req.put("obj", "message");
-                    req.put("act", "chat_send");
-                    req.put("to_id", mPersonId);
+                    req.xput("obj", "message");
+                    req.xput("act", "chat_send");
+                    req.xput("to_id", mPersonId);
 
-                } else {
-		}
+                }
 
-                req.put("from_id", APIConnection.user_info.optString("_id"));
+                req.xput("from_id", APIConnection.user_info.optString("_id"));
 
-                req.put("chat_type", "text");
-                req.put("chat_content", mEditChatInput.getText().toString());
+                req.xput("chat_type", "text");
+                req.xput("chat_content", mEditChatInput.getText().toString());
                 APIConnection.send(req);
 
                 JSONObject netMessage1 = new JSONObject();
@@ -605,9 +589,6 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
         }
     }
 
-
-
-
     private void upLoadImg(Intent data) {
         Toast.makeText(i052Chatactivity.this, "upload", Toast.LENGTH_LONG).show();
         RequestParams rp = new RequestParams();
@@ -633,15 +614,14 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
 
                         if (jb.optString("fid") != null && !jb.optString("fid").equals("")) {
                             Toast.makeText(i052Chatactivity.this, "upload succeeded", Toast.LENGTH_LONG).show();
-                            HashMap req = new HashMap();
+
+                            JSONObject req = new JSONObject();
 
                             if (mode.equals("chat")) {
-                                req.put("obj", "message");
-                                req.put("act", "chat_send");
-                                req.put("topic_id", mTopicId);
+                                req.xput("obj", "message");
+                                req.xput("act", "chat_send");
+                                req.xput("topic_id", mTopicId);
 
-                            } else {
-                                //FIXME
                             }
 
                             JSONObject chat_content = new JSONObject();
@@ -649,9 +629,9 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                             chat_content.put("fid", fid);
                             chat_content.put("mime", mime);
 
-                            req.put("from_id", APIConnection.user_info.optString("_id"));
-                            req.put("chat_type", "ximage");
-                            req.put("chat_content", chat_content);
+                            req.xput("from_id", APIConnection.user_info.optString("_id"));
+                            req.xput("chat_type", "ximage");
+                            req.xput("chat_content", chat_content);
                             APIConnection.send(req);
 
                             JSONObject netMessage1 = new JSONObject();

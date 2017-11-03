@@ -70,7 +70,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
     private String getServeVersion(){
-        return APIConnection.server_info.optString("android_version_number");
+        return APIConnection.server_info.s("android_app_version");
     }
 
     private void startDownloadApk(final String uuri,final Handler hd) {
@@ -106,7 +106,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
     private void installAPK(String str){
-        //String fileName = Environment.getExternalStorageDirectory() + str;
         String fileName = str;
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.fromFile(new File(fileName)), "application/vnd.android.package-archive");
@@ -149,25 +148,21 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     Toast.makeText(MainActivity.this, "download already started", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (!SysUtils.isNetworkAvailable(MainActivity.this)) {
-                    Toast.makeText(MainActivity.this, "network failed", Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 int local = getVersionCode();
-                startDownloadApk(APIConnection.server_info.optString("apk_url"), mHand);
+                startDownloadApk(APIConnection.server_info.s("apk_url"), mHand);
             }
         });
     }
 
     private void binEdt() {
-        String UserName = SharepreferenceUserInfo.getValue(getApplicationContext(), "Account", "Uname");
-        if(!"".equals(UserName))
+        JSONObject jo = APIConnection.user_joread();
+
+        if(!"".equals(jo.s("login_name")))
         {
-            edtAccount.setText(UserName);
+            edtAccount.setText(jo.s("login_name"));
             edtPassword.requestFocus();
         }
-        String Passwd = SharepreferenceUserInfo.getValue(getApplicationContext(), "Account", "Passwd");
-        if(!"".equals(Passwd)) edtPassword.setText(Passwd);
+        if(!"".equals(jo.s("login_passwd"))) edtPassword.setText(jo.s("login_passwd"));
 
     }
 
@@ -201,8 +196,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     return;
                 }
 				
-                //APIConnection.credential(strAccount, strPassword);
-                //APIConnection.connect();
                 APIConnection.login(strAccount, strPassword);
                 break;
 
@@ -231,24 +224,21 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     private final Handler handler = new Handler() {
         public void handleMessage(Message msg) {
-            if(APIConnection.server_info!=null){
-                mTextVersion.setText("my ver:" + getVersionCode() +"  downloadable ver:"+getServeVersion());
+            if(APIConnection.server_info != null) {
+                // hint user to download newer app
+                mTextVersion.setText("my verion:" + getVersionCode() +"  downloadable version:"+getServeVersion());
             }
-           // TextView output = (TextView) findViewById(R.id.OUTPUT);
-                JSONObject jo = (JSONObject) msg.obj;
+            JSONObject jo = (JSONObject) msg.obj;
             if (msg.what == APIConnection.responseProperty) {
 
-                if (jo.optString("obj").equals("person") && jo.optString("act").equals("login")) {
-
-                     if(jo.optJSONObject("user_info")!=null){
-
-                     }
+                if (jo.s("obj").equals("person") && jo.s("act").equals("login")) {
                 }
-                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             }
 
             if (msg.what == APIConnection.stateProperty) {
+
                 if (APIConnection.state == APIConnection.States.LOGIN_SCREEN_ENABLED) {
+
                     if (APIConnection.from_state == APIConnection.States.INITIAL_LOGIN || APIConnection.from_state == APIConnection.States.SESSION_LOGIN) {
 
                         Toast.makeText(MainActivity.this,"login failed",Toast.LENGTH_LONG).show();
@@ -261,14 +251,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
                 } else if (APIConnection.state == APIConnection.States.IN_SESSION) {
 
+                    //persist user credential for next app login
+                    JSONObject userjo = APIConnection.user_joread();
+                    userjo.xput("login_name", edtAccount.getText().toString());
+                    userjo.xput("login_passwd", edtPassword.getText().toString());
+                    APIConnection.user_jowrite(userjo);
 
-                        SharepreferenceUserInfo.putValue(getApplicationContext(), "Account", "Uname", edtAccount.getText().toString());
-                        SharepreferenceUserInfo.putValue(getApplicationContext(), "Account", "Passwd", edtPassword.getText().toString());
-
-                        Intent intent=new Intent();
-                        intent.setClass(MainActivity.this,i000MainActivity.class);
-                        startActivity(intent);
-                        finish();
+                    Intent intent=new Intent();
+                    intent.setClass(MainActivity.this,i000MainActivity.class);
+                    startActivity(intent);
+                    finish();
                 }
             }
         }

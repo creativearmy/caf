@@ -16,11 +16,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,8 +36,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 import static java.util.Calendar.getInstance;
 
@@ -349,26 +344,30 @@ public class i072MainActivity extends Activity {
         }
     };
 
-    private void updateInfo(){
-        HashMap hash = new HashMap();
-        hash.put("obj","person");
-        hash.put("act","update");
-        hash.put("person_id",pid);
-        HashMap update_date = new HashMap();
-        update_date.put("headFid",fid);
-        update_date.put("name",name.getText().toString());
-        update_date.put("gender",selectSex());
-        update_date.put("phoneNo",phoneNo.getText().toString());
-        update_date.put("address",address.getText().toString());
-        update_date.put("work_experience",work_experience.getText().toString());
-        update_date.put("edu_experience",edu_experience.getText().toString());
-        update_date.put("payment",payment.getText().toString());
-        update_date.put("singnature", singnature.getText().toString());
-        update_date.put("province", provience.getText().toString().trim());
-        update_date.put("city", city.getText().toString().trim());
-        hash.put("update_date", update_date);
-        Log.e("update---",new JSONObject(hash).toString());
-        APIConnection.send(hash);
+    private void updateInfo() {
+
+        JSONObject req = new JSONObject();
+        req.xput("obj","person");
+        req.xput("act","update");
+        req.xput("person_id",pid);
+
+        JSONObject update_data = new JSONObject();
+        
+        update_data.xput("headFid",fid);
+        update_data.xput("name",name.getText().toString());
+        update_data.xput("gender",selectSex());
+        update_data.xput("phoneNo",phoneNo.getText().toString());
+        update_data.xput("address",address.getText().toString());
+        update_data.xput("work_experience",work_experience.getText().toString());
+        update_data.xput("edu_experience",edu_experience.getText().toString());
+        update_data.xput("payment",payment.getText().toString());
+        update_data.xput("singnature", singnature.getText().toString());
+        update_data.xput("province", provience.getText().toString().trim());
+        update_data.xput("city", city.getText().toString().trim());
+        
+        req.xput("update_data", update_data);
+
+        APIConnection.send(req);
     }
 
 }

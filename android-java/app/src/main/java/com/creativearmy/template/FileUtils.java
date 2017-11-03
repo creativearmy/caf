@@ -1,7 +1,6 @@
 package com.creativearmy.template;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -20,10 +19,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-
-/**
- * Created by Administrator on 2016/3/12.
- */
 
 public class FileUtils {
 
