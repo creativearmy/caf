@@ -1,13 +1,11 @@
 package com.creativearmy.template;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -18,7 +16,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -28,7 +25,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.creativearmy.sdk.APIConnection;
-import com.creativearmy.sdk.JSONArray;
 import com.creativearmy.sdk.JSONObject;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
@@ -39,15 +35,12 @@ import com.lidroid.xutils.http.client.HttpRequest;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-import org.json.JSONException;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import static java.util.Calendar.getInstance;
 
@@ -64,33 +57,21 @@ public class i072MainActivity extends Activity {
     private Uri     smallImageURI = Uri.parse("file://" + "/" + smallImageFileName);;
 
     private CircleImageView iv_personImage;
-    private File tempFile;
-    private Bitmap bitmapTemp = null;
     private static final int PHOTO_REQUEST_GALLERY_CIRCLE = 3;
     private static final int PHOTO_REQUEST_CUT_CIRCLE = 5;
     private ImageView ivTemp;
 
     private ImageView iv_choosemale;
     private ImageView iv_choosefemale;
-    private ImageView iv_male;
-    private ImageView iv_female;
-    private ImageView i720_return;
-    private ImageView i720_save;
     private ImageLoader imageLoader = null;
     private DisplayImageOptions options;
 
 
-    private Spinner sp_goodat;
-    ArrayList<String> goodatList;
-    ArrayAdapter<String> adapter;
-    private GridView gv_goodat;
-
-    private EditText name,gender,singnature,phoneNo,address,work_experience,edu_experience,payment,provience ,city;
+    private EditText name,singnature,phoneNo,address,work_experience,edu_experience,payment,provience ,city;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        goodatList = new ArrayList<>();
         setContentView(R.layout.i072_activity_main);
         APIConnection.registerHandler(handler);
         imageLoader = ((MyApplication)getApplication()).getImageLoader();
@@ -100,20 +81,13 @@ public class i072MainActivity extends Activity {
                 .showImageOnFail(R.mipmap.icon_biaoqing_i073)       
                 .cacheInMemory(true)                        
                 .cacheOnDisk(true)                          
-//            .displayer(new RoundedBitmapDisplayer(20))  
                 .build();
         init();
 
-        // edit someone else as well, like dummy
         pid =  getIntent().getStringExtra("PID");
         if (pid == null) {
             pid = APIConnection.user_info.optString("_id");
         }
-        getInfo();
-//
-
-//        mock_startup();
-
     }
     @Override
     protected void onResume() {
@@ -121,8 +95,6 @@ public class i072MainActivity extends Activity {
     }
 
     private void init(){
-        iv_male=(ImageView) findViewById(R.id.iv_male_i072);
-        iv_female=(ImageView) findViewById(R.id.iv_female_i072);
         iv_choosemale=(ImageView) findViewById(R.id.imachoosemale_i072);
         iv_choosefemale=(ImageView) findViewById(R.id.imachoosefemale_i072);
         iv_personImage=(CircleImageView) findViewById(R.id.ima_head_i072);
@@ -141,7 +113,6 @@ public class i072MainActivity extends Activity {
 
         singnature = (EditText) findViewById(R.id.singnature);
         name = (EditText) findViewById(R.id.name);
-//        gender = (EditText) findViewById(R.id.gender);
         phoneNo = (EditText) findViewById(R.id.phoneNo);
         address = (EditText) findViewById(R.id.address);
         work_experience = (EditText) findViewById(R.id.work_experience);
@@ -214,9 +185,6 @@ public class i072MainActivity extends Activity {
             if (data != null) {
 
                 Uri uri = data.getData();
-//                tempFile = new File(getCacheDir()+"/call/"+getInstance().getTimeInMillis()
-//                        + ".jpg");
-//                        imageUri = Uri.fromFile(tempFile);
                 crop(uri, requestCode);
             }
         }
@@ -225,21 +193,13 @@ public class i072MainActivity extends Activity {
 
         }else if (requestCode == PHOTO_REQUEST_CUT_CIRCLE) {
 
-//            if (data != null) {
                 Log.i("Test", APIConnection.server_info.optString("upload_to"));
                 RequestParams rp = new RequestParams();
-//                Bitmap bitmap = setPicToView(data);
-//                File f = saveImg(SysUtils
-//                        .getRoundedCornerBitmap(bitmap));
-//                iv_personImage.setImageBitmap(SysUtils
-//                        .getRoundedCornerBitmap(bitmap));
-
 
             if (imageLoader != null && iv_personImage != null){
                 imageLoader.displayImage(String.valueOf(smallImageURI), iv_personImage, options);
             }
 
-//                Log.i("Test", "File is Not :" + (f.isFile() ? "yes" : "No"));
             File f = new File(smallImageFileName);
                 rp.addBodyParameter("local_file", f);
                 rp.addBodyParameter("proj", APIConnection.server_info.optString("proj"));
@@ -253,11 +213,7 @@ public class i072MainActivity extends Activity {
                             Log.i("upload return fid:", fid);
                             if (jb.optString("fid") != null && !jb.optString("fid").equals("")) {
                                 Toast.makeText(i072MainActivity.this, "Upload success", Toast.LENGTH_LONG).show();
-
-//                                updateInfo();
                             }
-
-//                            tempFile.delete();
 
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -270,13 +226,6 @@ public class i072MainActivity extends Activity {
                         Toast.makeText(i072MainActivity.this, "Avatar upload failed", Toast.LENGTH_SHORT).show();
                     }
                 });
-
-
-
-//                this.ivTemp.setImageBitmap(SysUtils.getRoundedCornerBitmap(setPicToView(data)));
-//            }
-
-
         }
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -295,9 +244,7 @@ public class i072MainActivity extends Activity {
         intent.putExtra("outputFormat", "JPEG");// 
         intent.putExtra("noFaceDetection", true);// 
         intent.putExtra("return-data", false);
-//        uritempFile = Uri.parse("file://" + "/" + smallImageFileName);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, smallImageURI);
-//        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri); // 
 
         startActivityForResult(intent, PHOTO_REQUEST_CUT_CIRCLE);
     }
@@ -319,19 +266,12 @@ public class i072MainActivity extends Activity {
         intent.putExtra("outputX", 250);
 
         intent.putExtra("outputY", 250);
-        //smallImageURI = Uri.parse("file://" + "/" + smallImageFileName);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, smallImageURI);
-//        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri); // 
-        intent.putExtra("outputFormat", "JPEG");// 
+        intent.putExtra("outputFormat", "JPEG");//
         intent.putExtra("noFaceDetection", true);// 
         intent.putExtra("return-data", true);
 
-
         startActivityForResult(intent, PHOTO_REQUEST_CUT_CIRCLE);
-
-
-
-
     }
     private Bitmap setPicToView(Intent picdata) {
         Bundle bundle = picdata.getExtras();
@@ -353,25 +293,12 @@ public class i072MainActivity extends Activity {
         tv_paizhao.setOnClickListener(new OnClickListener() {
             @SuppressLint("SdCardPath")
             public void onClick(View v) {
-
-                // imageName = getNowTime() + ".png";
-                // Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-
-                //tempFile = new File(getCacheDir()+"/"+getInstance().getTimeInMillis()
-                //        + ".jpg");
-
-                //imageUri = Uri.fromFile(tempFile);
-
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, rawImageUri);
 
                 startActivityForResult(intent, PHOTO_REQUEST_CAREMA);
 
                 ivTemp =iv_personImage;
-
-//	                intent.putExtra(MediaStore.EXTRA_OUTPUT,
-//	                        Uri.fromFile(new File("/sdcard/fanxin/", imageName)));
-                //startActivityForResult(intent, PHOTO_REQUEST_TAKEPHOTO);
                 dlg.cancel();
             }
         });
@@ -388,15 +315,11 @@ public class i072MainActivity extends Activity {
         });
     }
 
-    // 1
-    private final String i_account = "11111111111";
-    private final String t_account = "15798001012";
     private final Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             TextView output = (TextView) findViewById(R.id.OUTPUT);
             if (msg.what == APIConnection.responseProperty) {
                 JSONObject jo = (JSONObject) msg.obj;
-                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
                 // {"obj":"associate","act":"mock","to_login_name":"test6977","data":{"obj":"test","act":"output1","data":"blah"}}
                 if (jo.optString("obj").equals("test") && jo.optString("act").equals("output1")) {
@@ -414,55 +337,17 @@ public class i072MainActivity extends Activity {
                     }else{
                         Toast.makeText(i072MainActivity.this, "update success", Toast.LENGTH_SHORT).show();
                     }
-                }else if(jo.optString("obj").equals("person") && jo.optString("act").equals("get")){
-                    JSONObject data = jo.optJSONObject("data");
-                    fid = data.optString("headFid");
-                    name.setText(data.optString("name"));
-                    phoneNo.setText(data.optString("phoneNo"));
-                    address.setText(data.optString("address"));
-                    work_experience.setText(data.optString("work_experience"));
-                    edu_experience.setText(data.optString("edu_experience"));
-                    singnature.setText(data.optString("singnature"));
-                    city.setText(data.optString("city"));
-                    provience.setText(data.optString("province"));
-                    payment.setText(data.optString("payment"));
-                    JSONArray array = data.optJSONArray("fields");
-                    setSex(data.optString("gender"));
-                    imageLoader.displayImage(APIConnection.server_info.optString("download_path") + data.optString("headFid"), iv_personImage, options);
-
-
                 }
 
-                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             }
 
             if (msg.what == APIConnection.stateProperty) {
                 if (APIConnection.state == APIConnection.States.IN_SESSION) {
-                    //output.setText("Login OK");
 
-                    getInfo();
                 }
             }
         }
     };
-
-    private void input(HashMap data) {
-        HashMap req = new HashMap();
-        req.put("obj", "associate");
-        req.put("act", "mock");
-        req.put("to_login_name", t_account);
-        req.put("data", data);
-        APIConnection.send(req);
-    }
-
-
-    private void getInfo(){
-        HashMap hash = new HashMap();
-        hash.put("obj","person");
-        hash.put("act","get");
-        hash.put("person_id",pid);
-        APIConnection.send(hash);
-    }
 
     private void updateInfo(){
         HashMap hash = new HashMap();
