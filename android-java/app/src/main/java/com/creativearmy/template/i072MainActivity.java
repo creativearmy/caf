@@ -84,8 +84,6 @@ public class i072MainActivity extends Activity {
     ArrayList<String> goodatList;
     ArrayAdapter<String> adapter;
     private GridView gv_goodat;
-    private com.creativearmy.template.i072Adatper i072Adatper;
-    private List<i072Goodat> mdata = null;
 
     private EditText name,gender,singnature,phoneNo,address,work_experience,edu_experience,payment,provience ,city;
 
@@ -93,7 +91,6 @@ public class i072MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         goodatList = new ArrayList<>();
-        mdata = new ArrayList<>();
         setContentView(R.layout.i072_activity_main);
         APIConnection.registerHandler(handler);
         imageLoader = ((MyApplication)getApplication()).getImageLoader();
@@ -152,23 +149,6 @@ public class i072MainActivity extends Activity {
         payment = (EditText) findViewById(R.id.payment_i072);
         provience = (EditText) findViewById(R.id.edt_provience);
         city = (EditText) findViewById(R.id.edt_city);
-        sp_goodat = (Spinner) findViewById(R.id.sp_goodat_i072);
-
-        gv_goodat = (GridView) findViewById(R.id.gv_goodat_i072);
-        gv_goodat.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                i072Goodat i072Goodat = (com.creativearmy.template.i072Goodat) i072Adatper.getItem(position);
-                String key = i072Goodat.getGaKey();
-                for (com.creativearmy.template.i072Goodat i:mdata) {
-                    if (i.getGaKey().equals(key)) {
-                        i.setGaFlag(!i.getGaFlag());
-                    }
-                }
-                i072Adatper = new i072Adatper(i072MainActivity.this,mdata);
-                gv_goodat.setAdapter(i072Adatper);
-            }
-        });
     }
     public String selectSex(){
         if(iv_choosefemale.getVisibility() == View.INVISIBLE){
@@ -448,14 +428,6 @@ public class i072MainActivity extends Activity {
                     payment.setText(data.optString("payment"));
                     JSONArray array = data.optJSONArray("fields");
                     setSex(data.optString("gender"));
-                    try {
-                        initAdapterData(goodatList);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    sp_goodat.setAdapter(adapter);
-                    i072Adatper = new i072Adatper(i072MainActivity.this,getGoodatData(data.optJSONArray("fields"),generateData(APIConnection.server_info.optJSONArray("field_labels"),mdata)));
-                    gv_goodat.setAdapter(i072Adatper);
                     imageLoader.displayImage(APIConnection.server_info.optString("download_path") + data.optString("headFid"), iv_personImage, options);
 
 
@@ -509,59 +481,9 @@ public class i072MainActivity extends Activity {
         update_date.put("singnature", singnature.getText().toString());
         update_date.put("province", provience.getText().toString().trim());
         update_date.put("city", city.getText().toString().trim());
-        update_date.put("fields", toJsonArray(mdata));
         hash.put("update_date", update_date);
         Log.e("update---",new JSONObject(hash).toString());
         APIConnection.send(hash);
     }
-
-    @TargetApi(Build.VERSION_CODES.KITKAT)
-    private void initAdapterData(List<String> mItems) throws JSONException {
-        JSONObject object = APIConnection.server_info.optJSONObject("field_map");
-//        JSONArray ja = new JSONArray(i072Goodat.class);
-//        Log.e("---", object.toJSONArray(ja) + "");
-        APIConnection.server_info.optJSONArray("field_keys");
-        APIConnection.server_info.optJSONObject("field_map");
-        APIConnection.server_info.optJSONObject("field_note_map");
-        Log.e("---", APIConnection.server_info.optJSONArray("field_keys") + "");
-        Log.e("---", APIConnection.server_info.optJSONObject("field_map") + "");
-        Log.e("---", APIConnection.server_info.optJSONObject("field_note_map") + "");
-        //adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item, generateData(APIConnection.server_info.optJSONArray("field_keys"), goodatList));
-    }
-
-    private List<i072Goodat> generateData(JSONArray array, List<i072Goodat> list) {
-        for (int i = 0; i <array.length(); i++) {
-            i072Goodat i072Goodat = new i072Goodat();
-            String content = array.optString(i);
-            i072Goodat.setGaName(content);
-            i072Goodat.setGaKey(i+"");
-            list.add(i072Goodat);
-        }
-        return list;
-    }
-
-    private List<i072Goodat> getGoodatData(JSONArray array, List<i072Goodat> list){
-        for (i072Goodat a : list) {
-            for (int i = 0; i < array.length(); i++) {
-                if (array.optString(i).equals(a.getGaName())) {
-                    a.setGaFlag(true);
-                    break;
-                }
-            }
-        }
-        return list;
-    }
-
-    private JSONArray toJsonArray(List<i072Goodat> list) {
-        JSONArray jsonArray = new JSONArray();
-        for (i072Goodat i : list) {
-            if (i.getGaFlag() == true) {
-                jsonArray.put(i.getGaName());
-            }
-        }
-        return  jsonArray;
-    }
-
-
 
 }

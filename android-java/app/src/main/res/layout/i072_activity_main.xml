@@ -329,60 +329,6 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="47dp"
-                android:background="#ffffff">
-
-                <TextView
-                    android:id="@+id/tv_goodat_i072"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="19dp"
-                    android:text="@string/goodat_i072"
-                    android:textSize="15sp"
-                    android:textColor="#252f48"/>
-
-                <com.creativearmy.template.i072GridView
-                    android:id="@+id/gv_goodat_i072"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:listSelector="@android:color/transparent"
-                    android:numColumns="3"
-                    android:scrollbars="none"
-                    android:paddingTop="8dp"
-                    android:layout_toRightOf="@+id/tv_goodat_i072"
-                    android:layout_marginLeft="13dp"
-                    android:layout_centerVertical="true"
-                    android:gravity="center"
-                    android:verticalSpacing="8dp"/>
-
-
-                <Spinner
-                    android:id="@+id/sp_goodat_i072"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_toRightOf="@+id/tv_goodat_i072"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="13dp"
-                    android:background="@null"
-                    android:hint="@string/input_i072"
-                    android:maxLength="300"
-                    android:textColor="#95c041"
-                    android:textColorHint="#95c141"
-                    android:textSize="16sp"
-                    android:singleLine="true"
-                    android:spinnerMode="dropdown"
-                    android:visibility="gone"/>
-
-
-
-            </RelativeLayout>
-
-            <include layout="@layout/i072_eigth_line" />
-
-            <RelativeLayout
-                android:layout_width="match_parent"
                 android:layout_height="47dp"
                 android:background="#ffffff">
 
