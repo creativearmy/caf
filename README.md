@@ -57,8 +57,7 @@ WebSocket web and mobile real-time app framework, with backend coding in Perl.
 
 <br><b>FREE Online Wireframe Tool</b>
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Design your clickable app prototypes right on our website<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Creative Army Productions Home Page](http://www.hehuo168.com/en)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Design your clickable app prototypes right on our [home page](http://www.hehuo168.com/en).
 
 <br><b>Questions? Chat with us</b>
 
