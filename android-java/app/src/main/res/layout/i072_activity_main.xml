@@ -4,7 +4,6 @@
     android:orientation="vertical"
     android:layout_height="fill_parent">
     <RelativeLayout
-        android:id="@+id/ll_bar_i072"
         android:layout_width="fill_parent"
         android:layout_height="46dp"
         android:background="#343434">
@@ -61,7 +60,6 @@
                     android:src="@drawable/icon_head" />
 
                 <Button
-                    android:id="@+id/select_ima_i072"
                     android:layout_width="67dp"
                     android:layout_height="22dp"
                     android:layout_below="@+id/ima_head_i072"

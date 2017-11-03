@@ -76,6 +76,7 @@ public class NotificationService extends Service {
 
 					intent.setAction(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
 					intent.setData(Uri.parse("package:" + packageName));
+					intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 					startActivity(intent);
 				} catch (ActivityNotFoundException e) {
 					e.printStackTrace();

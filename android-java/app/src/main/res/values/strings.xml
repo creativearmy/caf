@@ -1,17 +1,12 @@
 <resources>
     <string name="app_name">TEMPLATE</string>
 
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
     <string name="name_i072">Name</string>
     <string name="edit_name_i072">Name Missing</string>
     <string name="up_head_i072">Avatar</string>
     <string name="phonenumber_i072">Telephone</string>
-    <string name="hint_i042">Last 3 or 4 digits</string>
-    <string name="edit_phonenumber_i072">13025282485</string>
     <string name="provience_i072">Province</string>
     <string name="city_i072">City</string>
-    <string name="area_i072">County</string>
     <string name="populatedplace_i072">Address</string>
     <string name="workexperience_i072">Work Experience</string>
     <string name="goodat_i072">Specialty</string>
@@ -19,106 +14,11 @@
     <string name="defined_i072">Notes</string>
     <string name="input_i072">Click to enter</string>
     <string name="difinedinput_i072">Misc notes</string>
-    <string name="paizhao_i072">Camera</string>
-    <string name="xiangce_i072">Album</string>
-    <string name="register">Register</string>
-    <string name="login">Login</string>
-    <string name="title_activity_main">MainActivity</string>
     <string name="i011_account">Account</string>
     <string name="i011_password">Password</string>
     <string name="i011_forget_password">Forgot password?</string>
-    <string name="edit_hint1_i012">Phone Number</string>
-    <string name="edit_hint2_i012">Verification Code</string>
-    <string name="button_1_i012">Send code</string>
-    <string name="edit_hint3_i012">Password</string>
-    <string name="button_2_i012">Register</string>
-    <string name="text_1_i012">Login</string>
-    <string name="text_2_i012">http://www.hehuo.com</string>
-    <string name="phoneNumber_i013">Phone number</string>
-    <string name="button_1_i013">Send verification code</string>
-    <string name="button_2_i013">Verification Code</string>
-    <string name="password_i013">Enter new password</string>
-    <string name="button_3_i013">Reset Password</string>
-    <string name="text_1_i013">Register</string>
-    <string name="project">Project</string>
-    <string name="i046_title">Upload</string>
     <string name="company_name">XXXXX Co.</string>
 
-    <string name="title_name_i031">Project Setting</string>
-    <string name="title_name_i042">Contact</string>
-
-    <string name="project_code_i031">Project Code</string>
-
-    <string name="project_name_i031">Project Title</string>
-
-    <string name="project_introduction_i031">Project description</string>
-
-    <string name="fileUpload_i031">Upload</string>
-    <string name="name_i042">Tom</string>
-
-    <string name="i044_btn_add">Add</string>
-    <string name="file_name_i046">Requirement Document</string>
-    <string name="file_date_i046">2015.8.9 12:00</string>
-    <string name="file_time_i046">12:00</string>
-    <string name="file_delete_i046">Delete file?</string>
-    <string name="yes_i046">Yes</string>
-    <string name="no_i046">No</string>
-    <string name="i040_delete">Delete</string>
-    <string name="i040_task">Task</string>
-    <string name="i040_time">Time</string>
-    <string name="i040_task_type">Task Type</string>
-    <string name="i040_link_info">Show Link</string>
-
-    <string name="title_name_i041">Edit Task</string>
-    <string name="title_name_i043">Task Detail</string>
-
-    <string name="task_name_i041">Task Title</string>
-
-
-    <string name="task_details_i041">Task Detail</string>
-
-
-    <string name="fileUpload_i041">Upload</string>
-
-
-    <string name="priority_i041">Task Status</string>
-
-
-    <string name="startTime_i041">Start</string>
-
-
-    <string name="endTime_i041">End</string>
-
-
-    <string name="chooseDate_i041">Pick a date</string>
-
-
-    <string name="chooseTime_i041">Pick a time</string>
-
-    <string name="biaoti_i043">Blah blah ..</string>
-    <string name="body_i043">Blah blah ..</string>
-    <string name="find_i043">Check Files</string>
-    <string name="lv_i043">Task Status</string>
-    <string name="date_i043">2015.08.12 - 2016.03.06</string>
-    <string name="comment_i043">Comment</string>
-    <string name="test_i043">Rush Job</string>
-
-    <string name="input_talk_i051">Topic Detail</string>
-    <string name="message_i051">Message</string>
-    <string name="message_i031">New task</string>
-    <string name="balance_i031">Balance: %s</string>
-    <string name="reserve_i031">Reserve: %s</string>
-    <string name="upfile_i051">Upload</string>
-    <string name="address_i073">Address</string>
-    <string name="exprience_i073">Work</string>
-    <string name="education_i073">Education</string>
-    <string name="zidingyi_i073">Note</string>
-
-    <string name="phonenum_i071">Phone</string>
-    <string name="address_071">Address</string>
-    <string name="expreience_i071">Work</string>
-    <string name="education_i071">Eduction</string>
-    <string name="zidingyi_i071">Note</string>
 
     <string name="yesterday">Yestoday</string>
     <string name="before_dawn">Midnight</string>
@@ -132,14 +32,7 @@
     <string name="friday">Fri</string>
     <string name="saturday">Sat</string>
     <string name="sunday">Sun</string>
-    <string name="year">Year</string>
     <string name="month">Month</string>
     <string name="day">Day</string>
-    <string name="second">Second</string>
-    <string name="all_topic">Topics</string>
-    <string name="create_topic">New Topic</string>
-    <string name="title_activity_i053_main">I053MainActivity</string>
-
-    <string name="message_2845">Public</string>
 
 </resources>

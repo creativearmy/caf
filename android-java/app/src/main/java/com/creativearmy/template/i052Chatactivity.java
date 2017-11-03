@@ -48,16 +48,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static java.util.Calendar.getInstance;
-
-/**
- * Created by Administrator on 2016/3/1.
- */
 public class i052Chatactivity extends Activity implements OnLayoutChangeListener, SwipeRefreshLayout.OnRefreshListener, SizeNotifierRelativeLayout.SizeNotifierRelativeLayoutDelegate, View.OnClickListener, TextWatcher {
     MessAdapter mMessAdapter;
     SwipeRefreshLayout mSwipeView;
     Button mBtnSendMsg;
-    //ImageButton mBtnExpression;
     ImageButton mBtnAddFile;
     EditText mEditChatInput;
     TableLayout mMoreMenuTl;
@@ -65,43 +59,29 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
     LinearLayout mLinearChat;
     TextView mTvTitle;
     private boolean mIsShowMoreMenu = false;
-    private boolean mMoreMenuVisible = false;
-    private int mHieght;
-    private String mNowId;
     private String mNextId;
 
-    private String mode = "person"; // 
-    public  String Title; // 
+    private String mode = "chat";
+    public  String Title;
 
-    public static String mTopicId; // 
+    public static String mTopicId;
 
-    public static String mTaskId; // 
+    public static String mTaskId;
 
-    public static String mPersonId; // 
+    public static String mPersonId;
 
-    private String CREATOR_ID = ""; // task creator
-    private String CREATOR_NAME = ""; // task creator name
-    private ImageView guanzhu;
     private ImageView imgPhoto;
     private ImageView imgCamera;
-    private ImageView tiaozhuan;
     private static int REQUEST_PHOTO = 1;
     private static int REQUEST_CAMERA = 2;
     private static int PHOTO_REQUEST_CUT_CIRCLE = 3;
     private Uri tempUri;
 
     private Uri imageUri;
-    private File tempFile;
 
-    private String currentHeader;
+    private int imageMaxWidth;
+    private int imageMaxSize;
 
-    private int imageMaxWidth;      //
-    private int imageMaxSize;      //
-    private ImageView img_video;
-    private ImageView img_card;
-    private ImageView img_map;
-
-    // chat list view
     private ListView msgListview;
 
     @Override
@@ -117,14 +97,12 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
         mLinearChat = (LinearLayout) findViewById(R.id.send_msg_layout);
         mSwipeView = (SwipeRefreshLayout) findViewById(R.id.chat_refresh);
         mSwipeView.setEnabled(false);
-        //mBtnExpression = (ImageButton) findViewById(R.id.expression_btn);
         mBtnAddFile = (ImageButton) findViewById(R.id.add_file_btn);
         mBtnBack = (ImageView) findViewById(R.id.i040_back);
         mBtnSendMsg = (Button) findViewById(R.id.send_msg_btn);
         mEditChatInput = (EditText) findViewById(R.id.chat_input_et);
         mMoreMenuTl = (TableLayout) findViewById(R.id.more_menu_tl);
         mTvTitle = (TextView) findViewById(R.id.tv_bar_title);
-        //mBtnExpression.setOnClickListener(this);
         mBtnAddFile.setOnClickListener(this);
         mBtnSendMsg.setOnClickListener(this);
         mEditChatInput.addTextChangedListener(this);
@@ -145,48 +123,11 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
         imgPhoto.setOnClickListener(this);
         imgCamera = (ImageView) findViewById(R.id.img_camera);
         imgCamera.setOnClickListener(this);
-        //img_card = (ImageView) findViewById(R.id.img_card);
-        //img_card.setOnClickListener(this);
-        //img_map = (ImageView) findViewById(R.id.img_map);
-        //img_map.setOnClickListener(this);
-        //img_video = (ImageView) findViewById(R.id.img_video);
-        //img_video.setOnClickListener(this);
         msgListview = (ListView) findViewById(R.id.chat_list);
         mMessAdapter = new MessAdapter(this);
         msgListview.setAdapter(mMessAdapter);
 
-        CREATOR_ID = getIntent().getStringExtra("CREATOR_ID");
-        CREATOR_NAME = getIntent().getStringExtra("CREATOR_NAME");
-/*
-        if (getIntent().getStringExtra("topic_id") != null && !getIntent().getStringExtra("topic_id").equals("")) {
-            mode = "topic";
-            mTopicId = getIntent().getStringExtra("topic_id");
-            Title = getIntent().getStringExtra("topic_title");
-
-        } else if (getIntent().getStringExtra("task_id") != null && !getIntent().getStringExtra("task_id").equals("")) {
-            mode = "task";
-            mTaskId = getIntent().getStringExtra("task_id");
-            Title = getIntent().getStringExtra("task_title");
-
-        } else if (getIntent().getStringExtra("person_id") != null && !getIntent().getStringExtra("person_id").equals("")) {
-            mode = "person";
-            mPersonId = getIntent().getStringExtra("person_id");
-            Title = getIntent().getStringExtra("person_name");
-
-        } else {
-            // FIXME
-        }
-*/
-        /*
-        mode = "person";
-        mPersonId = APIConnection.server_info.optString("admin_pid");
-
-        if (APIConnection.user_info.optString("_id").equals(mPersonId)) {
-            // for testint, admin chat with test1
-            mPersonId = "o14692833186075780391";
-        }
-        */
-        mode = "person";
+        mode = "chat";
 
         mPersonId = "o14509039359136660099";
 
@@ -245,9 +186,6 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
             }
         });
 
-        // currentHeader= ( (MyApplication)getApplication()).getmDownPathHead() + fid;
-        currentHeader= APIConnection.server_info.optString("download_path")+APIConnection.user_info.optString("headFid");
-
         imageMaxWidth = Integer.parseInt(getImageWidth());
         imageMaxSize = Integer.parseInt(getImageSize());
 
@@ -269,8 +207,6 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
     private boolean isfollowing = false;
     private final Handler handler = new Handler() {
         public void handleMessage(Message msg) {
-//            TextView output = (TextView) findViewById(R.id.OUTPUT);
-//            TextView output2 = (TextView) findViewById(R.id.OUTPUT2);
             if (msg.what == APIConnection.responseProperty) {
                 JSONObject jo = (JSONObject) msg.obj;
                 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -280,16 +216,10 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
   		            && jo.optString("act").equals("chat_get")) {
 
                     isfollowing = jo.optInt("following") == 0 ? false : true;
-                    if (isfollowing) {
-                        //guanzhu.setBackgroundResource(R.mipmap.icon_eye_gopen);
-                    } else {
-                        //guanzhu.setBackgroundResource(R.mipmap.icon_eye_gclose);
-                    }
 
                     if (null != jo.optJSONObject("chatRecord"))
                     {
                         JSONObject object =jo.optJSONObject("chatRecord");
-                        mNowId = object.optString("_id");
                         mNextId = object.optString("next_id");
 
                         if(null != object.optJSONArray("records"))
@@ -319,7 +249,6 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                 if (jo.optString("obj").equals("person") && jo.optString("act").equals("chat_get"))
                 {
                         JSONObject object =jo.optJSONObject("chatRecord");
-                        mNowId = object.optString("_id");
                         mNextId = object.optString("next_id");
 
                         if(null != object.optJSONArray("records"))
@@ -385,26 +314,17 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                     if (null != mMessAdapter) {
                         mMessAdapter.addNetMessage(listMsges);
                     }
-//                    req.put("obj","topic");
-//                    req.put("act","follow");
                 } else if ((jo.optString("obj").equals("topic") || jo.optString("obj").equals("task")) && jo.optString("act").equals("follow")) {
                     ToastUtil.showShortToast(i052Chatactivity.this, "Follow success");
-
-                    if (!isfollowing) {
-                        //guanzhu.setBackgroundResource(R.mipmap.icon_eye_gopen);
-                    } else {
-                        //guanzhu.setBackgroundResource(R.mipmap.icon_eye_gclose);
-                    }
 
                     isfollowing = !isfollowing;
                 }
 
-                if ((jo.optString("obj").equals("topic") || jo.optString("obj").equals("task") || jo.optString("obj").equals("person")) 
-		    && jo.optString("act").equals("chat_send") && jo.optString("status").equals("sucess")) {
+                if (jo.optString("obj").equals("message")
+		    && jo.optString("act").equals("chat_send") ) {
                 }
 
 
-                ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             }
         }
     };
@@ -452,17 +372,12 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
 
                 HashMap req = new HashMap();
 
-                if (mode.equals("topic")) {
-                    req.put("obj", "topic");
-                }
-                if (mode.equals("task")) {
-                    req.put("obj", "task");
-                }
-                if (mode.equals("person")) {
-                    req.put("obj", "person");
+                req.put("obj", "message");
+                if (mode.equals("chat")) {
+                    req.put("act", "chat_get");
                 }
 
-                req.put("act", "chat_get");
+
 
                 req.put("chatRecords_id", mNextId);
 
@@ -473,7 +388,6 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
 
     @Override
     public void onSizeChanged(int height) {
-        mHieght = height;
         Rect localRect = new Rect();
         getActivity().getWindow().getDecorView().getWindowVisibleDisplayFrame(localRect);
 
@@ -545,47 +459,13 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
                     }
                 }
-
-                /*if (mIsShowMoreMenu) {
-                    if (mMoreMenuVisible) {
-                        //focusToInput(true);
-                        //showSoftInput();
-                        mMoreMenuTl.setVisibility(View.GONE);
-                        //this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-                        mMoreMenuVisible = false;
-                    } else {
-                        //dismissSoftInput();
-                        //focusToInput(false);
-                        mMoreMenuTl.setVisibility(View.VISIBLE);
-                        //this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-                        mMoreMenuVisible = true;
-                    }
-                } else {
-                    //focusToInput(false);
-                    //dismissSoftInput();
-                    //setMoreMenuHeight();
-                    mMoreMenuTl.setVisibility(View.VISIBLE);
-                    //this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-                    mIsShowMoreMenu = true;
-                    mMoreMenuVisible = true;
-                }*/
                 break;
             case R.id.send_msg_btn:
 
                 HashMap req = new HashMap();
 
-                if (mode.equals("topic")) {
-                    req.put("obj", "topic");
-                    req.put("act", "chat_send");
-                    req.put("topic_id", mTopicId);
-
-                } else if (mode.equals("task")) {
-                    req.put("obj", "task");
-                    req.put("act", "chat_send");
-                    req.put("task_id", mTaskId);
-
-                } else if (mode.equals("person")) {
-                    req.put("obj", "person");
+                if (mode.equals("chat")) {
+                    req.put("obj", "message");
                     req.put("act", "chat_send");
                     req.put("to_id", mPersonId);
 
@@ -618,30 +498,9 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                 startActivityForResult(PhotoUtil.selectPhoto(), REQUEST_PHOTO);
                 break;
             case R.id.img_camera:
-//                Intent intent = new Intent(
-//                        "android.media.action.IMAGE_CAPTURE");
-//
-//                tempFile = new File(getCacheDir()+"/"+getInstance().getTimeInMillis()
-//                        + ".jpg");
-//                imageUri = Uri.fromFile(tempFile);
-
-                //intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-//                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//                intent.putExtra(MediaStore.Images.Media.ORIENTATION, 0);
-//                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-
-//                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-//                intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
                 imageUri = PhotoUtil.getTempUri();
                 startActivityForResult(PhotoUtil.takePicture(imageUri), REQUEST_CAMERA);
-                //startActivityForResult(intent, REQUEST_CAMERA);
                 break;
-            //case R.id.img_card:
-            //case R.id.img_map:
-            //case R.id.img_video:
-
-                //break;
 
             default:
                 break;
@@ -690,21 +549,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
     }
 
     public void setMoreMenuHeight() {
-//        SharedPreferences sp   = this.getSharedPreferences("JPushDemo", 0);
-//        int softKeyboardHeight = sp.getInt("SoftKeyboardHeight", 0);
-
-//        Rect r = new Rect();
-//        View.getWindowVisibleDisplayFrame(r);
-//        int screenHeight = getRootView()
-//                .getHeight();
-//        int key=KeyboardView.EDGE_TOP-Keyboard.EDGE_BOTTOM;
-//        int mm= InputMethodManager.RESULT_UNCHANGED_SHOWN;
-
-//        if(softKeyboardHeight > 0)
-//        {
-        // int hieght = dip2px(this, 270);
         mMoreMenuTl.setLayoutParams(new LinearLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, mKeyboradHeigth));
-//        }
     }
 
     public static int dip2px(Context context, float dpValue) {
@@ -743,45 +588,13 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
         }
     }
 
-    private void follow(boolean is) {
-
-        HashMap req = new HashMap();
-
-        if (mode.equals("topic")) {
-            req.put("obj", "topic");
-            req.put("act", "follow");
-            req.put("topic_id", mTopicId);
-            req.put("unfollow", is ? "0" : "1");
-
-        } else if (mode.equals("task")) {
-            req.put("obj", "task");
-            req.put("act", "follow");
-            req.put("task_id", mTaskId);
-            req.put("unfollow", is ? "0" : "1");
-
-        } else if (mode.equals("person")) { // 
-            req.put("obj", "person");
-            req.put("act", "contact_add");
-            req.put("person_id", mPersonId);
-
-	} else {
-		// FIXME
-	} 
-
-        APIConnection.send(req);
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK &&requestCode == REQUEST_PHOTO) {
             if (data != null) {
-
-                //Uri uri = data.getData();
-                //crop(uri, requestCode);
                 upLoadImg(data);
             }
         } else if (resultCode == RESULT_OK &&requestCode == REQUEST_CAMERA) {
-            //cropImageUri(imageUri);
             if(imageUri!=null) {
                 data = new Intent();
                 data.setData(imageUri);
@@ -822,20 +635,10 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                             Toast.makeText(i052Chatactivity.this, "upload succeeded", Toast.LENGTH_LONG).show();
                             HashMap req = new HashMap();
 
-                            if (mode.equals("topic")) {
-                                req.put("obj", "topic");
+                            if (mode.equals("chat")) {
+                                req.put("obj", "message");
                                 req.put("act", "chat_send");
                                 req.put("topic_id", mTopicId);
-
-                            } else if (mode.equals("task")) {
-                                req.put("obj", "task");
-                                req.put("act", "chat_send");
-                                req.put("task_id", mTaskId);
-
-                            } else if (mode.equals("person")) { // 
-                                req.put("obj", "person");
-                                req.put("act", "chat_send");
-                                req.put("to_id", mPersonId);
 
                             } else {
                                 //FIXME
@@ -859,10 +662,8 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                             if (null != mMessAdapter) {
                                 mMessAdapter.addNetMessage(netMessage1);
                             }
-//                                updateInfo();
                         }
 
-                        tempFile.delete();
 
                     } catch (JSONException e) {
                         e.printStackTrace();

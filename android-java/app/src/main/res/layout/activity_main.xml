@@ -107,7 +107,6 @@
         android:textSize="16sp" />
 
     <ImageView
-        android:id="@+id/i011_img_icon"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_centerHorizontal="true"

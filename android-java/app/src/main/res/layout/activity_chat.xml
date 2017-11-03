@@ -40,7 +40,6 @@
 
     <LinearLayout
         android:layout_below="@id/I050_titlebar"
-        android:id="@+id/chat_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/send_msg_layout"
@@ -93,7 +92,6 @@
                 android:src="@drawable/icon_yuyin" /-->
 
             <RelativeLayout
-                android:id="@+id/chat_input_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

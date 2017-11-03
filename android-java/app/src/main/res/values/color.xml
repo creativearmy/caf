@@ -2,86 +2,10 @@
 <resources>
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
-    <color name="green_i012">#95c041</color>
-    <color name="waite_i012">#ffffff</color>
     <color name="gray_i012">#f2f2f2</color>
-    <color name="gray_2_i012">#4c5966</color>
-    <color name="green_i013">#95c041</color>
-    <color name="waite_i013">#ffffff</color>
-    <color name="gray_i013">#f2f2f2</color>
-    <color name="gray_2_i013">#4c5966</color>
-    <color name="black_i030">#000000</color>
-    <color name="white_i030">#ffffff</color>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
-
-
-    <color name="backgroundColor_i031">#f2f2f2</color>
-
-
-    <color name="titleBackgroundColor_i031">#343434</color>
-
-
-    <color name="textColor_i031">#aba9a9</color>
 
 
     <color name="dark_gray_i031">#FFA1A1A1</color>
 
 
-    <color name="RelativeLayout_i031">#ffffffff</color>
-
-
-    <color name="RelativeLayout_btn_i031">#FF00FF00</color>
-    <color name="red">#ffff0000</color>
-    <color name="nochoose_i042">#ffffff</color>
-    <color name="choose_i042">#f0f0f0</color>
-    <color name="i040_ffffffff">#ffffff</color>
-    <color name="i040_ff000000">#ff000000</color>
-    <color name="i040_ffff0000">#ffff0000</color>
-    <color name="i040_00000000">#00000000</color>
-    <color name="i040_ffcccccc">#ffcccccc</color>
-    <color name="i040_fff2f2f2">#fff2f2f2</color>
-
-    <color name="backgroundColor_i041">#f2f2f2</color>
-
-
-    <color name="titleBackgroundColor_i041">#343434</color>
-
-
-    <color name="textColor_i041">#aba9a9</color>
-
-
-    <color name="dark_gray_i041">#FFA1A1A1</color>
-
-
-    <color name="RelativeLayout_i041">#ffffffff</color>
-
-
-    <color name="RelativeLayout_btn_i041">#FF00FF00</color>
-
-    <color name="waiht_i043">#ffffff</color>
-
-    <color name="gray_i043">#555555</color>
-
-    <color name="baise">#ffffff</color>
-
-    <color name="huise">#434343</color>
-
-    <color name="white_i073">#ffffff</color>
-
-    <color name="black_i073">#000000</color>
-
-    <color name="gray_i073">#2de1e1e1</color>
-
-    <color name="white_i071">#ffffff</color>
-
-    <color name="black_i071">#000000</color>
-
-    <color name="gray_i071">#2de1e1e1</color>
-
-    <color name="red_i060">#FF0000</color>
-    <color name="green_i060">#FF004A00</color>
-    <color name="black_i060">#000000</color>
-    <color name="orange_i060">#EE7600</color>
 </resources>
