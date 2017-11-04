@@ -15,6 +15,12 @@ import com.creativearmy.sdk.JSONObject;
 
 public class i000Activity extends Activity implements OnClickListener {
 
+    // Activity template, make a copy of this file, and change screen
+    // ID to iXXX, and XXX shall be larger than 100. IDs lower than 100
+    // are reserved for system use
+    // Search globally for ID i072 to see how to add appropriate entries
+    // at different locations when creating new page.
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 

@@ -41,6 +41,9 @@ import static java.util.Calendar.getInstance;
 
 public class i072Activity extends Activity {
 
+    // Demo how a file is uploaded to HTTP server
+    // Set a break point, and click on the avatar on emulator to upload an image from album
+    // or from new camera shot, to file server.
 
     private String fid = null;
 
@@ -62,7 +65,7 @@ public class i072Activity extends Activity {
 
     private DisplayImageOptions options;
 
-    private EditText name,singnature,phoneNo,address,work_experience,edu_experience,payment,provience ,city;
+    private EditText name,singnature,phoneNo,address,work_experience,edu_experience,payment,provience,city;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,16 +125,16 @@ public class i072Activity extends Activity {
         city = (EditText) findViewById(R.id.edt_city);
     }
 
-    public String selectSex(){
+    public String selectSex() {
         if(iv_choosefemale.getVisibility() == View.INVISIBLE){
             return "male";
-        }else{
+        } else {
             return "female";
         }
     }
 
-    public void setSex(String sex){
-        if (sex.equals("male")){
+    public void setSex(String sex) {
+        if (sex.equals("male")) {
             iv_choosemale.setVisibility(ViewGroup.VISIBLE);
             iv_choosefemale.setVisibility(ViewGroup.INVISIBLE);
         }else{
@@ -140,12 +143,12 @@ public class i072Activity extends Activity {
         }
     }
 
-    public void ivmaleClick(View v){
+    public void ivmaleClick(View v) {
         iv_choosemale.setVisibility(ViewGroup.VISIBLE);
         iv_choosefemale.setVisibility(ViewGroup.INVISIBLE);
     }
 
-    public void ivfemaleClick(View v){
+    public void ivfemaleClick(View v) {
         iv_choosefemale.setVisibility(ViewGroup.VISIBLE);
         iv_choosemale.setVisibility(ViewGroup.INVISIBLE);
     }
@@ -162,7 +165,7 @@ public class i072Activity extends Activity {
         startActivityForResult(intent, requestCode);
     }
 
-    private File saveImg(Bitmap b){
+    private File saveImg(Bitmap b) {
 
         File f = new File(getCacheDir()+"/"+getInstance().getTimeInMillis() + ".jpg");
 
@@ -197,18 +200,18 @@ public class i072Activity extends Activity {
                 Uri uri = data.getData();
                 crop(uri, requestCode);
             }
-        }
 
-        else if (requestCode == PHOTO_REQUEST_CAREMA) {
+        } else if (requestCode == PHOTO_REQUEST_CAREMA) {
+
             cropRawImageUri(rawImageUri);
 
-        }else if (requestCode == PHOTO_REQUEST_CUT_CIRCLE) {
+        } else if (requestCode == PHOTO_REQUEST_CUT_CIRCLE) {
 
             Log.i("i072", APIConnection.server_info.optString("upload_to"));
 
             RequestParams req = new RequestParams();
 
-            if (iv_personImage != null){
+            if (iv_personImage != null) {
                 ImageLoader.getInstance().displayImage(String.valueOf(smallImageURI), iv_personImage, options);
             }
 
@@ -223,18 +226,14 @@ public class i072Activity extends Activity {
 
                 @Override
                 public void onSuccess(ResponseInfo<Object> responseInfo) {
-                    try {
-                        JSONObject jb = new JSONObject(responseInfo.result.toString());
-                        fid = jb.optString("fid");
 
-                        Log.i("i072", "file uploaded, return fid: "+fid);
+                    JSONObject jb = new JSONObject(responseInfo.result.toString());
+                    fid = jb.optString("fid");
 
-                        if (jb.optString("fid") != null && !jb.optString("fid").equals("")) {
-                            Toast.makeText(i072Activity.this, "Upload success", Toast.LENGTH_LONG).show();
-                        }
+                    Log.i("i072", "file uploaded, return fid: "+fid);
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    if (!jb.s("fid").equals("")) {
+                        Toast.makeText(i072Activity.this, "Upload success", Toast.LENGTH_LONG).show();
                     }
                 }
 
@@ -353,7 +352,7 @@ public class i072Activity extends Activity {
 
                     output.setText(jo.optString("data"));
 
-                }else if(jo.optString("obj").equals("person") && jo.optString("act").equals("update")){
+                } else if (jo.optString("obj").equals("person") && jo.optString("act").equals("update")) {
 
                     Toast.makeText(i072Activity.this, "update success", Toast.LENGTH_SHORT).show();
 
