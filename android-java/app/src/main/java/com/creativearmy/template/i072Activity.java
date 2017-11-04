@@ -43,6 +43,7 @@ public class i072Activity extends Activity {
 
 
     private String fid = null;
+
     private String pid = null;
 
     private static final int PHOTO_REQUEST_CAREMA = 0;
@@ -58,18 +59,19 @@ public class i072Activity extends Activity {
 
     private ImageView iv_choosemale;
     private ImageView iv_choosefemale;
-    private ImageLoader imageLoader = null;
-    private DisplayImageOptions options;
 
+    private DisplayImageOptions options;
 
     private EditText name,singnature,phoneNo,address,work_experience,edu_experience,payment,provience ,city;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.i072_activity_main);
+
         APIConnection.registerHandler(handler);
-        imageLoader = ((MyApplication)getApplication()).getImageLoader();
+
         options = new DisplayImageOptions.Builder()
                 .showImageOnLoading(R.mipmap.icon_biaoqing_i073)          
                 .showImageForEmptyUri(R.mipmap.icon_biaoqing_i073)  
@@ -77,13 +79,16 @@ public class i072Activity extends Activity {
                 .cacheInMemory(true)                        
                 .cacheOnDisk(true)                          
                 .build();
+
         init();
 
         pid =  getIntent().getStringExtra("PID");
+
         if (pid == null) {
             pid = APIConnection.user_info.optString("_id");
         }
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -116,6 +121,7 @@ public class i072Activity extends Activity {
         provience = (EditText) findViewById(R.id.edt_provience);
         city = (EditText) findViewById(R.id.edt_city);
     }
+
     public String selectSex(){
         if(iv_choosefemale.getVisibility() == View.INVISIBLE){
             return "male";
@@ -123,6 +129,7 @@ public class i072Activity extends Activity {
             return "female";
         }
     }
+
     public void setSex(String sex){
         if (sex.equals("male")){
             iv_choosemale.setVisibility(ViewGroup.VISIBLE);
@@ -137,13 +144,16 @@ public class i072Activity extends Activity {
         iv_choosemale.setVisibility(ViewGroup.VISIBLE);
         iv_choosefemale.setVisibility(ViewGroup.INVISIBLE);
     }
+
     public void ivfemaleClick(View v){
         iv_choosefemale.setVisibility(ViewGroup.VISIBLE);
         iv_choosemale.setVisibility(ViewGroup.INVISIBLE);
     }
+
     public void changePersonImage(View v){
         showPhotoDialog();
     }
+
     public void gallery(View view,int requestCode) {
 
         Intent intent = new Intent(Intent.ACTION_PICK);
@@ -151,9 +161,11 @@ public class i072Activity extends Activity {
 
         startActivityForResult(intent, requestCode);
     }
+
     private File saveImg(Bitmap b){
-        File f = new File(getCacheDir()+"/"+getInstance().getTimeInMillis()
-                + ".jpg");
+
+        File f = new File(getCacheDir()+"/"+getInstance().getTimeInMillis() + ".jpg");
+
         if (f.exists()) {
             f.delete();
         }
@@ -167,14 +179,17 @@ public class i072Activity extends Activity {
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         if (requestCode == PHOTO_REQUEST_GALLERY_CIRCLE) {
 
             if (data != null) {
@@ -183,48 +198,57 @@ public class i072Activity extends Activity {
                 crop(uri, requestCode);
             }
         }
+
         else if (requestCode == PHOTO_REQUEST_CAREMA) {
             cropRawImageUri(rawImageUri);
 
         }else if (requestCode == PHOTO_REQUEST_CUT_CIRCLE) {
 
-                Log.i("Test", APIConnection.server_info.optString("upload_to"));
-                RequestParams rp = new RequestParams();
+            Log.i("i072", APIConnection.server_info.optString("upload_to"));
 
-            if (imageLoader != null && iv_personImage != null){
-                imageLoader.displayImage(String.valueOf(smallImageURI), iv_personImage, options);
+            RequestParams req = new RequestParams();
+
+            if (iv_personImage != null){
+                ImageLoader.getInstance().displayImage(String.valueOf(smallImageURI), iv_personImage, options);
             }
 
-            File f = new File(smallImageFileName);
-                rp.addBodyParameter("local_file", f);
-                rp.addBodyParameter("proj", APIConnection.server_info.optString("proj"));
-                HttpUtils h = new HttpUtils();
-                h.send(HttpRequest.HttpMethod.POST, APIConnection.server_info.optString("upload_to"), rp, new RequestCallBack<Object>() {
-                    @Override
-                    public void onSuccess(ResponseInfo<Object> responseInfo) {
-                        try {
-                            JSONObject jb = new JSONObject(responseInfo.result.toString());
-                            fid = jb.optString("fid");
-                            Log.i("upload return fid:", fid);
-                            if (jb.optString("fid") != null && !jb.optString("fid").equals("")) {
-                                Toast.makeText(i072Activity.this, "Upload success", Toast.LENGTH_LONG).show();
-                            }
+            File file = new File(smallImageFileName);
 
-                        } catch (Exception e) {
-                            e.printStackTrace();
+            req.addBodyParameter("local_file", file);
+            req.addBodyParameter("proj", APIConnection.server_info.optString("proj"));
+
+            HttpUtils http = new HttpUtils();
+
+            http.send(HttpRequest.HttpMethod.POST, APIConnection.server_info.optString("upload_to"), req, new RequestCallBack<Object>() {
+
+                @Override
+                public void onSuccess(ResponseInfo<Object> responseInfo) {
+                    try {
+                        JSONObject jb = new JSONObject(responseInfo.result.toString());
+                        fid = jb.optString("fid");
+
+                        Log.i("i072", "file uploaded, return fid: "+fid);
+
+                        if (jb.optString("fid") != null && !jb.optString("fid").equals("")) {
+                            Toast.makeText(i072Activity.this, "Upload success", Toast.LENGTH_LONG).show();
                         }
-                    }
 
-                    @Override
-                    public void onFailure(HttpException e, String s) {
-                        Log.i("Test", s);
-                        Toast.makeText(i072Activity.this, "Avatar upload failed", Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                });
+                }
+
+                @Override
+                public void onFailure(HttpException e, String s) {
+                    Log.i("Test", s);
+                    Toast.makeText(i072Activity.this, "Avatar upload failed", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
 
         super.onActivityResult(requestCode, resultCode, data);
     }
+
     public void crop(Uri uri, int requestCode) {
 
         Intent intent = new Intent("com.android.camera.action.CROP");
@@ -243,8 +267,8 @@ public class i072Activity extends Activity {
 
         startActivityForResult(intent, PHOTO_REQUEST_CUT_CIRCLE);
     }
-    private void cropRawImageUri(Uri uri) {
 
+    private void cropRawImageUri(Uri uri) {
 
         Intent intent = new Intent("com.android.camera.action.CROP");
 
@@ -268,6 +292,7 @@ public class i072Activity extends Activity {
 
         startActivityForResult(intent, PHOTO_REQUEST_CUT_CIRCLE);
     }
+
     private Bitmap setPicToView(Intent picdata) {
         Bundle bundle = picdata.getExtras();
         if (bundle != null) {
@@ -278,8 +303,10 @@ public class i072Activity extends Activity {
     }
 
     private void showPhotoDialog() {
+
         final AlertDialog dlg = new AlertDialog.Builder(this).create();
         dlg.show();
+
         Window window = dlg.getWindow();
         window.setContentView(R.layout.i072_search_local_image_dialog);
 
@@ -297,6 +324,7 @@ public class i072Activity extends Activity {
                 dlg.cancel();
             }
         });
+
         TextView tv_xiangce = (TextView) window.findViewById(R.id.tv_content2);
         tv_xiangce.setText("album");
         tv_xiangce.setOnClickListener(new OnClickListener() {
@@ -311,32 +339,34 @@ public class i072Activity extends Activity {
     }
 
     private final Handler handler = new Handler() {
+
         public void handleMessage(Message msg) {
+
             TextView output = (TextView) findViewById(R.id.OUTPUT);
+
             if (msg.what == APIConnection.responseProperty) {
+
                 JSONObject jo = (JSONObject) msg.obj;
 
-                // {"obj":"associate","act":"mock","to_login_name":"test6977","data":{"obj":"test","act":"output1","data":"blah"}}
+                // on Project Toolbox, {"obj":"associate","act":"mock","to_login_name":"test2","data":{"obj":"test","act":"output1","data":"blah"}}
                 if (jo.optString("obj").equals("test") && jo.optString("act").equals("output1")) {
 
                     output.setText(jo.optString("data"));
-                }else if(jo.optString("obj").equals("person") && jo.optString("act").equals("update")){
-                    if (jo.optString("status").equals("success")){
-                        Log.e("success------", jo.toString());
-                        Toast.makeText(i072Activity.this, "update success", Toast.LENGTH_SHORT).show();
-                        Intent intent=new Intent();
-                        intent.putExtra("name",name.getEditableText().toString());
-                        intent.putExtra("uri",String.valueOf(smallImageURI));
-                        setResult(0x123, intent);
-                        finish();
-                    }else{
-                        Toast.makeText(i072Activity.this, "update success", Toast.LENGTH_SHORT).show();
-                    }
-                }
 
+                }else if(jo.optString("obj").equals("person") && jo.optString("act").equals("update")){
+
+                    Toast.makeText(i072Activity.this, "update success", Toast.LENGTH_SHORT).show();
+
+                    Intent intent=new Intent();
+                    intent.putExtra("name",name.getEditableText().toString());
+                    intent.putExtra("uri",String.valueOf(smallImageURI));
+                    setResult(0x123, intent);
+                    finish();
+                }
             }
 
             if (msg.what == APIConnection.stateProperty) {
+
                 if (APIConnection.state == APIConnection.States.IN_SESSION) {
 
                 }
@@ -347,6 +377,7 @@ public class i072Activity extends Activity {
     private void updateInfo() {
 
         JSONObject req = new JSONObject();
+
         req.xput("obj","person");
         req.xput("act","update");
         req.xput("person_id",pid);
@@ -369,5 +400,4 @@ public class i072Activity extends Activity {
 
         APIConnection.send(req);
     }
-
 }

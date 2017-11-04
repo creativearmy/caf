@@ -21,12 +21,13 @@ public class i000Activity extends Activity implements OnClickListener {
 
         setContentView(R.layout.ixxx_activity_main);
 
-
         Button mock_input_click = (Button)findViewById(R.id.INPUT);
         mock_input_click.setOnClickListener(this);
 
         TextView mock_output = (TextView) findViewById(R.id.OUTPUT);
         mock_output = (TextView) findViewById(R.id.OUTPUT);
+
+        mock_output.setText(this.getLocalClassName());
     }
 
     @Override
