@@ -68,7 +68,7 @@ public class i072Activity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.i072_activity_main);
+        setContentView(R.layout.i072activity);
 
         APIConnection.registerHandler(handler);
 

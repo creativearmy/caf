@@ -11,7 +11,6 @@ import android.os.Message;
 
 import com.creativearmy.sdk.APIConnection;
 import com.creativearmy.sdk.JSONObject;
-import com.creativearmy.sdk.JSONArray;
 
 
 public class i000Activity extends Activity implements OnClickListener {
@@ -19,7 +18,7 @@ public class i000Activity extends Activity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.ixxx_activity_main);
+        setContentView(R.layout.i000activity);
 
         Button mock_input_click = (Button)findViewById(R.id.INPUT);
         mock_input_click.setOnClickListener(this);

@@ -46,7 +46,6 @@ import org.json.JSONException;
 
 import java.io.File;
 import java.util.ArrayList;
-import com.creativearmy.sdk.JSONObject;
 
 public class i052Activity extends Activity implements OnLayoutChangeListener, SwipeRefreshLayout.OnRefreshListener, SizeNotifierRelativeLayout.SizeNotifierRelativeLayoutDelegate, View.OnClickListener, TextWatcher {
     MessAdapter mMessAdapter;
@@ -87,7 +86,7 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
+        setContentView(R.layout.i052activity);
 
 
         mKeyboradHeigth = getisKeyboardHeight();
