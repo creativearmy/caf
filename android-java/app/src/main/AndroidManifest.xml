@@ -31,9 +31,9 @@ package="com.creativearmy.template" >
 
 
 
-    <activity android:name=".i000MainActivity" />
-    <activity android:name=".i072MainActivity" />
-    <activity android:name=".i052Chatactivity" />
+    <activity android:name=".i000Activity" />
+    <activity android:name=".i072Activity" />
+    <activity android:name=".i052Activity" />
 
 
 

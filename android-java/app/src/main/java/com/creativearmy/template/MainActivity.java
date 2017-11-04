@@ -202,7 +202,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             case R.id.i011_tv_register:
                 tvRegister.setTextColor(0xff95c040);
                 Intent intent = new Intent();
-                intent.setClass(MainActivity.this, i000MainActivity.class);
+                intent.setClass(MainActivity.this, i000Activity.class);
                 startActivity(intent);
 
                 break;
@@ -210,7 +210,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             case R.id.i011_tv_forget_password:
                 tvForgetPassword.setTextColor(0xff95c040);
                 Intent intent1 = new Intent();
-                intent1.setClass(MainActivity.this, i000MainActivity.class);
+                intent1.setClass(MainActivity.this, i000Activity.class);
                 startActivity(intent1);
                 break;
 
@@ -258,7 +258,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     APIConnection.user_jowrite(userjo);
 
                     Intent intent=new Intent();
-                    intent.setClass(MainActivity.this,i000MainActivity.class);
+                    intent.setClass(MainActivity.this,i000Activity.class);
                     startActivity(intent);
                     finish();
                 }

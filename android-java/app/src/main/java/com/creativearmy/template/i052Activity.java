@@ -48,7 +48,7 @@ import java.io.File;
 import java.util.ArrayList;
 import com.creativearmy.sdk.JSONObject;
 
-public class i052Chatactivity extends Activity implements OnLayoutChangeListener, SwipeRefreshLayout.OnRefreshListener, SizeNotifierRelativeLayout.SizeNotifierRelativeLayoutDelegate, View.OnClickListener, TextWatcher {
+public class i052Activity extends Activity implements OnLayoutChangeListener, SwipeRefreshLayout.OnRefreshListener, SizeNotifierRelativeLayout.SizeNotifierRelativeLayoutDelegate, View.OnClickListener, TextWatcher {
     MessAdapter mMessAdapter;
     SwipeRefreshLayout mSwipeView;
     Button mBtnSendMsg;
@@ -112,7 +112,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
 
-                    i052Chatactivity.this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                    i052Activity.this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                 } else {
 
                 }
@@ -131,7 +131,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
 
         mPersonId = "o14509039359136660099";
 
-        Title = "personal chat: i052Chatactivity.java mPersonId";
+        Title = "personal chat: i052Activity.java mPersonId";
 
         mTvTitle.setText(Title);
         mTvTitle.setTextColor(Color.WHITE);
@@ -197,49 +197,14 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                 JSONObject jo = (JSONObject) msg.obj;
                 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-                if ((jo.optString("obj").equals("topic") || jo.optString("obj").equals("task"))
-  		            && jo.optString("act").equals("chat_get")) {
-
-                    isfollowing = jo.optInt("following") == 0 ? false : true;
-
-                    if (null != jo.optJSONObject("chatRecord"))
-                    {
-                        JSONObject object =jo.optJSONObject("chatRecord");
-                        mNextId = object.optString("next_id");
-
-                        if(null != object.optJSONArray("records"))
-                        {
-                            JSONArray array =object.optJSONArray("records");
-                            ArrayList<JSONObject> listMsges = new ArrayList<JSONObject>();
-                            generateData(array, listMsges);
-
-                            // for initial read, scroll to the bottom of the list view
-                            boolean initial_read = (mMessAdapter.getCount() == 0);
-
-                            if (null != mMessAdapter) {
-                                if (array.length()==1){
-                                    mMessAdapter.addNetMessage(listMsges);
-                                }else{
-                                    mMessAdapter.addHistory(listMsges);
-                                }
-                            }
-
-                            if (initial_read) {
-                                msgListview.setSelection(mMessAdapter.getCount() - 1);
-                            }
-                        }
-                    }
-                }
-
-                if (jo.optString("obj").equals("person") && jo.optString("act").equals("chat_get"))
+                if (jo.optString("obj").equals("message") && jo.optString("act").equals("chat_get"))
                 {
-                        JSONObject object =jo.optJSONObject("chatRecord");
-                        mNextId = object.optString("next_id");
+                        JSONObject block =jo.optJSONObject("block");
+                        mNextId = block.optString("next_id");
 
-                        if(null != object.optJSONArray("records"))
+                        if(null != block.optJSONArray("messages"))
                         {
-                            JSONArray array =object.optJSONArray("records");
+                            JSONArray array =block.optJSONArray("records");
                             ArrayList<JSONObject> listMsges = new ArrayList<JSONObject>();
                             generateData(array, listMsges);
 
@@ -257,14 +222,10 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                             if (initial_read) {
                                 msgListview.setSelection(mMessAdapter.getCount() - 1);
                             }
-			}
+			            }
                 }
 
-                if (jo.optString("obj").equals("push") && 
-                    (   jo.optString("act").equals("chat_topic") && mode.equals("topic") && jo.optString("topic_id").equals(mTopicId)
-                     || jo.optString("act").equals("chat_task") && mode.equals("task") && jo.optString("task_id").equals(mTaskId)
-                     || jo.optString("act").equals("chat_person") && mode.equals("person") && jo.optString("from_id").equals(mPersonId)
-                    )) {
+                if (jo.optString("obj").equals("push") && jo.optString("act").equals("message_chat") && mode.equals("chat") && jo.optString("from_id").equals(mPersonId)) {
 
                     ArrayList<JSONObject> listMsges = new ArrayList<JSONObject>();
 
@@ -272,7 +233,6 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                     int send_time = jo.optInt("chat_time");
                     String from_id = jo.optString("from_id");
                     String from_image = jo.optString("from_image");
-//                            String state = jo.optString("topic_id");
                     String xtype = jo.optString("chat_type");
 
                     JSONObject netMessage1 = new JSONObject();
@@ -301,7 +261,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                         mMessAdapter.addNetMessage(listMsges);
                     }
                 } else if ((jo.optString("obj").equals("topic") || jo.optString("obj").equals("task")) && jo.optString("act").equals("follow")) {
-                    ToastUtil.showShortToast(i052Chatactivity.this, "Follow success");
+                    ToastUtil.showShortToast(i052Activity.this, "Follow success");
 
                     isfollowing = !isfollowing;
                 }
@@ -590,7 +550,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
     }
 
     private void upLoadImg(Intent data) {
-        Toast.makeText(i052Chatactivity.this, "upload", Toast.LENGTH_LONG).show();
+        Toast.makeText(i052Activity.this, "upload", Toast.LENGTH_LONG).show();
         RequestParams rp = new RequestParams();
         if (data != null) {
             File f = null;
@@ -613,7 +573,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                         String mime = jb.s("type");
 
                         if (jb.optString("fid") != null && !jb.optString("fid").equals("")) {
-                            Toast.makeText(i052Chatactivity.this, "upload succeeded", Toast.LENGTH_LONG).show();
+                            Toast.makeText(i052Activity.this, "upload succeeded", Toast.LENGTH_LONG).show();
 
                             JSONObject req = new JSONObject();
 
@@ -655,7 +615,7 @@ public class i052Chatactivity extends Activity implements OnLayoutChangeListener
                 @Override
                 public void onFailure(HttpException e, String s) {
                     Log.i("Test", s);
-                    Toast.makeText(i052Chatactivity.this, "upload failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(i052Activity.this, "upload failed", Toast.LENGTH_SHORT).show();
                 }
             });
         }

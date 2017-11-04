@@ -39,7 +39,7 @@ import java.io.IOException;
 
 import static java.util.Calendar.getInstance;
 
-public class i072MainActivity extends Activity {
+public class i072Activity extends Activity {
 
 
     private String fid = null;
@@ -207,7 +207,7 @@ public class i072MainActivity extends Activity {
                             fid = jb.optString("fid");
                             Log.i("upload return fid:", fid);
                             if (jb.optString("fid") != null && !jb.optString("fid").equals("")) {
-                                Toast.makeText(i072MainActivity.this, "Upload success", Toast.LENGTH_LONG).show();
+                                Toast.makeText(i072Activity.this, "Upload success", Toast.LENGTH_LONG).show();
                             }
 
                         } catch (Exception e) {
@@ -218,7 +218,7 @@ public class i072MainActivity extends Activity {
                     @Override
                     public void onFailure(HttpException e, String s) {
                         Log.i("Test", s);
-                        Toast.makeText(i072MainActivity.this, "Avatar upload failed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(i072Activity.this, "Avatar upload failed", Toast.LENGTH_SHORT).show();
                     }
                 });
         }
@@ -323,14 +323,14 @@ public class i072MainActivity extends Activity {
                 }else if(jo.optString("obj").equals("person") && jo.optString("act").equals("update")){
                     if (jo.optString("status").equals("success")){
                         Log.e("success------", jo.toString());
-                        Toast.makeText(i072MainActivity.this, "update success", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(i072Activity.this, "update success", Toast.LENGTH_SHORT).show();
                         Intent intent=new Intent();
                         intent.putExtra("name",name.getEditableText().toString());
                         intent.putExtra("uri",String.valueOf(smallImageURI));
                         setResult(0x123, intent);
                         finish();
                     }else{
-                        Toast.makeText(i072MainActivity.this, "update success", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(i072Activity.this, "update success", Toast.LENGTH_SHORT).show();
                     }
                 }
 

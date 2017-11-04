@@ -116,9 +116,9 @@ public class NotificationService extends Service {
 		Intent intent = null;
 
 
-		if (act.equals("i000")) intent = new Intent(app.context, i000MainActivity.class);
-		if (act.equals("i072")) intent = new Intent(app.context, i072MainActivity.class);
-		if (act.equals("i052")) intent = new Intent(app.context, i052Chatactivity.class);
+		if (act.equals("i000")) intent = new Intent(app.context, i000Activity.class);
+		if (act.equals("i072")) intent = new Intent(app.context, i072Activity.class);
+		if (act.equals("i052")) intent = new Intent(app.context, i052Activity.class);
 
 
 		if (intent == null) return;
@@ -157,7 +157,7 @@ public class NotificationService extends Service {
 				if (jo.optString("obj").equals("push")
 						&& jo.optString("act").equals("test")) {
 
-					Intent openintent = new Intent(app.context, i000MainActivity.class);
+					Intent openintent = new Intent(app.context, i000Activity.class);
 					PendingIntent pendingIntent = PendingIntent.getActivity(app.context, 0, openintent, PendingIntent.FLAG_CANCEL_CURRENT);
 
 					notifification(pendingIntent, "push:test message", "message content");
@@ -165,7 +165,7 @@ public class NotificationService extends Service {
 
 
 				if (jo.optString("obj").equals("push")
-						&& jo.optString("act").equals("chat_person")) {
+						&& jo.optString("act").equals("message_chat")) {
 						/*
 					Chat = jo.optString("chat_content");
 

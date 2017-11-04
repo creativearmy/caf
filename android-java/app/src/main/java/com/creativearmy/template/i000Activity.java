@@ -14,7 +14,7 @@ import com.creativearmy.sdk.JSONObject;
 import com.creativearmy.sdk.JSONArray;
 
 
-public class i000MainActivity extends Activity implements OnClickListener {
+public class i000Activity extends Activity implements OnClickListener {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
