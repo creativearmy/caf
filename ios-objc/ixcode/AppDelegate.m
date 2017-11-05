@@ -8,6 +8,7 @@
 
 #define WSURL @"ws://112.124.70.60:51727/demo"
 
+// singleton global Creativearmy App Framework SDK obj
 APIConnection *globalConn;
 
 @interface AppDelegate ()
@@ -21,7 +22,6 @@ APIConnection *globalConn;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
     // Override point for customization after application launch.
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     
@@ -66,17 +66,23 @@ APIConnection *globalConn;
 
 -(void)switchViewController:(NSString*)ixxx
 {
+    // Responds to Project Toolbox Switch command, and cause app to switch to another screen.
     UIViewController * vc = nil;
+    
+    // ixxx unique screen identifier. XXX shall be greater than 100 and less than 999
+    // XXX less than 100 are allocated for system use
     
     
     if ([ixxx isEqualToString:@"i000"]) vc = [[i000ViewController alloc] initWithNibName:@"i000View" bundle:nil];
     if ([ixxx isEqualToString:@"i072"]) vc = [[i072ViewController alloc] initWithNibName:@"i072ViewBlank" bundle:nil];
     
+    
+    // Messaging demo, two-party conversation chat
     if ([ixxx isEqualToString:@"i052"]) {
         ChatViewController* c = [[ChatViewController alloc] init];
         c.obj = @"person";
         c.to_id = @"o14509039359136660099";
-        c.title_text = @"Personal Chat: AppDelegate.m vc.to_id";
+        c.title_text = @"mode: chat, two-party conversation";
         vc = c;
     }
     

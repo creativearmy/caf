@@ -7,6 +7,10 @@
 
 #import "HttpTool.h"
 
+// Demo HTTP post file upload to file server to get a fid to be used for other api calls.
+// Set a breakpoint where HttoTool is used to observer the file upload process.
+// Click on the i072 screen avatar to start uploading file from camera or album.
+
 @interface i072ViewController ()<UIActionSheetDelegate,UINavigationControllerDelegate,UIImagePickerControllerDelegate,UITextViewDelegate,UITextFieldDelegate,UIScrollViewDelegate>
 {
     UIScrollView *scrollview;
@@ -20,6 +24,7 @@
     NSString *imageFid;
     NSMutableArray *_fields;
 }
+
 @property (strong, nonatomic) IBOutlet UIView *mainView;
 @property (weak, nonatomic) IBOutlet UIImageView *headFid;
 @property (weak, nonatomic) IBOutlet UIButton *upheadFid;
@@ -34,7 +39,6 @@
 @property (weak, nonatomic) IBOutlet UITextField *work_experience;
 
 @property (weak, nonatomic) IBOutlet UITextField *addressTextField;
-//@property (weak,nonatomic) NSMutableDictionary *update;
 @property (weak,nonatomic) NSString *gender;
 
 @property (weak, nonatomic) IBOutlet UIView *buttonView;
@@ -44,7 +48,6 @@
 @property (weak, nonatomic) IBOutlet UITextField *paymentTextField;
 @property (weak, nonatomic) IBOutlet UITextField *remarkTextField;
 
-
 - (IBAction)man:(UIButton *)sender;
 - (IBAction)woman:(UIButton *)sender;
 
@@ -53,13 +56,6 @@
 
 @implementation i072ViewController
 
-
-
-- (void)addNotification {
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(response_received)
-                                                 name:globalConn.responseReceivedNotification object:nil];
-}
 - (void)response_received {
 
     NSString*ustr=globalConn.response[@"ustr"];
@@ -71,14 +67,9 @@
           [globalConn.response objectForKey:@"act"],
           [globalConn.response objectForKey:@"uerr"]);
     
-    // {"obj":"associate","act":"mock","to_login_name":"TOOLBOX_ACCOUNT","data":{"obj":"test","act":"output1","data":"blah"}}
+    // Project Toolbox: {"obj":"associate","act":"mock","to_login_name":"TOOLBOX_ACCOUNT","data":{"obj":"test","act":"output1","data":"blah"}}
     NSString*obj_act=[NSString stringWithFormat:@"%@_%@",globalConn.response[@"obj"],globalConn.response[@"act"]];
     
-    if ([obj_act isEqualToString:@"person_update"]) {
-        [self obLoginArrivedFromI072:globalConn.response];
-        [self.navigationController popViewControllerAnimated:YES];
-        
-    }
     if ([obj_act isEqualToString:@"person_get"]) {
         [self refreshWithUserInfo:globalConn.response];
     }
@@ -139,6 +130,7 @@
     }
     
 }
+
 -(BOOL)inArray:(NSArray*)array string:(NSString*)string
 {
     for (int i=0; i<array.count; i++) {
@@ -149,26 +141,13 @@
     return NO;
     
 }
--(void )obLoginArrivedFromI072:(JSONObject *)response {
-    //    PersonUpdateReturn *UpdateReturn = [PersonUpdateReturn mj_objectWithKeyValues:notification.userInfo];
-    if ([[response s:@"ustr"] isEqualToString:@""]){
-        NSLog(@"%@",response[@"status"]);
-    }
-    else {
-    }
-}
-
-
-
-
--(void )removeNotification{
-    [[NSNotificationCenter defaultCenter]removeObserver:self];
-    
-}
 
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:YES];
-    [self addNotification];
+
+    NSLog(@"addObserver: %@", NSStringFromClass([self class]));
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(response_received)
+                                                 name:globalConn.responseReceivedNotification object:nil];
     
     self.selectButtons = [@[] mutableCopy];
     
@@ -179,35 +158,9 @@
         }
     }
     
-//    NSURL *imageURL = [WENetWork urlStrForFid:[globalConn user_info][@"headFid"]];
-//    [self.headFid sd_setImageWithURL:imageURL placeholderImage:[UIImage imageNamed:@"icon_head_example2.png"] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL){
-//        self.headFid.image=image;
-//    }];
-    
-//    self.name.text = [globalConn user_info][@"name"];
-//    self.phoneNo.text = [globalConn user_info][@"phoneNo"];
     _headFid.layer.cornerRadius=_headFid.frame.size.width/2;
     _headFid.layer.masksToBounds=YES;
 }
-
-//-(void)input:(NSMutableDictionary*)date {
-
-//    NSMutableDictionary *person_update = [NSMutableDictionary dictionary];
-//
-//    [person_update setObject:self.headFid.image forKey:@"headFid"];
-//    [person_update setObject:self.name.text forKey:@"name"];
-//    //    [person_update setObject:self.gender forKey:@"gender"];
-//    [person_update setObject:self.phoneNo.text forKey:@"phoneNo"];
-//    [person_update setObject:self.address.text forKey:@"address"];
-//    [person_update setObject:self.work_experience.text forKey:@"work_experience"];
-//    [person_update setObject:self.edu_experience.text  forKey:@"edu_experience"];
-//    [person_update setObject:self.singnature.text  forKey:@"singnature"];
-//    [person_update setObject:self.singnature.text forKey:@"singnature"];
-//
-//
-//
-//
-//}
 
 - (IBAction)adeptButtonClick:(UIButton *)sender {
     
@@ -218,7 +171,7 @@
                 NSMutableArray *temp = _fields.mutableCopy;
                 [temp removeObject:title];
                 _fields = temp;
-                NSLog(@"--%@",_fields);
+                NSLog(@"%@",_fields);
                 [self setUpLayerWithButton:sender];
                 [self.selectButtons removeObject:sender];
             }
@@ -246,28 +199,19 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
     
-
     width = [UIScreen mainScreen].bounds.size.width;
     CGRect frame = [UIScreen mainScreen].bounds;
     self.mainView.frame =frame;
     scrollview = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 74, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
     self.exucationTextField.delegate=self;
     self.paymentTextField.delegate=self;
-    //    [self.address addTarget:self action:@selector(textChange:) forControlEvents:UIControlEventEditingChanged];
-    //    [self.work_experience addTarget:scrollview action:@selector(textChange:) forControlEvents:UIControlEventEditingChanged];
-    //    [self.edu_experience addTarget:scrollview action:@selector(textChange:) forControlEvents:UIControlEventEditingChanged];
-    //
-    //    self.address.delegate=self;
-    
 
     scrollview.showsVerticalScrollIndicator = NO;
     scrollview.showsVerticalScrollIndicator = NO;
 
     scrollview.bounces = NO;
-    //    scrollview.backgroundColor = [UIColor redColor];
     scrollview.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
     
     [self.mainView addSubview:scrollview];
@@ -276,60 +220,15 @@
     NSArray *views = [[NSBundle mainBundle]loadNibNamed:@"i072View" owner:self options:nil];
     UIView *view1 = views[0];
     view1.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width,view1.frame.size.height);
-    //    self.singnature.delegate =self;
     [scrollview addSubview:view1];
     scrollview.contentSize = CGSizeMake(view1.frame.size.width, view1.frame.size.height+80);
     scrollview.delegate = self;
-    
-    //    self.headFid.image = [UIImage imageNamed:@"icon_head"];
-    NSNull *xnil = [NSNull null];
-    
-    //    self.headFid = @"headFid";
-    //    if ([@"headFid" isEqual:xnil]) {
-    //        self.headFid =@"headFid";
-    //    }
-    //
-    //    else {
-    //        self.headFid = @"1";
-    //
-    //    }
-    
-    
-    
-
-    //        NSMutableDictionary *person_update = [NSMutableDictionary dictionary];
-    //
-    //        [person_update setObject:self.headFid.image forKey:@"headFid"];
-    //        [person_update setObject:self.name.text forKey:@"name"];
-    //        [person_update setObject:self.gender forKey:@"gender"];
-    //        [person_update setObject:self.phoneNo.text forKey:@"phoneNo"];
-    //        [person_update setObject:self.address.text forKey:@"address"];
-    //        [person_update setObject:self.work_experience.text forKey:@"work_experience"];
-    //        [person_update setObject:self.edu_experience.text  forKey:@"edu_experience"];
-    //        [person_update setObject:self.singnature.text  forKey:@"singnature"];
-    //        [person_update setObject:self.singnature.text forKey:@"singnature"];
-    //
-    //
-    //
-    //
-    //        [[WEPersonRequest shareInstance]person_update :@"o14477397324317851066" withJobId:person_update];
-    //
-    //        [[SFTJobRequest shareInstance]job_get_detail:self.person_id withPersonLongitude:self.person_longitude withPersonLatitude:self.person_latitude withJobId:self.job_id];
-    
     
     NSMutableDictionary *req = [[NSMutableDictionary alloc] init];
     [req setObject:@"person" forKey:@"obj"];
     [req setObject:@"get" forKey:@"act"];
     
-    if (self.person_id.length > 0) {
-        //[req setObject:self.person_id forKey:@"person_id"];
-    }else{
-        //[req setObject:[globalConn user_info][@"_id"] forKey:@"person_id"];
-    }
-    
-    //    [req setObject:person_update forKey:@"update_date"];
-    //[globalConn send:req];
-    
+    // [globalConn send;req]
 }
 
 - (void)didReceiveMemoryWarning {
@@ -340,22 +239,11 @@
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     [self.remarkTextField resignFirstResponder];
-    //    [self.work_experience resignFirstResponder];
     [self.exucationTextField resignFirstResponder];
     [self.work_experience resignFirstResponder];
     [self.paymentTextField resignFirstResponder];
     
 }
-/*
- #pragma mark - Navigation
- 
- // In a storyboard-based application, you will often want to do a little preparation before navigation
- - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
- // Get the new view controller using [segue destinationViewController].
- // Pass the selected object to the new view controller.
- }
- */
-
 
 - (IBAction)man:(UIButton *)sender {
     if (self.manRight.tag==10) {
@@ -391,6 +279,7 @@
     }
     
 }
+
 - (IBAction)woman:(UIButton *)sender {
     if (self.womanRight.tag==20) {
         self.womanRight.alpha=1;
@@ -403,8 +292,6 @@
         
     }
 }
-
-
 
 - (void)keyboardWillChangeFrame:(NSNotification *)note{
     NSLog(@"%@",note.userInfo);
@@ -423,48 +310,23 @@
     }];
     
 }
-//
-//- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
-//    [self.singnature resignFirstResponder];
-//}
-
-
 
 - (IBAction)qwe:(UITextField *)sender {
-    
-    
 }
 
 - (IBAction)qwer:(id)sender {
 }
 
-
 - (IBAction)return:(UITextField *)sender {
     
 }
 
-
-
-
-
 - (void)dealloc{
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self]; //
-    
+    NSLog(@"removeObserver: %@", NSStringFromClass([self class]));
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-
-
 - (IBAction)uphead:(UIButton *)sender {
-    //    UIActionSheet *action;
-    //    if([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]){
-    //        action = [[UIActionSheet alloc] initWithTitle:@" " delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Camera",@"Album",nil];
-    //    }
-    //    else
-    //    {
-    //        action = [[UIActionSheet alloc] initWithTitle:@" " delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Album",nil];
-    //    }
-    //    [action showInView:self.view];
     
     UIActionSheet *action;
     if([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]){
@@ -476,7 +338,6 @@
     }
     [action showInView:self.view];
 }
-
 
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
     NSUInteger sourceType = 0;
@@ -512,9 +373,6 @@
     NSURL *imageURL = [info valueForKey:UIImagePickerControllerReferenceURL];
     ALAssetsLibraryAssetForURLResultBlock resultblock = ^(ALAsset *myasset)
     {
-        //        ALAssetRepresentation *representation = [myasset defaultRepresentation];
-        //        NSString *fileName = [representation filename];
-        //        imageName = [NSString stringWithFormat:@"%@",fileName];
     };
     ALAssetsLibrary* assetslibrary = [[ALAssetsLibrary alloc] init];
     [assetslibrary assetForURL:imageURL
@@ -528,10 +386,7 @@
     [picker dismissViewControllerAnimated:YES completion:nil];
 }
 
-
 - (void)saveImage:(UIImage *)image{
-    
-    
     
     self.headFid.image = image;
     
@@ -539,53 +394,27 @@
     NSString *documentsDirectory = [path firstObject];
     NSString *imagePath = [documentsDirectory stringByAppendingPathComponent:@"offersPhoto.jpg"];
     [UIImageJPEGRepresentation(image, 1.0f) writeToFile:imagePath atomically:YES];
-
-    UIImage *portrait = [UIImage imageWithContentsOfFile:imagePath];
-
-    NSData *imageData = UIImageJPEGRepresentation(portrait, 1.0);
-    Byte *bytes = (Byte *)[imageData bytes];
-
-    NSArray *images = [imageName componentsSeparatedByString:@"."];
-
-    NSDate *date = [NSDate date];
-    NSTimeZone *zone = [NSTimeZone systemTimeZone];
-    NSInteger interval = [zone secondsFromGMTForDate: date];
-    NSDate *localeDate = [date  dateByAddingTimeInterval: interval];
-    imageFid = [[NSString alloc]init];
-    [HttpTool uploadImageWithUrl:[globalConn.server_info s:@"upload_to"] image:portrait success:^(id json) {
-        
-        NSData *imageData = UIImagePNGRepresentation(portrait);
-        NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
-        [user setObject:imageData forKey:@"portrait"];
-        
-        imageFid= [json valueForKey:@"fid"];
-        imageName = [json valueForKey:@"filename"];
-    }
-                           failure:^(NSString *error){
-                               return;
-                           }];
-
-    //    NSMutableDictionary *file_data = [[NSMutableDictionary alloc] init];
-    //    [file_data setObject:imageFid forKey:@"file_fid"];
-    //    [file_data setObject:[images[1] lowercaseString] forKey:@"file_type"];
-    //    [file_data setObject:images[0] forKey:@"file_name"];
-    //    [file_data setObject:[NSString stringWithFormat:@"%.2fMB",(int)bytes/(1048576*317.5)] forKey:@"file_size"];
-    //    [file_data setObject:[NSString stringWithFormat:@"%f",[localeDate timeIntervalSince1970]] forKey:@"file_upload_time"];
-    //    NSMutableDictionary *req = [[NSMutableDictionary alloc] init];
-    //        [req setObject:@"project" forKey:@"obj"];
-    //        [req setObject:@"fileUpload" forKey:@"act"];
-    //        [req setObject:[globalConn user_info][@"_id"] forKey:@"project_id"];
-    //        NSMutableDictionary *fileData = [[NSMutableDictionary alloc] init];
-    //        [fileData setObject:[file_data objectForKey:@"file_fid"] forKey:@"file_fid"];
-    //        [fileData setObject:[file_data objectForKey:@"file_type"] forKey:@"file_type"];
-    //        [fileData setObject:[file_data objectForKey:@"file_name"] forKey:@"file_name"];
-    //        [fileData setObject:[file_data objectForKey:@"file_size"] forKey:@"file_size"];
-    //        [fileData setObject:[file_data objectForKey:@"file_upload_time"] forKey:@"file_upload_time"];
-    //        [req setObject:fileData forKey:@"file_data"];
-    //        [globalConn send:req];
     
+    UIImage *portrait = [UIImage imageWithContentsOfFile:imagePath];
+    
+    imageFid = [[NSString alloc]init];
+    
+    [HttpTool uploadImageWithUrl:[globalConn.server_info s:@"upload_to"] image:portrait
+     
+        success:^(id json) {
+            NSData *portraitImg = UIImagePNGRepresentation(portrait);
+            NSUserDefaults *user = [NSUserDefaults standardUserDefaults];
+            [user setObject:portraitImg forKey:@"portrait"];
+        
+            imageFid= [json valueForKey:@"fid"];
+            imageName = [json valueForKey:@"filename"];
+        }
+     
+        failure:^(NSString *error){
+            return;
+        }
+     ];
 }
-
 
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text{
     if (range.location>=5000)
@@ -598,19 +427,12 @@
     }
 }
 
-
 -(BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string{
     
     if (textField.text.length>300){
         return NO;
     }
     
-    
-    
-    
     return YES;
 }
-
-
-
 @end

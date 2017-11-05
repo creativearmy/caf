@@ -131,6 +131,10 @@ typedef enum {
     - (void)connect;
     - (void)credential:(NSString*)name withPasswd:(NSString*)passwd;
     - (void)credentialx:(JSONObject*)cred;
+    - (void)login:(NSString*)name withPasswd:(NSString*)passwd;
+    - (void)loginx:(JSONObject*)cred;
+    - (void)logout;
+    - (void)register:(JSONObject*)reg;
     - (BOOL)send:(JSONObject*)req;
     - (BOOL)send_str:(NSString*)req;
     - (NSString*)version;

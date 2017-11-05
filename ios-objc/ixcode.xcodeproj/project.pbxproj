@@ -583,6 +583,7 @@
 				TargetAttributes = {
 					063BA3AF1B97305C009CD509 = {
 						CreatedOnToolsVersion = 6.1;
+						DevelopmentTeam = 5465VGZERG;
 					};
 					063BA3C81B97305D009CD509 = {
 						CreatedOnToolsVersion = 6.1;
@@ -898,6 +899,7 @@
 			baseConfigurationReference = 52227F1CF3F5972818188429 /* Pods-ixcode.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 5465VGZERG;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/chat",
@@ -920,6 +922,7 @@
 			baseConfigurationReference = 103EBB0FD944D42EBA84F61A /* Pods-ixcode.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 5465VGZERG;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/chat",

@@ -6,18 +6,20 @@
 #import "i000ViewController.h"
 #import "ViewController.h"
 
+// App main window. It is the first screen when the spp starts
+
 @interface ViewController (){
     NSString *login_name;
     NSString *login_passwd;
 }
 
-@property (strong, nonatomic) IBOutlet UITextField *account; //
-@property (strong, nonatomic) IBOutlet UITextField *password;//
-@property (weak, nonatomic) IBOutlet UIButton *loginBtn;//
+@property (strong, nonatomic) IBOutlet UITextField *account;
+@property (strong, nonatomic) IBOutlet UITextField *password;
+@property (weak, nonatomic) IBOutlet UIButton *loginBtn;
 
-- (IBAction)forgotPasswordClick:(UIButton *)sender;//
-- (IBAction)landingClick:(UIButton *)sender;//
-- (IBAction)registeredClick:(UIButton *)sender;//
+- (IBAction)forgotPasswordClick:(UIButton *)sender;
+- (IBAction)landingClick:(UIButton *)sender;
+- (IBAction)registeredClick:(UIButton *)sender;
 
 @end
 
@@ -37,8 +39,8 @@
     // singleton, init once, used through out app, this happens BEFORE didFinishLaunchingWithOptions !!
     if (globalConn == nil) globalConn = [[APIConnection alloc] init];
     
-    login_name  = [NSString stringWithFormat:@"test1"];//
-    login_passwd= [NSString stringWithFormat:@"1"];     //
+    login_name  = [NSString stringWithFormat:@"test1"];
+    login_passwd= [NSString stringWithFormat:@"1"];
     _loginBtn.layer.cornerRadius = 5;
 
     if (globalConn.state < LOGIN_SCREEN_ENABLED) {
@@ -47,19 +49,14 @@
     }
     
     [self createNavBar];
-    NSString* login_name_cache=[[NSUserDefaults standardUserDefaults] objectForKey:@"login_name_cache"];
-    if (login_name_cache==nil) {
-        login_name_cache=@"";
-    }
-    self.account.text=login_name_cache;
     
+    JSONObject* jo = [globalConn user_joread];
+    self.account.text = [[jo o:@"Account"] s:@"account"];
+    
+    NSLog(@"addObserver: %@", NSStringFromClass([self class]));
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(response_received)
-                                                 name:globalConn.responseReceivedNotification object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(state_changed)
-                                                 name:globalConn.stateChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(response_received) name:globalConn.responseReceivedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(state_changed) name:globalConn.stateChangedNotification object:nil];
     
     // now we are ready to connect to server, and retrieve server_info
     [AppDelegate.APP init_sdk];
@@ -78,66 +75,34 @@
 
 - (void)response_received {
     
-    NSLog(@"handled by %@: %@:%@ uerr:%@", [self class],
-          [globalConn.response objectForKey:@"obj"],
-          [globalConn.response objectForKey:@"act"],
-          [globalConn.response objectForKey:@"uerr"]);
+    // uerr, ustr, derr: user error code, user error string, and extra error information for developer
+    NSLog(@"server sent data handled by %@: thread %@, %@:%@ uerr:%@ ustr:%@ derr:%@", [self class], [globalConn.response objectForKey:@"obj"], [globalConn.response objectForKey:@"act"],
+          [NSThread currentThread], [globalConn.response objectForKey:@"uerr"], [globalConn.response objectForKey:@"ustr"], [globalConn.response objectForKey:@"derr"]);
     
-    NSString*obj_act=[NSString stringWithFormat:@"%@_%@",globalConn.response[@"obj"],globalConn.response[@"act"]];
- 
-    if ([obj_act isEqualToString:@"person_login"]) {
-        
-        // cancel hourglass
-        [MBProgressHUD hideHUDForView:self.view];
-        
-        // user error occurs, return structure can not be certain
-        if (![[globalConn.response s:@"uerr"] isEqualToString:@""]) return;
-        
-        [self obLoginArrivedFormUL:globalConn.response];
-    }
-    
-    return;
-}
+    // it is a login api call reponse
+    if ([[globalConn.response s:@"obj"] isEqualToString:@"person"] && [[globalConn.response s:@"act"] isEqualToString:@"login"]) {
 
-- (void)obLoginArrivedFormUL:(JSONObject *)response {
-    
-
-    if ([[response s:@"ustr"] isEqualToString:@""]) {
-        
-        [MBProgressHUD showSuccess:@"login succeed!"];
-        
-        // check apns_device_token and update if needed
-        /*
-        if (![[globalConn.user_info s:@"apns_device_token"] isEqualToString:apns_device_token]) {
-            NSMutableDictionary *req = [[NSMutableDictionary alloc] init];
-            [req setObject:@"person" forKey:@"obj"];
-            [req setObject:@"apns_device_token" forKey:@"act"];
-            [req setObject:apns_device_token forKey:@"token"];
-            [globalConn send:req];
-        }
-        */
-        
-        [[NSUserDefaults standardUserDefaults] setObject:self.account.text forKey:@"login_name_cache"];
-        
-        i000ViewController *vc = [[i000ViewController alloc]initWithNibName:@"i000View" bundle:nil];
-        [self.navigationController pushViewController:vc animated:YES];
-        
-    }
-    else {
-        if ([response[@"derr"] containsString:@"does not exist"]) {
+        if ([globalConn.response[@"derr"] containsString:@"does not exist"]) {
             [MBProgressHUD showError:@"mobile phone not registered"];
         }
-        else if ([response[@"derr"] containsString:@"login passwd not correct"]) {
+        else if ([globalConn.response[@"derr"] containsString:@"login passwd not correct"]) {
             [MBProgressHUD showError:@"password not match"];
         }
         else {
             [MBProgressHUD showError:@"phone or password not match"];
         }
-        [MBProgressHUD hideHUDForView:self.view];
+
+        [MBProgressHUD showSuccess:@"login succeed!"];
+        //[MBProgressHUD hideHUDForView:self.view];
+       
+        JSONObject* jo = [globalConn user_joread];
+        [[jo o:@"Account"] setValue:self.account.text forKey:@"account"];
+        [globalConn user_jowrite:jo];
+        
+        i000ViewController *vc = [[i000ViewController alloc]initWithNibName:@"i000View" bundle:nil];
+        [self.navigationController pushViewController:vc animated:YES];
     }
 }
-
-
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -162,13 +127,6 @@
 }
 
 - (void)createNavBar {
-//    [self addNavigatorTitle:NSLocalizedString(@"login", nil) parent:self.view];
-//    
-//    self.barViewControl.view.backgroundColor = RGB(52, 51, 52);
-//    [self AddLeftBtnAction:nil normal:@"icon_back" selected:@"icon_back" action:^{
-//        [self.navigationController popViewControllerAnimated:YES];
-//    }];
-    
 }
 
 - (IBAction)forgotPasswordClick:(UIButton *)sender {

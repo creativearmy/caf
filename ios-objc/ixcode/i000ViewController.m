@@ -2,6 +2,9 @@
 #import "i000ViewController.h"
 #include <sys/time.h>
 
+// To add a new ViewController, make a copy of this class, and search i072 in the project
+// to add code to those same locations where i072 is found.
+
 @interface i000ViewController ()
 
 @end
@@ -12,19 +15,19 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    // Do any additional setup after loading the view, typically from a nib.
-    NSLog(@"addObserver");
     
-
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(response_received:)
-        name:globalConn.responseReceivedNotification object:nil];
+    // Do any additional setup after loading the view, typically from a nib.
+    
+    // Register to receive any data sent from server, through SDK
+    NSLog(@"addObserver: %@", NSStringFromClass([self class]));
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(response_received:) name:globalConn.responseReceivedNotification object:nil];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    NSLog(@"removeObserver");
-
-
+    
+    NSLog(@"removeObserver: %@", NSStringFromClass([self class]));
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -48,29 +51,17 @@
 
     if (![[notification name] isEqualToString:@"response"]) return;
     
-    NSLog(@"notification %@, thread %@, response: %@:%@ uerr:%@ derr:%@ ustr:%@",
-        [notification name],
-        [NSThread currentThread],
-        [globalConn.response s:@"obj"],
-        [globalConn.response s:@"act"],
-        [globalConn.response s:@"uerr"],
-        [globalConn.response s:@"derr"],
-        [globalConn.response s:@"ustr"]);
-    // {"obj":"associate","act":"mock","to_login_name":"IXCODE_ACCOUNT","data":{"obj":"test","act":"OUTPUT1","data":"blah"}}
+    // uerr, ustr, derr: user error code, user error string, and extra error information for developer
+    NSLog(@"server sent data handled by %@: thread %@, %@:%@ uerr:%@ ustr:%@ derr:%@", [self class], [globalConn.response objectForKey:@"obj"], [globalConn.response objectForKey:@"act"],
+          [NSThread currentThread], [globalConn.response objectForKey:@"uerr"], [globalConn.response objectForKey:@"ustr"], [globalConn.response objectForKey:@"derr"]);
+
+    // Project Toolbox: {"obj":"associate","act":"mock","to_login_name":"IXCODE_ACCOUNT","data":{"obj":"test","act":"OUTPUT1","data":"blah"}}
     if ([[globalConn.response s:@"obj"] isEqualToString:@"test"]) {
         if ([[globalConn.response s:@"act"] isEqualToString:@"output1"]) {
-            //OUTPUT.text = [[[globalConn.response optJSONArray:@"data"] optJSONObject:1] optString:@"show" defaultValue:@"none"];
-            //OUTPUT.text = [[globalConn.response optJSONArray:@"data"] optString:1];
-            //OUTPUT.text = [globalConn.response optString:@"data"];
-            
-
-            
-
-            //OUTPUT.text = [[[globalConn.response a:@"data"] o:1] s:@"show" d:@"none"];
-            //OUTPUT.text = [[globalConn.response a:@"data"] s:1];
             OUTPUT.text = [globalConn.response s:@"data"];
         }
     }
+    
     if ([[globalConn.response s:@"obj"] isEqualToString:@"associate"]) {
         if ([[globalConn.response s:@"act"] isEqualToString:@"mock"]) {
             struct timeval time;
@@ -84,16 +75,12 @@
         if ([[globalConn.response s:@"act"] isEqualToString:@"login"]) {
             if ([[globalConn.response s:@"ustr"] isEqualToString:@""]) {
                 OUTPUT.text = [NSString stringWithFormat:@"account ID %@ log in OK\nPlease log in on Project Toolbox with ID: %@ password: 1", IXCODE_ACCOUNT, TOOLBOX_ACCOUNT];
-                }
+            }
         }
     }
-    
-    return;
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 -(void)mock_capture_input:(NSMutableDictionary*)data {
     NSMutableDictionary* req = [[NSMutableDictionary alloc] init];
