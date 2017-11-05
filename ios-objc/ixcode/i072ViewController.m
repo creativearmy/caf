@@ -67,19 +67,16 @@
           [globalConn.response objectForKey:@"act"],
           [globalConn.response objectForKey:@"uerr"]);
     
-    // Project Toolbox: {"obj":"associate","act":"mock","to_login_name":"TOOLBOX_ACCOUNT","data":{"obj":"test","act":"output1","data":"blah"}}
-    NSString*obj_act=[NSString stringWithFormat:@"%@_%@",globalConn.response[@"obj"],globalConn.response[@"act"]];
-    
-    if ([obj_act isEqualToString:@"person_get"]) {
+    if ([[globalConn.response s:@"obj"] isEqualToString:@"person"] && [[globalConn.response s:@"act"] isEqualToString:@"get"]) {
         [self refreshWithUserInfo:globalConn.response];
     }
     
     return;
 }
+
 -(void)refreshWithUserInfo:(JSONObject*)response
 {
-    
-    JSONObject*data=[response o:@"data"];
+    JSONObject*data = [response o:@"data"];
     
     _fields = data[@"fields"];
     for (int i = 0; i < _buttonView.subviews.count; i++) {
@@ -146,8 +143,7 @@
     [super viewWillAppear:YES];
 
     NSLog(@"addObserver: %@", NSStringFromClass([self class]));
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(response_received)
-                                                 name:globalConn.responseReceivedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(response_received) name:globalConn.responseReceivedNotification object:nil];
     
     self.selectButtons = [@[] mutableCopy];
     

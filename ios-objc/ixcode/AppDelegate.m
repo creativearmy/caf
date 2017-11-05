@@ -86,8 +86,7 @@ APIConnection *globalConn;
         vc = c;
     }
     
-    
-    
+
     if (vc == nil) return;
     UINavigationController* unav = (UINavigationController*)self.window.rootViewController;
     [unav pushViewController:vc animated:YES];
@@ -128,15 +127,9 @@ APIConnection *globalConn;
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(state_changed)
-                                                 name: globalConn.stateChangedNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(response_received)
-                                                 name: globalConn.responseReceivedNotification
-                                               object:nil];
+    NSLog(@"addObserver: %@", NSStringFromClass([self class]));
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(state_changed) name: globalConn.stateChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(response_received) name: globalConn.responseReceivedNotification object:nil];
     
     [globalConn.client_info setObject:@"iOS" forKey:@"clienttype"];
     [globalConn.client_info setObject:@"1.9" forKey:@"version"];
