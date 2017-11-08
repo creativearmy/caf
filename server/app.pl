@@ -1132,8 +1132,8 @@ user mailbox, message center, in coming and out going message list
             count: new message count under id1
             block: block_record ID for id1
             title: title, subject, group name or private chat party name
-			
-			// cache the last entry to display on message center message list
+            
+            // cache the last entry to display on message center message list
             last_user: last user name
             last_content: last message content
             last_avatar: user avatar
