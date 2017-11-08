@@ -312,11 +312,11 @@ push notification: personal chat message received
 PUSH:
     obj              // push
     act              // message_chat
-    chat_content     // message content text, link, etc.
-    chat_time
-    chat_type        // message type: text/image/voice/link/file
+    content          // message content text, link, etc.
+    time
+    xtype            // message type: text/image/voice/link/file
     from_id          // sender person id
-    from_image       // sender avatar
+    from_avatar       // sender avatar fid
 EOF
 
 sub p_push_message_chat {
@@ -329,8 +329,8 @@ personal chat send. Client calls this api to send a message to the other party
 INPUT:
     from_id:     "o14477630553830869197",  // sender person id
     to_id:       "o14477397324317851066",  // person id to send chat to
-    chat_type:   "text",                   // message type: text/image/voice/link/file
-    chat_content:"Hello"                   // message content text, link, etc.
+    xtype:       "text",                   // message type: text/image/voice/link/file
+    content:     "Hello"                   // message content text, link, etc.
     chat_id":    "o14489513231729540824"   // chat header record id, null when chat starts
 
 OUTPUT:
@@ -355,9 +355,9 @@ sub p_message_chat_send {
     
     return jr() unless assert($gr->{to_id}, "to_id is missing", "ERR_TO_ID", "Chat partner person id is not specified.");
     
-    return jr() unless assert($gr->{chat_content}, "chat_content is missing", "ERR_CHAT_CONTENT", "Chat message content is empty.");
+    return jr() unless assert($gr->{content}, "content is missing", "ERR_CONTENT", "Message content is empty.");
     
-    return jr() unless assert($gr->{chat_type}, "chat_type is missing", "ERR_CHAT_TYPE", "Chat message content type is not specified.");
+    return jr() unless assert($gr->{xtype}, "xtype is missing", "ERR_XTYPE", "Message content type is not specified.");
     
     my $chat_id = $gr->{chat_id};
     
@@ -387,15 +387,15 @@ sub p_message_chat_send {
     my $message = {
         obj             => "push",
         act             => "message_chat",
-        chat_content    => $gr->{chat_content},
-        chat_time       => time,
-        chat_type       => $gr->{chat_type},
+        content         => $gr->{content},
+        time            => time,
+        xtype           => $gr->{xtype},
         from_id         => $gr->{from_id},
         from_name       => $from_person->{name},
-        from_image      => $from_person->{avatar_fid},
+        from_avatar     => $from_person->{avatar_fid},
     };
     
-    $message->{from_image} = $DEFAULT_IMAGE_FID unless $message->{from_image};
+    $message->{from_avatar} = $DEFAULT_IMAGE_FID unless $message->{from_avatar};
     
     # Push this message to chat partner. count - actuall message number sent
     # count may be more than one if there are more than one logins with the same account
@@ -441,7 +441,7 @@ sub p_message_chat_send {
         $mailbox->{messages}->{$gr->{from_id}}->{last} = "[".$gr->{chat_type}."]";
     }
     
-    $mailbox->{messages}->{$gr->{from_id}}->{fid} = $from_person->{avatar_fid};
+    $mailbox->{messages}->{$gr->{from_id}}->{avatar} = $from_person->{avatar_fid};
     $mailbox->{messages}->{$gr->{from_id}}->{title} = $from_person->{name};
     
     obj_write($mailbox);
@@ -469,7 +469,7 @@ sub p_message_chat_send {
         $mailbox->{messages}->{$gr->{to_id}}->{last} = "[".$gr->{chat_type}."]";
     }
     
-    $mailbox->{messages}->{$gr->{to_id}}->{fid} = $to_person->{avatar_fid};
+    $mailbox->{messages}->{$gr->{to_id}}->{avatar} = $to_person->{avatar_fid};
     $mailbox->{messages}->{$gr->{to_id}}->{title} = $to_person->{name};
     
     obj_write($mailbox);
@@ -494,7 +494,7 @@ OUTPUT:
         {
             content:    "Hello?",                    // message content
             from_name:  "Tom",                       // sender name
-            from_image: "f100055555",                // sender avatar
+            from_avatar:"f14477630553830869196",     // sender avatar
             send_time:  1448955461,                  // send timestamp
             sender_pid: "o14477397324317851066",     // sender pid
             xtype:      "text"                       // message type: text/image/voice/link/file
@@ -503,7 +503,7 @@ OUTPUT:
         {
             content:    "Hi, whats up", 
             from_name:  "Smith",
-            from_image: "f10007777", 
+            from_avatar:"f14477630553830869190", 
             send_time:  1448955486, 
             sender_pid: "o14477630553830869197", 
             xtype:      "text"
@@ -511,7 +511,7 @@ OUTPUT:
         
         {
             content:    "Jane", 
-            from_image: "f100055555", 
+            from_avatar: "f14477630553830869192", 
             send_time:  1448956085, 
             sender_pid: "o14477397324317851066", 
             xtype:      "text"
@@ -611,7 +611,7 @@ OUTPUT:
     {
         cid:   "o14625831090064589977", 
         count: 0, 
-        fid:   "f14605622061056489944001", 
+        avatar:"f14605622061056489944001", 
         id:    "o14589256603505270481", 
         last:  "Message Two", 
         title: "Message Two", 
@@ -659,13 +659,13 @@ sub add_new_message_entry{
     my $message = {
         from_name    => $from_person->{name},
         from_id      => $from_id,
-        from_image   => $from_person->{avatar_fid}, 
+        from_avatar  => $from_person->{avatar_fid}, 
         xtype        => $xtype, 
         content      => $content, 
         send_time    => time(),
     };
         
-    $message->{from_image} = $DEFAULT_IMAGE_FID unless $message->{from_image};
+    $message->{from_avatar} = $DEFAULT_IMAGE_FID unless $message->{from_avatar};
         
     # This is the first message. New block will be created
     if (!$header->{block_id}) {
@@ -1123,8 +1123,8 @@ user mailbox, message center, in coming and out going message list
             crid: block_record ID for id1
             lastusername: last user name in the chat
             lastcomment: last comment, message content
-            fid: user avatar
-            title: title, or private chat party
+            avatar: user avatar
+            title: title, subject, group name or private chat party name
         }
     }
 EOF
