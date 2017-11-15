@@ -88,7 +88,7 @@ $ws_useragent->websocket($ws_server_url => sub {
         $response_data_size_to_read -= length(Encode::encode_utf8($msg));
         
         # Keep reading messages.
-        return if ($response_data_size_to_read) > 0;
+        return if $response_data_size_to_read > 0;
 
         # Set the globals of the response. Only first element of the returned array
         # is used.
@@ -112,7 +112,8 @@ $ws_useragent->websocket($ws_server_url => sub {
             exit;
         }
     });
-
+    
+	# Reset the expected length to 0
     $response_data_size_to_read = 0;
 
     # Send first websocket api call.
