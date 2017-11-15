@@ -203,9 +203,9 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
                     JSONObject block =jo.optJSONObject("block");
                     mNextId = block.optString("next_id");
 
-                    if(null != block.optJSONArray("messages"))
+                    if(null != block.optJSONArray("entries"))
                     {
-                        JSONArray array =block.optJSONArray("records");
+                        JSONArray array =block.optJSONArray("entries");
                         ArrayList<JSONObject> listMsges = new ArrayList<JSONObject>();
                         generateData(array, listMsges);
 
@@ -231,10 +231,10 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
                     ArrayList<JSONObject> listMsges = new ArrayList<JSONObject>();
 
                     String from_name = jo.optString("from_name");
-                    int send_time = jo.optInt("chat_time");
+                    int send_time = jo.optInt("time");
                     String from_id = jo.optString("from_id");
-                    String from_image = jo.optString("from_image");
-                    String xtype = jo.optString("chat_type");
+                    String from_avatar = jo.optString("from_avatar");
+                    String mtype = jo.optString("mtype");
 
                     JSONObject m = new JSONObject();
 
@@ -244,17 +244,17 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
                         m.xput("type_tran", "RECV");
                     }
 
-                    if (xtype.equals("ximage")) {
-                        m.xput("content", jo.o("chat_content"));
+                    if (xtype.equals("image")) {
+                        m.xput("content", jo.o("content"));
                     } else {
-                        m.xput("content", jo.s("chat_content"));
+                        m.xput("content", jo.s("content"));
                     }
 
                     m.xput("from_name", from_name);
                     m.xput("from_id", from_id);
-                    m.xput("from_image", from_image);
+                    m.xput("from_avatar", from_avatar);
                     m.xput("send_time", send_time);
-                    m.xput("xtype", xtype);
+                    m.xput("mtype", mtype);
 
                     listMsges.add(m);
 
@@ -282,7 +282,7 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
                 m.xput("type_tran", "RECV");
             }
 
-            if (xtype.equals("ximage")) {
+            if (mtype.equals("image")) {
                 m.xput("content", jo.o("content"));
             } else {
                 m.xput("content", jo.s("content"));
@@ -290,9 +290,9 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
 
             m.xput("from_name", jo.s("from_name"));
             m.xput("from_id", jo.s("from_id"));
-            m.xput("from_image", jo.s("from_image"));
+            m.xput("from_avatar", jo.s("from_avatar"));
             m.xput("send_time", jo.i("send_time"));
-            m.xput("xtype", xtype);
+            m.xput("mtype", mtype);
 
             listMsges.add(m);
         }
@@ -414,8 +414,8 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
 
                 req.xput("from_id", APIConnection.user_info.optString("_id"));
 
-                req.xput("chat_type", "text");
-                req.xput("chat_content", mEditChatInput.getText().toString());
+                req.xput("mtype", "text");
+                req.xput("content", mEditChatInput.getText().toString());
 
                 APIConnection.send(req);
 
@@ -425,7 +425,7 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
                 m.xput("type_tran", "SEND");
                 m.xput("content", (mEditChatInput.getText().toString()));
                 m.xput("send_time", ((int)(System.currentTimeMillis()/1000)));
-                m.xput("xtype", "text");
+                m.xput("mtype", "text");
 
                 if (null != mMessAdapter) {
                     mMessAdapter.addNetMessage(m);
@@ -594,15 +594,15 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
                         chat_content.xput("mime", mime);
 
                         req.xput("from_id", APIConnection.user_info.optString("_id"));
-                        req.xput("chat_type", "ximage");
-                        req.xput("chat_content", chat_content);
+                        req.xput("mtype", "image");
+                        req.xput("content", chat_content);
                         APIConnection.send(req);
 
                         JSONObject m = new JSONObject();
                         m.xput("type_tran", "SEND");
                         m.xput("content", chat_content);
                         m.xput("send_time", (int) (System.currentTimeMillis() / 1000));
-                        m.xput("xtype", "ximage");
+                        m.xput("mtype", "image");
                         if (null != mMessAdapter) {
                             mMessAdapter.addNetMessage(m);
                         }

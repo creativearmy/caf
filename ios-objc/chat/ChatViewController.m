@@ -1,11 +1,3 @@
-//
-//  ChatViewController.m
-//  WeChat
-//
-//  Created by Jiao Liu on 11/25/13.
-//  Copyright (c) 2013 Jiao Liu. All rights reserved.
-//
-
 #import "ChatViewController.h"
 #import <QuartzCore/QuartzCore.h>
 #import "UIImage+Utility.h"
@@ -40,7 +32,7 @@
 
 @property (nonatomic, strong) AVPlayer *player;
 @property (nonatomic, strong) AVPlayerLayer *playerLayer;
-/** 录音工具 */
+/** recording */
 @property (nonatomic, strong) LVRecordTool *recordTool;
 @end
 
@@ -63,8 +55,6 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     
     NSString *chatLog;
     
-    // 所有当前聊天记录放在这个数组，里面元素是 JSONObject
-    // 格式就是服务器下发的聊天历史列表原数据
     JSONArray *chat_entries;
     
     UILabel *timeLable;
@@ -223,7 +213,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
 {
     NSLog(@"=======shouldChangeTextInRange======");
-    // 将textView大小存起来
+
     CGRect textInputRect = textInput.frame;
     CGRect textViewRect = _textView.frame;
     CGRect tableRect = msgTable.frame;
@@ -279,7 +269,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
         return YES;
     }
     
-    // 动态调整textView大小
+    // adjust height of textView
     CGSize size = [textInput.text sizeWithFont:[UIFont systemFontOfSize:20] constrainedToSize:CGSizeMake(textInput.frame.size.width , CGFLOAT_MAX) lineBreakMode:NSLineBreakByCharWrapping];
     //NSLog(@"%f-----%f",size.height,textInput.frame.size.height);
     if (size.height > textInput.frame.size.height - 16 && textInput.frame.size.height < 88) {
@@ -350,7 +340,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 
 - (void)keyboardWillChangeFrame:(NSNotification *)notification
 {
-    /* UIKeyboardWillChangeFrameNotification - 键盘弹出/键盘回收 的判断
+    /* UIKeyboardWillChangeFrameNotification - keyborad pop up /retract
      
      1. during switching of keyboard from English to Chinese
      
@@ -386,17 +376,17 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     
     CGFloat yOffset;
     
-    // - 键盘弹出/键盘回收 的判断
+    // - keyborad pop up /retract
     // use 10 to account for the minor difference of Chinese and English keyboard
     
     //if(endKeyboardRect.origin.y - beginKeyboardRect.origin.y<0){
     if(endKeyboardRect.origin.y - beginKeyboardRect.origin.y < -10){
-        //表示键盘弹出;
+        // pop out
         moreViewShow = NO;
         yOffset = endKeyboardRect.origin.y - beginKeyboardRect.origin.y + (self.view.frame.size.height-_textView.frame.origin.y-_textView.frame.size.height);
     }else{
-        //表示键盘回收
-        [moreView setFrame:CGRectMake(0, self.view.frame.size.height, self.view.frame.size.width, moreView.frame.size.height)];//隐藏moreview
+        // retract
+        [moreView setFrame:CGRectMake(0, self.view.frame.size.height, self.view.frame.size.width, moreView.frame.size.height)];// hide moreview
         yOffset = endKeyboardRect.origin.y - beginKeyboardRect.origin.y;
     }
     NSInteger offset = VERSION >= 7.0 ? 20 : 0;
@@ -581,13 +571,13 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     return dic;
 }
 
-//此方法可以获取文件的大小，返回的是单位是KB
+//file size kb
 - (CGFloat)getFileSize:(NSString *)path
 {
     NSFileManager *fileManager = [[NSFileManager alloc] init];
     float filesize = -1.0;
     if ([fileManager fileExistsAtPath:path]) {
-        NSDictionary *fileDic = [fileManager attributesOfItemAtPath:path error:nil];//获取文件的属性
+        NSDictionary *fileDic = [fileManager attributesOfItemAtPath:path error:nil];
         unsigned long long size = [[fileDic objectForKey:NSFileSize] longLongValue];
         filesize = 1.0*size/1024;
     }
@@ -601,11 +591,11 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     [self presentViewController:nav animated:YES completion:nil];
 }
 
-#pragma mark - 视频
+#pragma mark - video
 - (void)finishRecordVideo:(NSString *)filePath mp4FilePath:(NSString *)mp4FilePath mp4FileName:(NSString *)mp4FileName  smallImage:(UIImage *)smallImage{
 //    NSLog(@"=recordVideo===== filePath=%@", filePath);
 //    NSLog(@"=recordVideo===== mp4FilePath=%@", mp4FilePath);
-//    NSLog(@"=recordVideo缩略图===== smallImage=%@", smallImage);
+//    NSLog(@"=recordVideo thumb===== smallImage=%@", smallImage);
     UIImageView *imageView = [[UIImageView alloc]init];
     imageView.frame = CGRectMake(self.view.frame.size.width/2, self.view.frame.size.height/3, 100, 100);
     imageView.image = smallImage;
@@ -624,7 +614,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
         NSString *fid;
         NSString *filename;
         if (dictionaryWithJsonString != nil) {
-            NSLog(@"小视频服务器返回：fid=%@,fileName=%@", [dictionaryWithJsonString objectForKey:@"fid"], [dictionaryWithJsonString objectForKey:@"filename"]);
+            NSLog(@"video return fid=%@,fileName=%@", [dictionaryWithJsonString objectForKey:@"fid"], [dictionaryWithJsonString objectForKey:@"filename"]);
             if ([dictionaryWithJsonString objectForKey:@"fid"] != nil) {
                 fid = [dictionaryWithJsonString objectForKey:@"fid"];
             }
@@ -677,12 +667,12 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
             [sendData setObject:chat_content forKey:@"chat_content"];
             
             [globalConn send:sendData];
-            NSLog(@"服务器返回rrr：fid=%@,fileName=%@", [dictionaryWithJsonString objectForKey:@"fid"], [dictionaryWithJsonString objectForKey:@"filename"]);
+            NSLog(@"return fid=%@,fileName=%@", [dictionaryWithJsonString objectForKey:@"fid"], [dictionaryWithJsonString objectForKey:@"filename"]);
             
         }
     }
     else {
-        NSLog(@"finishRecordVideo 失败");
+        NSLog(@"finishRecordVideo fail");
     }
     
 }
@@ -699,7 +689,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 }
 #pragma mark - PickImage/Video
 
-#pragma mark 视频
+#pragma mark video
 - (void)recordVideo
 {
     NSLog(@"=======recordVideo======");
@@ -736,7 +726,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 }
 
 -(NSString*)getDownloadURL:(NSString*)fid{
-    //对应的下载地址http://112.124.70.60:8081/cgi-bin/download.pl?fid=f14604307210058600902001&proj=demo
+
     NSString *serURL =  [globalConn.server_info s:@"download_path"];
     NSString* newStr = [NSString stringWithFormat:@"%@%@", serURL, fid];
     return newStr;
@@ -758,7 +748,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
         NSString *fid;
         NSString *filename;
         if (dictionaryWithJsonString != nil) {
-            NSLog(@"pickImage服务器返回：fid=%@,fileName=%@", [dictionaryWithJsonString objectForKey:@"fid"], [dictionaryWithJsonString objectForKey:@"filename"]);
+            NSLog(@"pickImage return fid=%@,fileName=%@", [dictionaryWithJsonString objectForKey:@"fid"], [dictionaryWithJsonString objectForKey:@"filename"]);
             if ([dictionaryWithJsonString objectForKey:@"fid"] != nil) {
                 fid = [dictionaryWithJsonString objectForKey:@"fid"];
             }
@@ -862,14 +852,14 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 //            
 //            UIButton *sendBtn = [[[UIButton alloc]initWithFrame:CGRectMake(10, 180, sendImageView.frame.size.width/2 - 15, 50)] autorelease];
 //            [sendBtn setBackgroundImage:[UIImage generateColorImage:[UIColor greenColor] size:sendBtn.frame.size] forState:UIControlStateNormal];
-//            [sendBtn setTitle:@"发送" forState:UIControlStateNormal];
+//            [sendBtn setTitle:@"send" forState:UIControlStateNormal];
 //            sendBtn.layer.cornerRadius = 3;
 //            [sendBtn addTarget:self action:@selector(sendImage) forControlEvents:UIControlEventTouchUpInside];
 //            [sendImageView addSubview:sendBtn];
 //            
 //            UIButton *cancelBtn = [[[UIButton alloc]initWithFrame:CGRectMake(sendImageView.frame.size.width/2 + 5,  180, sendImageView.frame.size.width/2 - 15, 50)] autorelease];
 //            [cancelBtn setBackgroundImage:[UIImage generateColorImage:[UIColor greenColor] size:sendBtn.frame.size  ] forState:UIControlStateNormal];
-//            [cancelBtn setTitle:@"取消" forState:UIControlStateNormal];
+//            [cancelBtn setTitle:@"cancel" forState:UIControlStateNormal];
 //            cancelBtn.layer.cornerRadius = 3;
 //            [cancelBtn addTarget:self action:@selector(dismissSend) forControlEvents:UIControlEventTouchUpInside];
 //            [sendImageView addSubview:cancelBtn];
@@ -893,14 +883,14 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     [dicImages setValue:voiceData1 forKey:voiceName];
     NSString* result;
     
-    //    NSLog(@"有图标上传 --fileName=%@",videoName);
+    //    NSLog(@"upload--fileName=%@",videoName);
     result = [RequestPostUploadHelper postVoiceToServer:serURL dicPostParams:params dicImages:dicImages];
     
     NSDictionary *dictionaryWithJsonString = [self dictionaryWithJsonString:result];
     NSString *fid;
     NSString *filename;
     if (dictionaryWithJsonString != nil) {
-        //        NSLog(@"服务器返回：fid=%@,fileName=%@", [dictionaryWithJsonString objectForKey:@"fid"], [dictionaryWithJsonString objectForKey:@"filename"]);
+        //        NSLog(@"return fid=%@,fileName=%@", [dictionaryWithJsonString objectForKey:@"fid"], [dictionaryWithJsonString objectForKey:@"filename"]);
         if ([dictionaryWithJsonString objectForKey:@"fid"] != nil) {
             fid = [dictionaryWithJsonString objectForKey:@"fid"];
         }
@@ -926,14 +916,14 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     [dicImages setValue:videoData forKey:videoName];
     NSString* result;
     
-//    NSLog(@"有图标上传 --fileName=%@",videoName);
+//    NSLog(@"update --fileName=%@",videoName);
     result = [RequestPostUploadHelper postVideoToServer:serURL dicPostParams:params dicImages:dicImages];
     
     NSDictionary *dictionaryWithJsonString = [self dictionaryWithJsonString:result];
     NSString *fid;
     NSString *filename;
     if (dictionaryWithJsonString != nil) {
-//        NSLog(@"服务器返回：fid=%@,fileName=%@", [dictionaryWithJsonString objectForKey:@"fid"], [dictionaryWithJsonString objectForKey:@"filename"]);
+//        NSLog(@"return fid=%@,fileName=%@", [dictionaryWithJsonString objectForKey:@"fid"], [dictionaryWithJsonString objectForKey:@"filename"]);
         if ([dictionaryWithJsonString objectForKey:@"fid"] != nil) {
             fid = [dictionaryWithJsonString objectForKey:@"fid"];
         }
@@ -966,14 +956,14 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     }else{
         
         NSArray *nameAry=[fullPathToFile componentsSeparatedByString:@"/"];
-        NSLog(@"有图标上传 --fileName=%@",[nameAry objectAtIndex:[nameAry count]-1]);
+        NSLog(@"upload-fileName=%@",[nameAry objectAtIndex:[nameAry count]-1]);
         result = [RequestPostUploadHelper postImagesToServer:serURL dicPostParams:params dicImages:dicImages];
     }
     NSDictionary *dictionaryWithJsonString = [self dictionaryWithJsonString:result];
     NSString *fid;
     NSString *filename;
     if (dictionaryWithJsonString != nil) {
-        NSLog(@"服务器返回：fid=%@,fileName=%@", [dictionaryWithJsonString objectForKey:@"fid"], [dictionaryWithJsonString objectForKey:@"filename"]);
+        NSLog(@"return fid=%@,fileName=%@", [dictionaryWithJsonString objectForKey:@"fid"], [dictionaryWithJsonString objectForKey:@"filename"]);
         if ([dictionaryWithJsonString objectForKey:@"fid"] != nil) {
             fid = [dictionaryWithJsonString objectForKey:@"fid"];
         }
@@ -1066,21 +1056,21 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     NSLog(@"%@",[NSData dataWithContentsOfURL:recordedFile]);
 }
 
-#pragma mark - 录音按钮事件
-// 按下
+#pragma mark - record void
+
 - (void)recordBtnDidTouchDown:(UIButton *)recordBtn {
     self.recordTool = [[LVRecordTool alloc]init];
     self.recordTool.delegate = self;
     [self.recordTool startRecording];
 }
 
-// 点击
+
 - (void)recordBtnDidTouchUpInside:(UIButton *)recordBtn {
     double currentTime = self.recordTool.recorder.currentTime;
     NSLog(@"%lf", currentTime);
     if (currentTime < 2) {
         
-        [self alertWithMessage:@"说话时间太短"];
+        [self alertWithMessage:@"too short"];
         dispatch_async(dispatch_get_global_queue(0, 0), ^{
             
             [self.recordTool stopRecording];
@@ -1094,13 +1084,13 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
             dispatch_async(dispatch_get_main_queue(), ^{
             });
         });
-        // 已成功录音
+
         NSLog(@"已成功录音");
     }
     // 
 }
 
-// 手指从按钮上移除
+// move up to cancel
 - (void)recordBtnDidTouchDragExit:(UIButton *)recordBtn {
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         
@@ -1108,19 +1098,19 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
         [self.recordTool destructionRecordingFile];
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self alertWithMessage:@"已取消录音"];
+            [self alertWithMessage:@"cancel"];
         });
     });
     
 }
 
-#pragma mark - 弹窗提示
+#pragma mark - pop up
 - (void)alertWithMessage:(NSString *)message {
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"提示" message:message delegate:self cancelButtonTitle:@"确定" otherButtonTitles: nil];
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"tip" message:message delegate:self cancelButtonTitle:@"OK" otherButtonTitles: nil];
     [alert show];
 }
 
-#pragma mark - 播放录音
+#pragma mark - playback
 - (void)playRecord {
     [self.recordTool playRecordingFile];
 }
@@ -1135,7 +1125,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 }
 
 - (void)recordTool:(LVRecordTool *)recordTool onRecordSuccess:(int)success catFileName:(NSString*)catFileName mp3FileName:(NSString*)mp3FileName{
-     NSLog(@"录音成功回调聊天界面, 原始录音文件名字＝%@, mp3=文件名字=%@", catFileName, mp3FileName);
+     NSLog(@"file＝%@, mp3==%@", catFileName, mp3FileName);
 
     [self audio_PCMtoMP3:catFileName mp3FileName:mp3FileName];
     
@@ -1160,18 +1150,18 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 
     if([fileManager removeItemAtPath:mp3FilePath error:nil])
     {
-        NSLog(@"删除");
+        NSLog(@"cancel");
     }
     
     @try {
         int read, write;
         
-        FILE *pcm = fopen([cafFilePath cStringUsingEncoding:1], "rb");  //source 被转换的音频文件位置
+        FILE *pcm = fopen([cafFilePath cStringUsingEncoding:1], "rb");  //source 
         if(pcm == NULL){
             return;
         }
         fseek(pcm, 4*1024, SEEK_CUR);                                   //skip file header
-        FILE *mp3 = fopen([mp3FilePath cStringUsingEncoding:1], "wb");  //output 输出生成的Mp3文件位置
+        FILE *mp3 = fopen([mp3FilePath cStringUsingEncoding:1], "wb");  //output mp3
         
         const int PCM_SIZE = 8192;
         const int MP3_SIZE = 8192;
@@ -1245,7 +1235,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
         NSString *fid;
         NSString *filename;
         if (dictionaryWithJsonString != nil) {
-            NSLog(@"服务器返回的音频数据：fid=%@,fileName=%@", [dictionaryWithJsonString objectForKey:@"fid"], [dictionaryWithJsonString objectForKey:@"filename"]);
+            NSLog(@" return fid=%@,fileName=%@", [dictionaryWithJsonString objectForKey:@"fid"], [dictionaryWithJsonString objectForKey:@"filename"]);
             if ([dictionaryWithJsonString objectForKey:@"fid"] != nil) {
                 fid = [dictionaryWithJsonString objectForKey:@"fid"];
             }
@@ -1290,11 +1280,11 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
             [sendData setObject:fid forKey:@"chat_content"];
             
             [globalConn send:sendData];
-            NSLog(@"服务器返回rrr：fid=%@,fileName=%@", [dictionaryWithJsonString objectForKey:@"fid"], [dictionaryWithJsonString objectForKey:@"filename"]);
+            NSLog(@"return fid=%@,fileName=%@", [dictionaryWithJsonString objectForKey:@"fid"], [dictionaryWithJsonString objectForKey:@"filename"]);
         }
     }
     else {
-        NSLog(@"finishRecordVideo 失败");
+        NSLog(@"finishRecordVideo fail");
     }
 }
 
@@ -1302,22 +1292,22 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 
  - (void)sendLocation
 {
-    [MBProgressHUD showError:@"未开放"];
+    [MBProgressHUD showError:@"TODO"];
 
     
 //    MapLocationViewController *mapVC = [[MapLocationViewController alloc]init];
 //    
-//    /*查看位置图片时传经纬度过去，isSelectLocation为false. 如果是选择位置：isSelectLocation:true*/
+
 //    
 //    [mapVC initData:30.613558 longitude:104.613558 isSelectLocation:true];
 //    
 //    mapVC.locationBlock = ^(UIImage *mapImage, double latitude, double longitude, NSString *address){
-//        NSLog(@"图片大小 width:%f, height:%f， 经度%f, 纬度%f, 地址:%@", mapImage.size.width, mapImage.size.height,latitude, longitude, address);
+
 //        NSDictionary *dictionaryWithJsonString = [self upLoadImageToServer:mapImage];
 //        NSString *fid;
 //        NSString *filename;
 //        if (dictionaryWithJsonString != nil) {
-//            NSLog(@"mapImage服务器返回：fid=%@,fileName=%@", [dictionaryWithJsonString objectForKey:@"fid"], [dictionaryWithJsonString objectForKey:@"filename"]);
+
 //            if ([dictionaryWithJsonString objectForKey:@"fid"] != nil) {
 //                fid = [dictionaryWithJsonString objectForKey:@"fid"];
 //            }
@@ -1365,7 +1355,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 //        CLPlacemark *placemark = [placemarks objectAtIndex:0];
 //        NSString *locString = [[[NSString alloc] init] autorelease];
 //        if (placemark.thoroughfare != nil) {
-//            locString = [NSString stringWithFormat:@"我在: %@,%@,%@", placemark.country,placemark.administrativeArea, placemark.thoroughfare];
+//            locString = [NSString stringWithFormat:@"I am at %@,%@,%@", placemark.country,placemark.administrativeArea, placemark.thoroughfare];
 //        }
 //        if (![locString isEqualToString:@""] && ![chatLog isEqualToString:@""])
 //        {
@@ -1398,7 +1388,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
         [window addSubview:loadingView];
         
         UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 30, 80, 30)];
-        label.text = @"发送中";
+        label.text = @"sending";
         label.textColor = [UIColor whiteColor];
         label.textAlignment = NSTextAlignmentCenter;
         label.backgroundColor = [UIColor clearColor];
@@ -1490,7 +1480,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     tapOnScreen.delegate = self;
     [self.view addGestureRecognizer:tapOnScreen];
     
-    // 导航栏
+
     UINavigationBar *nav = [[UINavigationBar alloc] initWithFrame:CGRectMake(0, 0 + yoffset, SCREEN_WIDTH, 40)];
     [nav setBackgroundImage:[UIImage generateColorImage:[UIColor grayColor] size:nav.frame.size] forBarMetrics:UIBarMetricsDefault];
     title = [[UILabel alloc] initWithFrame:CGRectMake(SCREEN_WIDTH/2 - 70, 5, 140, 30)];
@@ -1514,13 +1504,13 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     [nav pushNavigationItem:navItem animated:NO];
     [self.view addSubview:nav];
     
-    // 感叹号
+
     UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"i" style:UIBarButtonItemStylePlain target:self action:@selector(rightClick)];
     navItem.rightBarButtonItem = rightItem;
     nav.tintColor = [UIColor whiteColor];
 //    self.navigationItem.rightBarButtonItem = rightItem;
     
-    // 输入界面以及控件
+
     _textView = [[UIView alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT - 80 + yoffset, SCREEN_WIDTH, 60)];
     _textView.backgroundColor = [UIColor lightGrayColor];
     [self.view addSubview:_textView];
@@ -1536,7 +1526,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     [_textView addSubview:textInput];
     
     recordingBtn = [[UIButton alloc] initWithFrame:CGRectMake(50, 10, SCREEN_WIDTH - 100, 40)];
-    [recordingBtn setTitle:@"按住说话" forState:UIControlStateNormal];
+    [recordingBtn setTitle:@"press to talk" forState:UIControlStateNormal];
     [recordingBtn setBackgroundImage:[UIImage generateColorImage:[UIColor grayColor] size:recordingBtn.frame.size] forState:UIControlStateNormal];
     recordingBtn.layer.borderWidth = 1;
     recordingBtn.layer.borderColor = [UIColor whiteColor].CGColor;
@@ -1555,7 +1545,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     [recordBtn addTarget:self action:@selector(textOrRecord) forControlEvents:UIControlEventTouchUpInside];
     [_textView addSubview:recordBtn];
     
-    // 聊天显示
+
     msgTable = [[UITableView alloc] initWithFrame:CGRectMake(0, 40 + yoffset, SCREEN_WIDTH, SCREEN_HEIGHT - 120)];
     msgTable.dataSource = self;
     msgTable.delegate = self;
@@ -1584,7 +1574,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
         _refreshHeaderView = view;
      }
     
-    // 更多功能界面
+    // menu
     moreView = [[UIView alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT - 20 + yoffset, SCREEN_WIDTH, 216)];
     moreView.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:moreView];
@@ -1638,7 +1628,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     if ([self.obj isEqualToString:@"task"]) {
         i043_2WETaskEditViewController *i043_2VC=[[i043_2WETaskEditViewController alloc]init];
         i043_2VC._taskID=self.to_id;
-        i043_2VC.project_id=[globalConn.user_data s:@"project_id"];    //用户所在项目id;
+        i043_2VC.project_id=[globalConn.user_data s:@"project_id"];    //
         [self.navigationController pushViewController:i043_2VC animated:YES];
     }
     if ([self.obj isEqualToString:@"person"]) {
@@ -1655,7 +1645,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 
 -(void)cartButton
 {
-    [MBProgressHUD showError:@"未开放"];
+    [MBProgressHUD showError:@"todo"];
 }
 - (void)didReceiveMemoryWarning
 {
@@ -1747,7 +1737,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
         NSLog(@"%@---------------%@",_next_id,_id);
         
         
-        // 如果是一个列表，把这个列表一起加载吧 - person,topic or task
+
         if ([[globalConn.response s:@"act"] isEqualToString:@"chat_get"]) {
             
                 NSArray *arr = [[globalConn.response o:@"chatRecord"] a:@"records"];
@@ -1761,7 +1751,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
                     }
                     if ([[dic s:@"xtype"] isEqualToString:@"image"]) {
                         NSData * imgData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[self getDownloadURL:[dic s:@"content"]]]];
-                        //适配旧的content类型
+
                         if([dic[@"content"]  isKindOfClass: [NSDictionary class]]){
                             imgData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[self getDownloadURL:dic[@"content"][@"thumb"]]]];
                         }
@@ -1799,7 +1789,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
         }
 
         
-        //接收聊天 PUSH - person, topic or task
+
         JSONObject * data = nil;
         
         if ([[globalConn.response s:@"obj"] isEqualToString:@"push"]) {
@@ -1833,7 +1823,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
                 if ([[data s:@"xtype"] isEqualToString:@"image"]) {
                     
                     NSData * imgData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[self getDownloadURL:[data s:@"content"]]]];
-                    //适配旧的content类型
+
                     if([data[@"content"]  isKindOfClass: [NSDictionary class]]){
                         imgData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[self getDownloadURL:data[@"content"][@"thumb"]]]];
                     }

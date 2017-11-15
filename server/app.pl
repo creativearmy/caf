@@ -314,9 +314,10 @@ PUSH:
     act              // message_chat
     content          // message content text, link, etc.
     time
-    xtype            // message type: text/image/voice/link/file
+    mtype            // message type: text/image/voice/link/file ...
     from_id          // sender person id
-    from_avatar       // sender avatar fid
+    from_name        // sender name
+    from_avatar      // sender avatar fid
 EOF
 
 sub p_push_message_chat {
@@ -329,12 +330,12 @@ personal chat send. Client calls this api to send a message to the other party
 INPUT:
     from_id:     "o14477630553830869197",  // sender person id
     to_id:       "o14477397324317851066",  // person id to send chat to
-    xtype:       "text",                   // message type: text/image/voice/link/file
+    mtype:       "text",                   // message type: text/image/voice/link/file
     content:     "Hello"                   // message content text, link, etc.
     chat_id":    "o14489513231729540824"   // chat header record id, null when chat starts
 
 OUTPUT:
-    chat_id: "o14489513231729540824",    // chat header record id
+    chat_id: "o14489513231729540824",      // chat header record id
     
 EOF
 
@@ -357,7 +358,7 @@ sub p_message_chat_send {
     
     return jr() unless assert($gr->{content}, "content is missing", "ERR_CONTENT", "Message content is empty.");
     
-    return jr() unless assert($gr->{xtype}, "xtype is missing", "ERR_XTYPE", "Message content type is not specified.");
+    return jr() unless assert($gr->{mtype}, "mtype is missing", "ERR_MTYPE", "Message content type is not specified.");
     
     my $chat_id = $gr->{chat_id};
     
@@ -389,7 +390,7 @@ sub p_message_chat_send {
         act             => "message_chat",
         content         => $gr->{content},
         time            => time,
-        xtype           => $gr->{xtype},
+        mtype           => $gr->{mtype},
         from_id         => $gr->{from_id},
         from_name       => $from_person->{name},
         from_avatar     => $from_person->{avatar_fid},
@@ -428,20 +429,22 @@ sub p_message_chat_send {
     
     # Add an entry in chat sender's message center as well.
     $mailbox->{ut} = time;
-    $mailbox->{messages}->{$gr->{from_id}}->{xtype}  = "chat";
+    $mailbox->{messages}->{$gr->{from_id}}->{ctype}  = "chat"; # conversation type
     $mailbox->{messages}->{$gr->{from_id}}->{id}     = $gr->{from_id};
     $mailbox->{messages}->{$gr->{from_id}}->{ut}     = time;
     $mailbox->{messages}->{$gr->{from_id}}->{count} ++;
-    $mailbox->{messages}->{$gr->{from_id}}->{cid}    = $header->{block_id};
+    $mailbox->{messages}->{$gr->{from_id}}->{block}  = $header->{block_id};
     
     # Generate label to display on their message center.
     if ($gr->{chat_type} eq "text") {
-        $mailbox->{messages}->{$gr->{from_id}}->{last} = substr($gr->{chat_content}, 0, 30);
+        $mailbox->{messages}->{$gr->{from_id}}->{last_content} = substr($gr->{chat_content}, 0, 30);
     } else {
-        $mailbox->{messages}->{$gr->{from_id}}->{last} = "[".$gr->{chat_type}."]";
+        $mailbox->{messages}->{$gr->{from_id}}->{last_content} = "[".$gr->{chat_type}."]";
     }
     
-    $mailbox->{messages}->{$gr->{from_id}}->{avatar} = $from_person->{avatar_fid};
+    $mailbox->{messages}->{$gr->{from_id}}->{last_avatar} = $from_person->{avatar_fid};
+    $mailbox->{messages}->{$gr->{from_id}}->{last_name}   = $from_person->{name};
+
     $mailbox->{messages}->{$gr->{from_id}}->{title} = $from_person->{name};
     
     obj_write($mailbox);
@@ -455,21 +458,23 @@ sub p_message_chat_send {
     
     # Add an entry in chat receiver's message center.
     $mailbox->{ut} = time;
-    $mailbox->{messages}->{$gr->{to_id}}->{xtype}  = "chat";
+    $mailbox->{messages}->{$gr->{to_id}}->{ctype}  = "chat"; # conversation type
     $mailbox->{messages}->{$gr->{to_id}}->{id}     = $gr->{to_id};
     $mailbox->{messages}->{$gr->{to_id}}->{ut}     = time;
     $mailbox->{messages}->{$gr->{to_id}}->{vt}     = time;
     $mailbox->{messages}->{$gr->{to_id}}->{count}  = 0;
-    $mailbox->{messages}->{$gr->{to_id}}->{cid}    = $header->{block_id};
+    $mailbox->{messages}->{$gr->{to_id}}->{block}  = $header->{block_id};
     
     # Generate label to display on their message center.
-    if ($gr->{chat_type} eq "text") {
-        $mailbox->{messages}->{$gr->{to_id}}->{last} = substr($gr->{chat_content}, 0, 30);
+    if ($gr->{mtype} eq "text") {
+        $mailbox->{messages}->{$gr->{to_id}}->{last_content} = substr($gr->{chat_content}, 0, 30);
     } else {
-        $mailbox->{messages}->{$gr->{to_id}}->{last} = "[".$gr->{chat_type}."]";
+        $mailbox->{messages}->{$gr->{to_id}}->{last_content} = "[".$gr->{chat_type}."]";
     }
     
-    $mailbox->{messages}->{$gr->{to_id}}->{avatar} = $to_person->{avatar_fid};
+    $mailbox->{messages}->{$gr->{to_id}}->{last_avatar} = $to_person->{avatar_fid};
+    $mailbox->{messages}->{$gr->{to_id}}->{last_name}   = $to_person->{name};
+
     $mailbox->{messages}->{$gr->{to_id}}->{title} = $to_person->{name};
     
     obj_write($mailbox);
@@ -497,7 +502,7 @@ OUTPUT:
             from_avatar:"f14477630553830869196",     // sender avatar
             send_time:  1448955461,                  // send timestamp
             sender_pid: "o14477397324317851066",     // sender pid
-            xtype:      "text"                       // message type: text/image/voice/link/file
+            mtype:      "text"                       // message type: text/image/voice/link/file
         },
         
         {
@@ -506,7 +511,7 @@ OUTPUT:
             from_avatar:"f14477630553830869190", 
             send_time:  1448955486, 
             sender_pid: "o14477630553830869197", 
-            xtype:      "text"
+            mtype:      "text"
         },
         
         {
@@ -514,7 +519,7 @@ OUTPUT:
             from_avatar: "f14477630553830869192", 
             send_time:  1448956085, 
             sender_pid: "o14477397324317851066", 
-            xtype:      "text"
+            mtype:      "text"
         }
         
         ],
@@ -598,26 +603,31 @@ OUTPUT:
     mailbox: [
     
     {
-        cid:   null, 
-        count: 0, 
-        id:    "o14613657119255800247", 
-        last:  "following: [n/a]", 
-        title: "Message One", 
-        ut:    1462579955, 
-        vt:    1462579955, 
-        xtype: "group"
-    }
+        ctype:       "group" // conversation type
+        id:          "o14613657119255800247", 
+        ut:          1462579955, 
+        vt:          1462579955, 
+        count:       0, 
+        block:       0, 
+        title:       "Class 2000 Reunion Group", 
+
+        last_avatar: "f14605622061056489944001", 
+        last_content:"Hello everyone!", 
+        last_name:   "John", 
+    },
     
     {
-        cid:   "o14625831090064589977", 
-        count: 0, 
-        avatar:"f14605622061056489944001", 
-        id:    "o14589256603505270481", 
-        last:  "Message Two", 
-        title: "Message Two", 
-        ut:    1462583109, 
-        vt:    1462583111, 
-        xtype: "chat"
+        ctype:       "chat" // conversation type
+        id:          "o14589256603505270481", 
+        ut:          1462583109, 
+        vt:          1462583111, 
+        count:       0, 
+        block:       "o14625831090064589977", 
+        title:       "Smith", 
+
+        last_avatar: "f14605622061056489944001", 
+        last_content:"Message Two", 
+        last_name:   "Smith", 
     }
     
     ]
@@ -649,7 +659,7 @@ sub p_message_mailbox_get {
 
 sub add_new_message_entry{
 
-    my ($header, $from_id, $xtype, $content) = @_;
+    my ($header, $from_id, $mtype, $content) = @_;
     
     return unless assert($header, "", "ERR_HEADER", "Invalid header data structure.");
     
@@ -660,7 +670,7 @@ sub add_new_message_entry{
         from_name    => $from_person->{name},
         from_id      => $from_id,
         from_avatar  => $from_person->{avatar_fid}, 
-        xtype        => $xtype, 
+        mtype        => $mtype, 
         content      => $content, 
         send_time    => time(),
     };
@@ -1111,20 +1121,22 @@ user mailbox, message center, in coming and out going message list
     // store the last message, and new message count for each type of message
     messages: {
     
-        id1: {
+        id1: {  // conversation header id
 
-            xtype: chat/topic/group
+            ctype: chat/topic/group  // conversation type
             // two party chat (private) or group conversion (not yet implemented)
 
             id: same as id1
             ut: unix time, last update time
             vt: unix time, last visit time
             count: new message count under id1
-            crid: block_record ID for id1
-            lastusername: last user name in the chat
-            lastcomment: last comment, message content
-            avatar: user avatar
+            block: block_record ID for id1
             title: title, subject, group name or private chat party name
+            
+            // cache the last entry to display on message center message list
+            last_user: last user name
+            last_content: last message content
+            last_avatar: user avatar
         }
     }
 EOF
@@ -1164,14 +1176,14 @@ message entries block record, conversation messages are divided into chained blo
     {
         from_id:     sender id
         from_name:   sender name
-        xtype:       text/image/voice/link ...
+        mtype:       text/image/voice/link ...  // message entry type
         content:     content, text, file id, link address etc.
         send_time:   timestamp
     },
     {
         from_id:     sender id
         from_name:   sender name
-        xtype:       text/image/voice/link ...
+        mtype:       text/image/voice/link ...
         content:     content, text, file id, link address etc.
         send_time:   timestamp
     }

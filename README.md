@@ -1,7 +1,7 @@
 # Creativearmy App Framework (CAF)
 
 
-WebSocket web and mobile real-time app framework, with backend coding in Perl.
+WebSocket web and mobile realtime app framework, with backend coding in Perl.
 
 
 <br><b>Architecture Overview</b>
@@ -37,8 +37,9 @@ WebSocket web and mobile real-time app framework, with backend coding in Perl.
 
 <br><b>Messaging API</b>
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This sample app has implemented two-party simple chat APIs. Our Project Toolbox<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;is a webapp client that talks to our server. Open [Project Toolbox](http://www.hehuo168.com/dev/c9sALD5OrfBMbzUYda4Yaw36QQU.html) in two browsers,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Our sample app has implemented two-party simple chat APIs. It is a classic<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;example showing realtime messaging capability. Our Project Toolbox is a webapp<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;client that talks to our server. Now try open [Project Toolbox](http://www.hehuo168.com/dev/c9sALD5OrfBMbzUYda4Yaw36QQU.html) in two browsers,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;and log into them with login name "test1" and "test2", and password "1". After login,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;you will see person id displayed on top of Project Toolbox. On one Project Toolbox<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;where you log in with "test1", send the following JSON api request, and make sure<br>
@@ -50,8 +51,8 @@ WebSocket web and mobile real-time app framework, with backend coding in Perl.
     "act":          "chat_send",
     "from_id":      "o14509039359136660099",
     "to_id":        "o14458500088436288833",
-    "chat_type":    "text",
-    "chat_content": "Hello, Partner!"
+    "mtype":        "text",
+    "content":      "Hello, Partner!"
 }
 ```
 
