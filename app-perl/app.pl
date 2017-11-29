@@ -16,6 +16,11 @@ sub response_handler {
     
 }
 
+# Minder recurring routine will be executed at $MINDER_TIME interval
+sub minder_recurring {
+    
+}
+
 ################################################################################
 # Cross platform application in Perl. For Windows PC, Perl application
 # can be packaged into standalone executable with "Perl Packager" module.
@@ -125,6 +130,8 @@ Mojo::IOLoop->recurring($MINDER_TIME => sub {
     if (time - $last_ping > $PING_INTERVAL) {
         send_obj_str('{"obj":"server","act":"ping"}');
     }
+    
+    minder_recurring();
 });
 
 # Local IPC socket data port
