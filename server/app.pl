@@ -733,7 +733,7 @@ sub add_new_message_entry{
 
 ################################################################################
 #                                                                              #
-#                  TEST API，TEST VARIOUS SYSTEM CAPABILITIES                  #
+#                  TEST API, TEST VARIOUS SYSTEM CAPABILITIES                  #
 #                                                                              #
 ################################################################################
 $p_test_geo = <<EOF;
