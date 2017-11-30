@@ -145,6 +145,7 @@ Mojo::IOLoop->server({port => $LOCAL_LISTENING_PORT} => sub {
         my ($stream, $bytes) = @_;  chomp $bytes;
         my $jo = $json->decode($bytes);
         $jo->{ipc} = 1;
+        print STDERR "\n:: OUTPUT : [".localtime()."]\n".$json_pretty->encode($jo);
         response_handler($jo);
     });
 }) if $LOCAL_LISTENING_PORT;
