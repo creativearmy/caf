@@ -9,11 +9,10 @@
 # Handler for server data. Most application business logics are defined here.
 # If local input is needed, send IPC data to local port $LOCAL_LISTENING_PORT
 sub response_handler {
-    # jo, json object reference, for response or push notification
+    # jo, json object reference, for response, ipc message, or push notification
+    # For ipc message, field $jo->{ipc} will be set.
     my ($jo) = @_;
-    
-    
-    
+        
 }
 
 # Minder recurring routine will be executed at $MINDER_TIME interval
@@ -144,7 +143,9 @@ Mojo::IOLoop->server({port => $LOCAL_LISTENING_PORT} => sub {
     # TO TEST: echo '{"obj":"server","act":"info"}' |netcat 127.0.0.1 3000
     $stream->on(read => sub {
         my ($stream, $bytes) = @_;  chomp $bytes;
-        send_obj_str($bytes);
+        my $jo = $json->decode($bytes);
+        $jo->{ipc} = 1;
+        response_handler($jo);
     });
 }) if $LOCAL_LISTENING_PORT;
 
