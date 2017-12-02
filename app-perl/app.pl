@@ -38,8 +38,10 @@ use utf8;
 # flush after every write
 $| = 1;
 
-$json = JSON->new;
-$json_pretty = JSON->new->pretty;
+# allow_nonref is to fix a comlaint "JSON text has to be an object or array"
+# on some Windows when decoding a valid JSON text
+$json = JSON->new->allow_nonref;
+$json_pretty = JSON->new->allow_nonref->pretty;
 
 # ws:// or wss:// string for WebSocket server
 ($ws_server_url) = @ARGV;
