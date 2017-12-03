@@ -46,7 +46,7 @@ $json_pretty = JSON->new->allow_nonref->pretty;
 # ws:// or wss:// string for WebSocket server
 ($ws_server_url) = @ARGV;
 
-print STDERR "WebSocket server url ws_server_url missing\n"
+errlog("WebSocket server url ws_server_url missing\n")
     and exit unless $ws_server_url;
 
 $ws_useragent = Mojo::UserAgent->new;
@@ -65,18 +65,17 @@ $ws_useragent->websocket($ws_server_url => sub {
     # global reference of WebSocket transactor
     $ws_transactor = $tx;
     
-    print STDERR "WebSocket handshake failed\nws_server_url: $ws_server_url\n"
+    errlog("WebSocket handshake failed\nws_server_url: $ws_server_url\n")
         and exit unless $tx->is_websocket;
 
     $tx->on(finish => sub {
         my ($tx, $code, $reason) = @_;
-        print STDERR "WebSocket closed with status: $code:$reason\nws_server_url: $ws_server_url\n";
+        errlog("WebSocket closed with status: $code:$reason\nws_server_url: $ws_server_url\n");
     });
 
     $tx->on(message => sub {
         
         my ($tx, $msg) = @_;
-        # print STDERR "msg: ", $msg, "\n\n";
 
         # keep receiving data until we have all the responded data
         # the size of the response data is specified on the first line of the message
@@ -107,14 +106,14 @@ $ws_useragent->websocket($ws_server_url => sub {
             my $resp_tmp = $json->decode("[".join(",", @lines)."]");
             
             $response_data_obj = shift @{$resp_tmp};
-            print STDERR "\n:: OUTPUT : [".localtime()."]\n".$json_pretty->encode($response_data_obj);
+            iolog("\n:: OUTPUT : [".localtime()."]\n".$json_pretty->encode($response_data_obj));
             # Exttract session if present
             $session = $response_data_obj->{sess} if $response_data_obj->{sess};
             $last_ping = time();
             response_handler($response_data_obj);
             
         } else {
-            print STDERR "Fatal, illformed json string received.";
+            errlog("Fatal, illformed json string received.");
             exit;
         }
     });
@@ -147,7 +146,7 @@ Mojo::IOLoop->server({port => $LOCAL_LISTENING_PORT} => sub {
         my ($stream, $bytes) = @_;  chomp $bytes;
         my $jo = $json->decode($bytes);
         $jo->{ipc} = 1;
-        print STDERR "\n:: OUTPUT : [".localtime()."]\n".$json_pretty->encode($jo);
+        iolog("\n:: OUTPUT : [".localtime()."]\n".$json_pretty->encode($jo));
         response_handler($jo);
     });
 }) if $LOCAL_LISTENING_PORT;
@@ -161,7 +160,7 @@ Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
 sub send_obj {
     my ($ref) = @_;
     $ref->{sess} = $session if $session;
-    print STDERR "\n::  INPUT : [".localtime()."]\n".$json_pretty->encode($ref);
+    iolog("\n::  INPUT : [".localtime()."]\n".$json_pretty->encode($ref));
     $ws_transactor->send($json->encode($ref)."\n");
 }
 
@@ -172,3 +171,14 @@ sub send_obj_str {
     send_obj($ref);
 }
 
+# Input/output logging. Caller does the formatting. Add file io to save it to file
+sub iolog {
+	my $msg = $_[0];
+	print STDERR $msg;
+}
+
+# Error logging. Caller does the formatting. Add file io to save it to file
+sub errlog {
+	my $msg = "[".localtime()."] ".$_[0];
+	print STDERR $msg;
+}
