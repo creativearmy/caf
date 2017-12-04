@@ -75,9 +75,17 @@ $response_data_obj = undef; # received json response obj
 $response_data_buf = undef; # received raw response data
 $last_ping = 0; # last time an api call occured
 
+$websocket_connecting = 0;
 sub websocket_connect {
+
+	return if $websocket_connecting;
+	$websocket_connecting = 1;
+	
 	$ws_useragent->websocket($ws_server_url => sub {
 		my ($ua, $tx) = @_;
+        
+		# No longer connecting.
+		$websocket_connecting = 0;
 		
 	    # Fail to connect, keep going.
 	    if (!$tx->is_websocket) {
