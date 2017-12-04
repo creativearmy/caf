@@ -12,6 +12,23 @@ sub response_handler {
     # jo, json object reference, for response, ipc message, or push notification
     # For ipc message, field $jo->{ipc} will be set.
     my ($jo) = @_;
+	
+    ####################################
+	if ($jo->{obj} eq "server" && $jo->{act} eq "info" && !$session) {
+		# Go on and start the login process.
+    }
+	
+    ####################################
+    # Test ipc message: echo '{"obj":"server","act":"info"}' |netcat 127.0.0.1 3000
+	if ($jo->{obj} eq "server" && $jo->{act} eq "info" && $jo->{ipc}) {
+		# Simply forward this test ipc message to server
+		send_obj_str('{"obj":"server","act":"info"}');
+    }
+	
+	####################################
+	if ($jo->{obj} eq "person" && $jo->{act} eq "login") {
+		# Check if login succeeded.
+	}
         
 }
 
@@ -27,6 +44,7 @@ sub minder_recurring {
 
 # global system parameters
 $MINDER_TIME = 30; # Check to see if ping needs to fire
+$AUTOCONNECT_TIME = 2; # In case of loss of connection, retry at this interval.
 $PING_INTERVAL = 180; # 3 mins, recurring pings to server
 $LOCAL_LISTENING_PORT = 3000; # If local line input is no required, set this to 0.
 
@@ -55,78 +73,106 @@ $ws_useragent->inactivity_timeout(0); # Allow connections to be inactive indefin
 $response_data_size_to_read = 0; # remaining data for response
 $response_data_obj = undef; # received json response obj
 $response_data_buf = undef; # received raw response data
-$session = undef; # once logged in, server returns a session to identify the client
-$ws_transactor = undef; # WebSocket transactor for api calls
 $last_ping = 0; # last time an api call occured
-$ws_useragent->websocket($ws_server_url => sub {
 
-    my ($ua, $tx) = @_;
-    
-    # global reference of WebSocket transactor
-    $ws_transactor = $tx;
-    
-    errlog("WebSocket handshake failed\nws_server_url: $ws_server_url\n")
-        and exit unless $tx->is_websocket;
+sub websocket_connect {
+	$ws_useragent->websocket($ws_server_url => sub {
+		my ($ua, $tx) = @_;
+		
+	    # Fail to connect, keep going.
+	    if (!$tx->is_websocket) {
+	        return errlog("WebSocket handshake failed\nws_server_url: $ws_server_url\n");
+	    }
+	        
+	    # global reference of WebSocket transactor
+	    $ws_transactor = $tx;
+	    Mojo::IOLoop->remove($auto_connect_id);
+		$auto_connect_id = undef;
+		
+		$tx->on(finish => sub {
+		    my ($tx, $code, $reason) = @_;
+		    errlog("WebSocket closed with status: $code:$reason\nws_server_url: $ws_server_url\n");
+			
+	        # Restart the connecting process.
+	        $ws_transactor = undef;
+			$session = undef;
+			$auto_connect_id = Mojo::IOLoop->recurring($AUTOCONNECT_TIME => sub { websocket_connect() });
+		});
+		
+		$tx->on(message => sub {
+		    
+		    my ($tx, $msg) = @_;
+		
+		    # keep receiving data until we have all the responded data
+		    # the size of the response data is specified on the first line of the message
+		    if ($response_data_size_to_read == 0) {
+		    
+		        ($response_data_size_to_read) = ($msg =~ /^(\d+)$/m);
+		        $msg =~ s/\d+\n//;
+		        $response_data_buf = $msg;
+		        
+		    } else {
+		        $response_data_buf .= $msg;
+		    }
+		    
+		    # For multibytes encoding, get the correct size
+		    $response_data_size_to_read -= length(Encode::encode_utf8($msg));
+		    
+		    # Keep reading messages.
+		    return if $response_data_size_to_read > 0;
+		
+		    # Set the globals of the response. Only first element of the returned array
+		    # is used.
+		    
+		    chomp $response_data_buf;
+		    
+		    if ($response_data_buf =~ /^\{/s && $response_data_buf =~ /\}$/s) {
+		
+		        my @lines = split /\n/, $response_data_buf;
+		        my $resp_tmp = $json->decode("[".join(",", @lines)."]");
+		        
+		        $response_data_obj = shift @{$resp_tmp};
+		        iolog("\n:: OUTPUT : [".localtime()."]\n".$json_pretty->encode($response_data_obj));
+		        # Exttract session if present
+		        $session = $response_data_obj->{sess} if $response_data_obj->{sess};
+		        $last_ping = time();
+		        response_handler($response_data_obj);
+		        
+		    } else {
+		        errlog("Fatal, illformed json string received.");
+				
+	            # Restart the connecting process.
+	            $ws_transactor = undef;
+				$session = undef;
+				$auto_connect_id = Mojo::IOLoop->recurring($AUTOCONNECT_TIME => sub { websocket_connect() });
+		    }
+		});
+		
+		# Reset the expected length to 0
+		$response_data_size_to_read = 0;
+		
+		# Send first websocket api call.
+		send_obj_str('{"obj":"server","act":"info"}');
+	});
+}
 
-    $tx->on(finish => sub {
-        my ($tx, $code, $reason) = @_;
-        errlog("WebSocket closed with status: $code:$reason\nws_server_url: $ws_server_url\n");
-    });
-
-    $tx->on(message => sub {
-        
-        my ($tx, $msg) = @_;
-
-        # keep receiving data until we have all the responded data
-        # the size of the response data is specified on the first line of the message
-        if ($response_data_size_to_read == 0) {
-        
-            ($response_data_size_to_read) = ($msg =~ /^(\d+)$/m);
-            $msg =~ s/\d+\n//;
-            $response_data_buf = $msg;
-            
-        } else {
-            $response_data_buf .= $msg;
-        }
-        
-        # For multibytes encoding, get the correct size
-        $response_data_size_to_read -= length(Encode::encode_utf8($msg));
-        
-        # Keep reading messages.
-        return if $response_data_size_to_read > 0;
-
-        # Set the globals of the response. Only first element of the returned array
-        # is used.
-        
-        chomp $response_data_buf;
-        
-        if ($response_data_buf =~ /^\{/s && $response_data_buf =~ /\}$/s) {
-    
-            my @lines = split /\n/, $response_data_buf;
-            my $resp_tmp = $json->decode("[".join(",", @lines)."]");
-            
-            $response_data_obj = shift @{$resp_tmp};
-            iolog("\n:: OUTPUT : [".localtime()."]\n".$json_pretty->encode($response_data_obj));
-            # Exttract session if present
-            $session = $response_data_obj->{sess} if $response_data_obj->{sess};
-            $last_ping = time();
-            response_handler($response_data_obj);
-            
-        } else {
-            errlog("Fatal, illformed json string received.");
-            exit;
-        }
-    });
-    
-	# Reset the expected length to 0
-    $response_data_size_to_read = 0;
-
-    # Send first websocket api call.
-    send_obj_str('{"obj":"server","act":"info"}');
-});
+# Start the initial connecting process.
+$ws_transactor = undef; # WebSocket transactor for api calls
+$session = undef; # once logged in, server returns a session to identify the client
+$auto_connect_id = Mojo::IOLoop->recurring($AUTOCONNECT_TIME => sub { websocket_connect() });
 
 # Minder timer to send recurring pings to server
 Mojo::IOLoop->recurring($MINDER_TIME => sub {
+
+    # Consider this connection loss, try reconnect again.
+	# This also prevents unsent message piled up thanks to the design of Mojo.
+    if (time - $last_ping > 2*$PING_INTERVAL && !$auto_connect_id) {
+        $ws_transactor = undef;
+		$session = undef;
+		$auto_connect_id = Mojo::IOLoop->recurring($AUTOCONNECT_TIME => sub { websocket_connect() });
+		return;
+    }
+	
     if (time - $last_ping > $PING_INTERVAL) {
         send_obj_str('{"obj":"server","act":"ping"}');
     }
@@ -145,6 +191,7 @@ Mojo::IOLoop->server({port => $LOCAL_LISTENING_PORT} => sub {
     $stream->on(read => sub {
         my ($stream, $bytes) = @_;  chomp $bytes;
         my $jo = $json->decode($bytes);
+        $jo->{io} = "o";
         $jo->{ipc} = 1;
         iolog("\n:: OUTPUT : [".localtime()."]\n".$json_pretty->encode($jo));
         response_handler($jo);
@@ -160,8 +207,9 @@ Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
 sub send_obj {
     my ($ref) = @_;
     $ref->{sess} = $session if $session;
+    $ref->{io} = "i" unless $ref->{io};
     iolog("\n::  INPUT : [".localtime()."]\n".$json_pretty->encode($ref));
-    $ws_transactor->send($json->encode($ref)."\n");
+    $ws_transactor->send($json->encode($ref)."\n") if $ws_transactor;
 }
 
 # Send API call as an json enencoded string, with $session auto injected
