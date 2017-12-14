@@ -1,11 +1,13 @@
 
 iweb.controller('i001', function ($scope) {
 
-        $scope.add = function () {
-            goto_view('i315');
+        $scope.action1 = function () {
+			alert("Action 1");
+            //goto_view('i315');
         };
-        $scope.guanli = function () {
-            goto_view("i303");
+        $scope.action2 = function () {
+			alert("Action 2");
+            //goto_view("i303");
         };
 
         $scope.output = "Wait for server";
