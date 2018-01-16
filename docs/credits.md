@@ -1,27 +1,17 @@
+CreatearmyAppFramework uses open source software and 
+tools extensively. This list is by no means exhaustive. 
+We like to thank our fellow software enthusiasts and 
+professionals selfless contributions.
 
-
-Create Army use OSS extensively.
-
-We are in the process of uploading our projects to GitHub.
-
-The list is not complete.
-
-==================================================================
-
-Server:
-
-WebSocket server on Nginx with embedded Perl
-
+WebSocket server on nginx with embedded Perl scripting capability
+Alexandr Gomoliako, Igor Sysoev and nginx project contributors
 https://github.com/zzzcpan/nginx-perl
 
-
-Android:
-
+Android AndroidAsync WebSocket driver
+Koushik Dutta and contributors
 https://github.com/koush/AndroidAsync
 
-
-iOS:
-
+iOS SocketRocket WebSocket driver
+Facebook, Inc and contributors
 https://github.com/facebook/SocketRocket
-
 
