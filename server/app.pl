@@ -271,6 +271,7 @@ sub p_person_qr_login {
 
     obj_write($pref);
 
+	# carry the sess with the data, flag 1
     my $rt_send = sendto_conn($gr->{conn}, {
         sess        => $rt_sess,
         io          => "o",
@@ -278,7 +279,7 @@ sub p_person_qr_login {
         act         => "login",
         user_info   => $pref, 
         server_info => server_info(),
-    });
+    }, 1);
     
     return jr({ count => $rt_send });
 }
