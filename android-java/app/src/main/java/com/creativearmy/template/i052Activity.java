@@ -244,7 +244,7 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
                         m.xput("type_tran", "RECV");
                     }
 
-                    if (xtype.equals("image")) {
+                    if (mtype.equals("image")) {
                         m.xput("content", jo.o("content"));
                     } else {
                         m.xput("content", jo.s("content"));
@@ -273,7 +273,7 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
         for (int i = 0; i < array.length(); i++) {
             JSONObject jo = array.optJSONObject(i);
 
-            String xtype = array.optJSONObject(i).optString("xtype");
+            String mtype = array.optJSONObject(i).optString("xtype");
 
             JSONObject m = new JSONObject();
             if (jo.s("from_id").equals(APIConnection.user_info.optString("_id"))) {
