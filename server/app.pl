@@ -811,6 +811,9 @@ sub p_test_geo {
 $p_test_apns = <<EOF;
 test Apple push notification
 
+Xcode simulator app will connect to APNS development server
+and the reported token is not valid for APNS production service.
+
 INPUT:
     phone: device login name
 
@@ -831,6 +834,81 @@ sub p_test_apns {
     net_apns_batch({alert=>"apns_test, ".time(), cmd=>"apns_test"}, @apns_tokens);
 
     return jr({msg => "push notification sent"});
+}
+
+$p_test_apnsfb = <<EOF;
+Apple push notification feedback service
+
+EOF
+
+sub p_test_apnsfb {
+	return jr(net_apnsfb_pruning());
+}
+
+sub net_apnsfb_pruning {
+
+=h
+  [
+    {
+      'time_t' => 1259577923,
+      'token' => '04ef31c86205...624f390ea878416'
+    },
+    {
+      'time_t' => 1259577926,
+      'token' => '04ef31c86205...624f390ea878416'
+    },
+  ]
+=cut
+
+	my $tokens = net_apnsfb();
+
+	my @phons = ();
+
+	foreach my $t (@{$tokens}) {
+		my @ps =mdb()->get_collection("person")->find({apns_device_token=>$t->{token}})->all();
+			foreach my $p (@ps) {
+				my $pref = obj_read("person", $p->{_id});
+				next if ($pref->{apns_device_token_ut} > $t->{time_t});
+				delete $pref->{apns_device_token};
+				delete $pref->{apns_device_token_ut};
+				obj_write($pref);
+				push @phons, $pref->{phoneNo};
+			}
+	}
+
+	return {
+		pruned_tokens =>$tokens, 
+		pruned_tokens_count=>scalar(@{$tokens}), 
+		pruned_phones => \@phons, 
+		pruned_phones_count => scalar(@phons),
+	};
+}
+
+sub net_apnsfb {
+
+    my $apns;
+
+    if (__PACKAGE__ =~ /_GA$/) {
+    
+        $apns = Net::APNS::Feedback->new({
+            sandbox => 0,
+            cert    => "/var/www/games/app/demo_ga/aps.pem",
+            key     => "/var/www/games/app/demo_ga/aps.pem",
+            passwd  => "123"
+        });
+	
+    } else {
+    
+        $apns = Net::APNS::Feedback->new({
+            sandbox => 1,
+            cert => "/var/www/games/app/demo/pushck.pem",
+            key => "/var/www/games/app/demo/PushChatkey.pem",
+            passwd  => "123"
+        });
+    
+    }
+
+	return $apns->retrieve_feedback;
 }
 
 sub net_apns_batch {
