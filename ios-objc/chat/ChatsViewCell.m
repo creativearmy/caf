@@ -29,6 +29,8 @@
 
 - (void)setData:(JSONObject *)data
 {
+    _raw_data = data;
+    
     outAvatarImageView.layer.cornerRadius=outAvatarImageView.frame.size.width/2;
     outAvatarImageView.layer.masksToBounds=YES;
     if (data[@"from_image"]!=nil) {

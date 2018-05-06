@@ -41,11 +41,12 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 @implementation ChatViewController
 {
     UILabel *title;
-    UIView *_textView;
-    UITextView *textInput;
-    UITableView *msgTable;
-    UIView *moreView;
     
+    UITableView *_panelMessages; // messages display area
+    UIView *_panelMain; // main panel: voice button, text entry, plus button
+    UIView *_panelPlus; // + button will activate _panelPlus
+    UITextView *textInput; // overlap with _panelMain
+
     UIButton *recordingBtn;
     UIButton *recordBtn;
     BOOL isRecording;
@@ -76,7 +77,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     
     NSString *queryTime;
     NSDate *queryDate;
-    BOOL moreViewShow;
+    BOOL _panelPlusVisible;
     
     CLLocationManager *locationManager;
     NSString *videoName;
@@ -95,14 +96,6 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     if (self) {
         
         isRecording = NO;
-        float version = [[[UIDevice currentDevice] systemVersion] floatValue];
-        if (version >= 5.0) {
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillChangeFrame:) name:   UIKeyboardWillChangeFrameNotification object:nil];
-        }
-        else {
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardShow:) name:  UIKeyboardWillShowNotification object:nil];
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDismiss:) name:   UIKeyboardWillHideNotification object:nil];
-        }
         
         // FIXME: this does not work, [self setTitle];
         // delay is needed, maybe 2s
@@ -118,70 +111,70 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 }   
     
 #pragma mark - show/dismiss moreView    
-- (void)showAndDismissMoreView  
+- (void)showAndDismissPanelPlus  
 {
     NSInteger offset = VERSION >= 7.0 ? 20 : 0;
-    if (moreViewShow) { 
+    if (_panelPlusVisible) { 
         [UIView animateWithDuration:0.3 animations:^{   
-            moreView.frame = CGRectOffset(moreView.frame, 0, 216+36);
-            moreViewShow = NO;  
+            _panelPlus.frame = CGRectOffset(_panelPlus.frame, 0, 216+36);
+            _panelPlusVisible = NO;  
                 
             CGFloat yOffset = 216+36;
-            if (_textView.frame.origin.y == SCREEN_HEIGHT - 80 + offset) {
+            if (_panelMain.frame.origin.y == SCREEN_HEIGHT - 80 + offset) {
                 [textInput resignFirstResponder];   
                 return ;    
             }   
                 
-            CGRect inputFieldRect = _textView.frame;    
-            CGRect tableRect = msgTable.frame;  
+            CGRect inputFieldRect = _panelMain.frame;    
+            CGRect tableRect = _panelMessages.frame;  
                 
             inputFieldRect.origin.y += yOffset; 
             tableRect.size.height += yOffset;   
-            msgTable.frame = tableRect; 
-            _textView.frame = inputFieldRect;   
-            if (msgTable.contentSize.height > msgTable.frame.size.height) { 
-                [msgTable setContentOffset:CGPointMake(0, msgTable.contentSize.height - msgTable.frame.size.height) animated:YES];  
+            _panelMessages.frame = tableRect; 
+            _panelMain.frame = inputFieldRect;   
+            if (_panelMessages.contentSize.height > _panelMessages.frame.size.height) { 
+                [_panelMessages setContentOffset:CGPointMake(0, _panelMessages.contentSize.height - _panelMessages.frame.size.height) animated:YES];  
             }   
         }]; 
     }   
     else {
-        moreViewShow = YES;
+        _panelPlusVisible = YES;
         //float textview_to_botHight  = _textView.frame.origin.y+_textView.frame.size.height;
         if (isRecording) {
             isRecording = NO;
             [recordingBtn removeFromSuperview];
-            [_textView addSubview:textInput];
+            [_panelMain addSubview:textInput];
             [recordBtn setImage:[UIImage imageNamed:@"mic.jpg"] forState:UIControlStateNormal];
         }else{
             [textInput resignFirstResponder];
         }
         
         CGFloat yOffset = -216-36;
-        if (_textView.frame.origin.y == SCREEN_HEIGHT - 296 + offset|| _textView.frame.origin.y == SCREEN_HEIGHT - 296 - 24 * 1 + offset|| _textView.frame.origin.y == SCREEN_HEIGHT - 296 - 24 * 2 + offset) {
+        if (_panelMain.frame.origin.y == SCREEN_HEIGHT - 296 + offset|| _panelMain.frame.origin.y == SCREEN_HEIGHT - 296 - 24 * 1 + offset|| _panelMain.frame.origin.y == SCREEN_HEIGHT - 296 - 24 * 2 + offset) {
             [textInput resignFirstResponder];
             return ;
         }
-        if (_textView.frame.origin.y == SCREEN_HEIGHT - 296 - 36 + offset|| _textView.frame.origin.y == SCREEN_HEIGHT - 296 - 36 - 24 * 1 + offset|| _textView.frame.origin.y == SCREEN_HEIGHT - 296 - 36 - 24 * 2 + offset) {
+        if (_panelMain.frame.origin.y == SCREEN_HEIGHT - 296 - 36 + offset|| _panelMain.frame.origin.y == SCREEN_HEIGHT - 296 - 36 - 24 * 1 + offset|| _panelMain.frame.origin.y == SCREEN_HEIGHT - 296 - 36 - 24 * 2 + offset) {
             [textInput resignFirstResponder];
             yOffset = 0;
         }
         
-        CGRect inputFieldRect = _textView.frame;
-        CGRect tableRect = msgTable.frame;
+        CGRect inputFieldRect = _panelMain.frame;
+        CGRect tableRect = _panelMessages.frame;
         
         inputFieldRect.origin.y += yOffset;
         tableRect.size.height += yOffset;
-        if (msgTable.contentSize.height > msgTable.frame.size.height) {
-            [msgTable setContentOffset:CGPointMake(0, msgTable.contentSize.height - msgTable.frame.size.height) animated:NO];
+        if (_panelMessages.contentSize.height > _panelMessages.frame.size.height) {
+            [_panelMessages setContentOffset:CGPointMake(0, _panelMessages.contentSize.height - _panelMessages.frame.size.height) animated:NO];
         }
         [UIView animateWithDuration:0.3 animations:^{
-            moreView.frame = CGRectOffset(moreView.frame, 0, -216-36);
-            msgTable.frame = tableRect;
-            _textView.frame = inputFieldRect;
+            _panelPlus.frame = CGRectOffset(_panelPlus.frame, 0, -216-36);
+            _panelMessages.frame = tableRect;
+            _panelMain.frame = inputFieldRect;
         }];
     }
-    if (msgTable.contentSize.height > msgTable.frame.size.height) {
-        [msgTable setContentOffset:CGPointMake(0, msgTable.contentSize.height - msgTable.frame.size.height) animated:YES];
+    if (_panelMessages.contentSize.height > _panelMessages.frame.size.height) {
+        [_panelMessages setContentOffset:CGPointMake(0, _panelMessages.contentSize.height - _panelMessages.frame.size.height) animated:YES];
     }
 }
 
@@ -196,16 +189,16 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     if (_isFirst) {
         return;
     }
-    if (msgTable.contentSize.height > msgTable.frame.size.height) {
-        [msgTable setContentOffset:CGPointMake(0, msgTable.contentSize.height - msgTable.frame.size.height) animated:YES];
+    if (_panelMessages.contentSize.height > _panelMessages.frame.size.height) {
+        [_panelMessages setContentOffset:CGPointMake(0, _panelMessages.contentSize.height - _panelMessages.frame.size.height) animated:YES];
     }
 }
 
 #pragma mark - textInput delegate
 - (void)textInputReturn
 {
-    if (moreViewShow) {
-        [self showAndDismissMoreView];
+    if (_panelPlusVisible) {
+        [self showAndDismissPanelPlus];
     }
     [textInput resignFirstResponder];
 }
@@ -215,8 +208,8 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     NSLog(@"=======shouldChangeTextInRange======");
 
     CGRect textInputRect = textInput.frame;
-    CGRect textViewRect = _textView.frame;
-    CGRect tableRect = msgTable.frame;
+    CGRect textViewRect = _panelMain.frame;
+    CGRect tableRect = _panelMessages.frame;
     
     if ([text isEqualToString:@"\n"]) { // send btn
         // filter these two for now
@@ -251,7 +244,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
             [data setObject:[globalConn.user_info s:@"headFid"] forKey:@"from_image"];
             [chat_entries addObject:data];
             
-            [msgTable reloadData];
+            [_panelMessages reloadData];
             [self tableViewGoFooter];
         }
         
@@ -271,24 +264,26 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     
     // adjust height of textView
     CGSize size = [textInput.text sizeWithFont:[UIFont systemFontOfSize:20] constrainedToSize:CGSizeMake(textInput.frame.size.width , CGFLOAT_MAX) lineBreakMode:NSLineBreakByCharWrapping];
-    //NSLog(@"%f-----%f",size.height,textInput.frame.size.height);
+    
+    NSLog(@"IM textView:shouldChangeTextInRange size.height=%f, textInput.frame.size.height=%f", size.height, textInput.frame.size.height);
+    
     if (size.height > textInput.frame.size.height - 16 && textInput.frame.size.height < 88) {
         textViewRect.size.height += 24;
         textViewRect.origin.y -= 24;
-        _textView.frame = textViewRect;
+        _panelMain.frame = textViewRect;
         textInputRect.size.height += 24;
         textInput.frame = textInputRect;
         tableRect.size.height -= 24;
-        msgTable.frame = tableRect;
+        _panelMessages.frame = tableRect;
     }
     if (textInput.frame.size.height > 40 && size.height < textInput.frame.size.height - 16) {
         textViewRect.size.height -= 24;
         textViewRect.origin.y += 24;
-        _textView.frame = textViewRect;
+        _panelMain.frame = textViewRect;
         textInputRect.size.height -= 24;
         textInput.frame = textInputRect;
         tableRect.size.height += 24;
-        msgTable.frame = tableRect;
+        _panelMessages.frame = tableRect;
     }
     return YES;
 }
@@ -307,11 +302,11 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     [UIView beginAnimations:nil context:nil];
     [UIView setAnimationDuration:animationDuration];
     [UIView setAnimationCurve:animationCurve];
-    [_textView setFrame:CGRectMake(_textView.frame.origin.x, self.view.frame.size.height - keyboardFrame.size.height-_textView.frame.size.height, _textView.frame.size.width, _textView.frame.size.height)];
-    [msgTable setFrame:CGRectMake(msgTable.frame.origin.x, msgTable.frame.origin.y, msgTable.frame.size.width, msgTable.frame.size.height - keyboardFrame.size.height)];
+    [_panelMain setFrame:CGRectMake(_panelMain.frame.origin.x, self.view.frame.size.height - keyboardFrame.size.height-_panelMain.frame.size.height, _panelMain.frame.size.width, _panelMain.frame.size.height)];
+    [_panelMessages setFrame:CGRectMake(_panelMessages.frame.origin.x, _panelMessages.frame.origin.y, _panelMessages.frame.size.width, _panelMessages.frame.size.height - keyboardFrame.size.height)];
     [UIView commitAnimations];
-    if (msgTable.contentSize.height > msgTable.frame.size.height) {
-        [msgTable setContentOffset:CGPointMake(0, msgTable.contentSize.height - msgTable.frame.size.height) animated:YES];
+    if (_panelMessages.contentSize.height > _panelMessages.frame.size.height) {
+        [_panelMessages setContentOffset:CGPointMake(0, _panelMessages.contentSize.height - _panelMessages.frame.size.height) animated:YES];
     }
 }
 
@@ -329,16 +324,67 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     [UIView beginAnimations:nil context:nil];
     [UIView setAnimationDuration:animationDuration];
     [UIView setAnimationCurve:animationCurve];
-    [moreView setFrame:CGRectMake(0, self.view.frame.size.height, self.view.frame.size.width, moreView.frame.size.height)];
-    [_textView setFrame:CGRectMake(_textView.frame.origin.x, _textView.frame.origin.y + keyboardFrame.size.height, _textView.frame.size.width, _textView.frame.size.height)];
-    [msgTable setFrame:CGRectMake(msgTable.frame.origin.x, msgTable.frame.origin.y, msgTable.frame.size.width, msgTable.frame.size.height + keyboardFrame.size.height)];
+    [_panelPlus setFrame:CGRectMake(0, self.view.frame.size.height, self.view.frame.size.width, _panelPlus.frame.size.height)];
+    [_panelMain setFrame:CGRectMake(_panelMain.frame.origin.x, _panelMain.frame.origin.y + keyboardFrame.size.height, _panelMain.frame.size.width, _panelMain.frame.size.height)];
+    [_panelMessages setFrame:CGRectMake(_panelMessages.frame.origin.x, _panelMessages.frame.origin.y, _panelMessages.frame.size.width, _panelMessages.frame.size.height + keyboardFrame.size.height)];
     [UIView commitAnimations];
-    if (msgTable.contentSize.height > msgTable.frame.size.height) {
-        [msgTable setContentOffset:CGPointMake(0, msgTable.contentSize.height - msgTable.frame.size.height) animated:YES];
+    if (_panelMessages.contentSize.height > _panelMessages.frame.size.height) {
+        [_panelMessages setContentOffset:CGPointMake(0, _panelMessages.contentSize.height - _panelMessages.frame.size.height) animated:YES];
     }
 }
 
 - (void)keyboardWillChangeFrame:(NSNotification *)notification
+{
+
+    BOOL needAnimation = YES;
+    if(_panelPlusVisible == YES){
+        needAnimation = NO;
+    }
+    
+    NSDictionary *info = [notification userInfo];
+    CGFloat duration = [[info objectForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
+    CGRect beginKeyboardRect = [[info objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue];
+    CGRect endKeyboardRect = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    
+    CGFloat yOffset;
+    
+    yOffset = endKeyboardRect.origin.y - beginKeyboardRect.origin.y;
+    NSLog(@"IM keyboardWillChangeFrame yOffset=%f", yOffset);
+
+    CGRect inputFieldRect = _panelMain.frame;
+    CGRect tableRect = _panelMessages.frame;
+    
+    // validate yOffset, fail safe, at least it will not fall off the screen
+    if (inputFieldRect.origin.y + yOffset < 0) {
+        yOffset = 100 - inputFieldRect.origin.y;
+    }
+    if (inputFieldRect.origin.y + yOffset > (self.view.frame.size.height-_panelMain.frame.size.height)) {
+        yOffset = self.view.frame.size.height-_panelMain.frame.size.height - inputFieldRect.origin.y;
+    }
+    
+    inputFieldRect.origin.y += yOffset;
+    tableRect.size.height += yOffset;
+    
+    if(needAnimation==YES){
+        [UIView animateWithDuration:duration animations:^{
+            _panelMain.frame = inputFieldRect;
+            _panelMessages.frame = tableRect;
+        }];
+        if (_panelMessages.contentSize.height > _panelMessages.frame.size.height) {
+            [_panelMessages setContentOffset:CGPointMake(0, _panelMessages.contentSize.height - _panelMessages.frame.size.height) animated:YES];
+        }
+    }
+    else{
+        _panelMain.frame = inputFieldRect;
+        _panelMessages.frame = tableRect;
+        if (_panelMessages.contentSize.height > _panelMessages.frame.size.height) {
+            [_panelMessages setContentOffset:CGPointMake(0, _panelMessages.contentSize.height - _panelMessages.frame.size.height) animated:YES];
+        }
+    }
+    
+}
+
+- (void)keyboardWillChangeFrame_DEPRECATED:(NSNotification *)notification
 {
     /* UIKeyboardWillChangeFrameNotification - keyborad pop up /retract
      
@@ -365,7 +411,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
      */
     
     BOOL needAnimation = YES;
-    if(moreViewShow == YES){
+    if(_panelPlusVisible == YES){
         needAnimation = NO;
     }
     
@@ -381,46 +427,56 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     
     //if(endKeyboardRect.origin.y - beginKeyboardRect.origin.y<0){
     if(endKeyboardRect.origin.y - beginKeyboardRect.origin.y < -10){
-        // pop out
-        moreViewShow = NO;
-        yOffset = endKeyboardRect.origin.y - beginKeyboardRect.origin.y + (self.view.frame.size.height-_textView.frame.origin.y-_textView.frame.size.height);
+        //表示键盘弹出;
+        _panelPlusVisible = NO;
+        yOffset = endKeyboardRect.origin.y - beginKeyboardRect.origin.y + (self.view.frame.size.height-_panelMain.frame.origin.y-_panelMain.frame.size.height);
     }else{
-        // retract
-        [moreView setFrame:CGRectMake(0, self.view.frame.size.height, self.view.frame.size.width, moreView.frame.size.height)];// hide moreview
+        //表示键盘回收
+        [_panelPlus setFrame:CGRectMake(0, self.view.frame.size.height, self.view.frame.size.width, _panelPlus.frame.size.height)];//隐藏moreview
         yOffset = endKeyboardRect.origin.y - beginKeyboardRect.origin.y;
     }
     NSInteger offset = VERSION >= 7.0 ? 20 : 0;
     
-    if (yOffset == -216-36 && moreViewShow) {
-        moreView.frame = CGRectOffset(moreView.frame, 0, 216+36);
-        moreViewShow = NO;
+    if (yOffset == -216-36 && _panelPlusVisible) {
+        _panelPlus.frame = CGRectOffset(_panelPlus.frame, 0, 216+36);
+        _panelPlusVisible = NO;
     }
-    if ((yOffset == -216-36 && _textView.frame.origin.y == SCREEN_HEIGHT - 296-36 - 24 * 1  + offset) || (yOffset == -216-36 && _textView.frame.origin.y == SCREEN_HEIGHT - 296-36 - 24 * 2 + offset) || (yOffset == -216-36 && _textView.frame.origin.y == SCREEN_HEIGHT - 296-36 + offset) || (yOffset == 216 && moreViewShow)) {
+    if ((yOffset == -216-36 && _panelMain.frame.origin.y == SCREEN_HEIGHT - 296-36 - 24 * 1  + offset) || (yOffset == -216-36 && _panelMain.frame.origin.y == SCREEN_HEIGHT - 296-36 - 24 * 2 + offset) || (yOffset == -216-36 && _panelMain.frame.origin.y == SCREEN_HEIGHT - 296-36 + offset) || (yOffset == 216 && _panelPlusVisible)) {
         return;
     }
-    if (yOffset == 252 && moreViewShow) {
+    if (yOffset == 252 && _panelPlusVisible) {
         return;
     }
     
-    CGRect inputFieldRect = _textView.frame;
-    CGRect tableRect = msgTable.frame;
+    CGRect inputFieldRect = _panelMain.frame;
+    CGRect tableRect = _panelMessages.frame;
+    NSLog(@"IM keyboardWillChangeFrame yOffset=%f", yOffset);
+    
+    // validate yOffset, fail safe, at least it will not fall off the screen
+    if (inputFieldRect.origin.y + yOffset < 0) {
+        yOffset = 100 - inputFieldRect.origin.y;
+    }
+    if (inputFieldRect.origin.y + yOffset > (self.view.frame.size.height-_panelMain.frame.size.height)) {
+        yOffset = self.view.frame.size.height-_panelMain.frame.size.height - inputFieldRect.origin.y;
+    }
     
     inputFieldRect.origin.y += yOffset;
     tableRect.size.height += yOffset;
+    
     if(needAnimation==YES){
         [UIView animateWithDuration:duration animations:^{
-            _textView.frame = inputFieldRect;
-            msgTable.frame = tableRect;
+            _panelMain.frame = inputFieldRect;
+            _panelMessages.frame = tableRect;
         }];
-        if (msgTable.contentSize.height > msgTable.frame.size.height) {
-            [msgTable setContentOffset:CGPointMake(0, msgTable.contentSize.height - msgTable.frame.size.height) animated:YES];
+        if (_panelMessages.contentSize.height > _panelMessages.frame.size.height) {
+            [_panelMessages setContentOffset:CGPointMake(0, _panelMessages.contentSize.height - _panelMessages.frame.size.height) animated:YES];
         }
     }
     else{
-        _textView.frame = inputFieldRect;
-        msgTable.frame = tableRect;
-        if (msgTable.contentSize.height > msgTable.frame.size.height) {
-            [msgTable setContentOffset:CGPointMake(0, msgTable.contentSize.height - msgTable.frame.size.height) animated:YES];
+        _panelMain.frame = inputFieldRect;
+        _panelMessages.frame = tableRect;
+        if (_panelMessages.contentSize.height > _panelMessages.frame.size.height) {
+            [_panelMessages setContentOffset:CGPointMake(0, _panelMessages.contentSize.height - _panelMessages.frame.size.height) animated:YES];
         }
     }
     
@@ -453,12 +509,34 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     
     if (!cell) {
         cell = [[ChatsViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId];
+        [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     }
     [cell setData:row_data];
     
     return cell;
 }
 
+- (void)longPress:(UILongPressGestureRecognizer *)sender
+{
+    // only when gesture was recognized, not when ended
+    if (sender.state == UIGestureRecognizerStateBegan)
+    {
+        // get affected cell
+        //ChatsViewCell *cell = (ChatsViewCell *)[gesture view];
+        CGPoint pressPoint = [sender locationInView:_panelMessages];
+        NSIndexPath *indexPath = [_panelMessages indexPathForRowAtPoint:pressPoint];
+        
+        if (indexPath == nil) {
+            return;
+        }
+        ChatsViewCell *cell = (ChatsViewCell *)[_panelMessages cellForRowAtIndexPath:indexPath];
+        if (cell != nil && cell.raw_data != nil && [[cell.raw_data s:@"xtype"] isEqualToString:@"text"]) {
+            UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+            [pasteboard setString: [cell.raw_data s:@"content"]];
+            [MBProgressHUD showTextOnly:@"拷贝到剪贴版了"];
+        }
+    }
+}
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -521,7 +599,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
-    msgTable.tableHeaderView = timeLable;
+    _panelMessages.tableHeaderView = timeLable;
     return timeLable;
 }
 
@@ -541,7 +619,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
             [data setObject:[NSString stringWithFormat:@"%@",[NSDate date]] forKey:@"date"];
             
             [chat_entries addObject:data];
-            [msgTable reloadData];
+            [_panelMessages reloadData];
             [self tableViewGoFooter];
             dispatch_async(dispatch_get_main_queue(), ^{
                 
@@ -643,7 +721,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
             [data setObject:[globalConn.user_info s:@"headFid"] forKey:@"from_image"];
             [chat_entries addObject:data];
             
-            [msgTable reloadData];
+            [_panelMessages reloadData];
             [self tableViewGoFooter];
             
             [self getDownloadURL:fid];
@@ -768,7 +846,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 //         data[@"thumb"]=dictionaryWithJsonString[@"thumb"];
          data[@"content"]=@{@"fid":dictionaryWithJsonString[@"fid"],@"thumb":dictionaryWithJsonString[@"thumb"]};
         [chat_entries addObject:data];
-        [msgTable reloadData];
+        [_panelMessages reloadData];
         [self tableViewGoFooter];
          isSendImage = YES;
         [self dismissViewControllerAnimated:YES completion:^{
@@ -1033,7 +1111,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     {
         isRecording = NO;
         [recordingBtn removeFromSuperview];
-        [_textView addSubview:textInput];
+        [_panelMain addSubview:textInput];
         [recordBtn setImage:[UIImage imageNamed:@"mic.jpg"] forState:UIControlStateNormal];
         [textInput becomeFirstResponder];
     }
@@ -1042,7 +1120,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
         isRecording = YES;
         [self textInputReturn];
         [textInput removeFromSuperview];
-        [_textView addSubview:recordingBtn];
+        [_panelMain addSubview:recordingBtn];
         [recordBtn setImage:[UIImage imageNamed:@"Text"] forState:UIControlStateNormal];
     }
 }
@@ -1257,7 +1335,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
             [data setObject:[globalConn.user_info s:@"headFid"] forKey:@"from_image"];
             
             [chat_entries addObject:data];
-            [msgTable reloadData];
+            [_panelMessages reloadData];
             [self tableViewGoFooter];
             
             NSMutableDictionary * sendData = [[NSMutableDictionary alloc]init];
@@ -1432,7 +1510,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 	
 	//  model should call this when its done loading
 	_reloading = NO;
-	[_refreshHeaderView egoRefreshScrollViewDataSourceDidFinishedLoading:msgTable];
+	[_refreshHeaderView egoRefreshScrollViewDataSourceDidFinishedLoading:_panelMessages];
     [self loadMoreData];
 }
 
@@ -1510,10 +1588,9 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     nav.tintColor = [UIColor whiteColor];
 //    self.navigationItem.rightBarButtonItem = rightItem;
     
-
-    _textView = [[UIView alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT - 80 + yoffset, SCREEN_WIDTH, 60)];
-    _textView.backgroundColor = [UIColor lightGrayColor];
-    [self.view addSubview:_textView];
+    _panelMain = [[UIView alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT - 80 + yoffset, SCREEN_WIDTH, 60)];
+    _panelMain.backgroundColor = [UIColor lightGrayColor];
+    [self.view addSubview:_panelMain];
     
     textInput = [[UITextView alloc] initWithFrame:CGRectMake(50, 10, SCREEN_WIDTH - 100, 40)];
     textInput.layer.cornerRadius = 3;
@@ -1523,7 +1600,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     textInput.font = [UIFont systemFontOfSize:20];
     textInput.returnKeyType = UIReturnKeySend;
     textInput.delegate = self;
-    [_textView addSubview:textInput];
+    [_panelMain addSubview:textInput];
     
     recordingBtn = [[UIButton alloc] initWithFrame:CGRectMake(50, 10, SCREEN_WIDTH - 100, 40)];
     [recordingBtn setTitle:@"press to talk" forState:UIControlStateNormal];
@@ -1536,25 +1613,29 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     UIButton *moreBtn = [[UIButton alloc] initWithFrame:CGRectMake(textInput.frame.origin.x + textInput.frame.size.width + 5, 10, 40, 40)];
     moreBtn.backgroundColor = [UIColor clearColor];
     [moreBtn setImage:[UIImage imageNamed:@"add"] forState:UIControlStateNormal];
-    [moreBtn addTarget:self action:@selector(showAndDismissMoreView) forControlEvents:UIControlEventTouchUpInside];
-    [_textView addSubview:moreBtn];
+    [moreBtn addTarget:self action:@selector(showAndDismissPanelPlus) forControlEvents:UIControlEventTouchUpInside];
+    [_panelMain addSubview:moreBtn];
     
     recordBtn = [[UIButton alloc] initWithFrame:CGRectMake(5, 10, 40, 40)];
     recordBtn.backgroundColor = [UIColor clearColor];
     [recordBtn setImage:[UIImage imageNamed:@"mic.jpg"] forState:UIControlStateNormal];
     [recordBtn addTarget:self action:@selector(textOrRecord) forControlEvents:UIControlEventTouchUpInside];
-    [_textView addSubview:recordBtn];
+    [_panelMain addSubview:recordBtn];
     
-
-    msgTable = [[UITableView alloc] initWithFrame:CGRectMake(0, 40 + yoffset, SCREEN_WIDTH, SCREEN_HEIGHT - 120)];
-    msgTable.dataSource = self;
-    msgTable.delegate = self;
-    msgTable.separatorStyle = UITableViewCellSeparatorStyleNone;
-    msgTable.userInteractionEnabled = true;
+    _panelMessages = [[UITableView alloc] initWithFrame:CGRectMake(0, 40 + yoffset, SCREEN_WIDTH, SCREEN_HEIGHT - 120)];
+    _panelMessages.dataSource = self;
+    _panelMessages.delegate = self;
+    _panelMessages.separatorStyle = UITableViewCellSeparatorStyleNone;
+    _panelMessages.userInteractionEnabled = true;
 //    UITapGestureRecognizer *tapOnScreen = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(textInputReturn)];
 //    tapOnScreen.delegate = self;
 //    [msgTable addGestureRecognizer:tapOnScreen];
-    [self.view addSubview:msgTable];
+    [self.view addSubview:_panelMessages];
+
+    UILongPressGestureRecognizer *longPressGesture = [[UILongPressGestureRecognizer alloc]
+                                                      initWithTarget:self action:@selector(longPress:)];
+    longPressGesture.minimumPressDuration = 1.0; // long press setting
+    [_panelMessages addGestureRecognizer:longPressGesture];
     
     NSDateFormatter *dateFormatter =[[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy-MM-dd"];
@@ -1568,49 +1649,49 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     timeLable.text = queryTime;
     
     if (_refreshHeaderView == nil) {
-        EGORefreshTableHeaderView *view = [[EGORefreshTableHeaderView alloc] initWithFrame:CGRectMake(0.0f, 0.0f - msgTable.bounds.size.height, self.view.frame.size.width, msgTable.bounds.size.height)];
+        EGORefreshTableHeaderView *view = [[EGORefreshTableHeaderView alloc] initWithFrame:CGRectMake(0.0f, 0.0f - _panelMessages.bounds.size.height, self.view.frame.size.width, _panelMessages.bounds.size.height)];
         view.delegate = self;
-        [msgTable addSubview:view];
+        [_panelMessages addSubview:view];
         _refreshHeaderView = view;
      }
     
-    // menu
-    moreView = [[UIView alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT - 20 + yoffset, SCREEN_WIDTH, 216)];
-    moreView.backgroundColor = [UIColor whiteColor];
-    [self.view addSubview:moreView];
-    moreViewShow = NO;
+    // panel plus
+    _panelPlus = [[UIView alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT - 20 + yoffset, SCREEN_WIDTH, 216)];
+    _panelPlus.backgroundColor = [UIColor whiteColor];
+    [self.view addSubview:_panelPlus];
+    _panelPlusVisible = NO;
     
-    UIButton *imageBtn = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, (moreView.frame.size.height - 30) / 2, (moreView.frame.size.height - 30) / 2)];
+    UIButton *imageBtn = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, (_panelPlus.frame.size.height - 30) / 2, (_panelPlus.frame.size.height - 30) / 2)];
     imageBtn.backgroundColor = [UIColor clearColor];
     [imageBtn setImage:[UIImage imageNamed:@"icon_photo_after"] forState:UIControlStateNormal];
     [imageBtn addTarget:self action:@selector(pickImage) forControlEvents:UIControlEventTouchUpInside];
-    [moreView addSubview:imageBtn];
+    [_panelPlus addSubview:imageBtn];
     
-    cameraBtn = [[UIButton alloc] initWithFrame:CGRectMake(imageBtn.frame.origin.x + imageBtn.frame.size.width + 10, 10, (moreView.frame.size.height - 30) / 2, (moreView.frame.size.height - 30) / 2)];
+    cameraBtn = [[UIButton alloc] initWithFrame:CGRectMake(imageBtn.frame.origin.x + imageBtn.frame.size.width + 10, 10, (_panelPlus.frame.size.height - 30) / 2, (_panelPlus.frame.size.height - 30) / 2)];
     [cameraBtn setImage:[UIImage imageNamed:@"icon_camera_after"] forState:UIControlStateNormal];
     cameraBtn.backgroundColor = [UIColor clearColor];
     [cameraBtn addTarget:self action:@selector(cameraCapture) forControlEvents:UIControlEventTouchUpInside];
-    [moreView addSubview:cameraBtn];
+    [_panelPlus addSubview:cameraBtn];
     
-    UIButton *locationBtn = [[UIButton alloc] initWithFrame:CGRectMake(cameraBtn.frame.origin.x + cameraBtn.frame.size.width + 10, 10, (moreView.frame.size.height - 30) / 2, (moreView.frame.size.height - 30) / 2)];
+    UIButton *locationBtn = [[UIButton alloc] initWithFrame:CGRectMake(cameraBtn.frame.origin.x + cameraBtn.frame.size.width + 10, 10, (_panelPlus.frame.size.height - 30) / 2, (_panelPlus.frame.size.height - 30) / 2)];
     locationBtn.backgroundColor = [UIColor clearColor];
     [locationBtn setImage:[UIImage imageNamed:@"icon_map_after"] forState:UIControlStateNormal];
     [locationBtn addTarget:self action:@selector(sendLocation) forControlEvents:UIControlEventTouchUpInside];
-    [moreView addSubview:locationBtn];
+    [_panelPlus addSubview:locationBtn];
     
-    UIButton *videoBtn = [[UIButton alloc] initWithFrame:CGRectMake(10, imageBtn.frame.origin.y + imageBtn.frame.size.height + 10, (moreView.frame.size.height - 30) / 2, (moreView.frame.size.height - 30) / 2)];
+    UIButton *videoBtn = [[UIButton alloc] initWithFrame:CGRectMake(10, imageBtn.frame.origin.y + imageBtn.frame.size.height + 10, (_panelPlus.frame.size.height - 30) / 2, (_panelPlus.frame.size.height - 30) / 2)];
     videoBtn.backgroundColor = [UIColor clearColor];
     [videoBtn setImage:[UIImage imageNamed:@"icon_video_after"] forState:UIControlStateNormal];
     [videoBtn addTarget:self action:@selector(recordVideo) forControlEvents:UIControlEventTouchUpInside];
-    [moreView addSubview:videoBtn];
+    [_panelPlus addSubview:videoBtn];
     
     
     
-    UIButton *moneyBtn = [[UIButton alloc] initWithFrame:CGRectMake(locationBtn.frame.origin.y + locationBtn.frame.size.height + 10, locationBtn.frame.origin.y + locationBtn.frame.size.height + 10, (moreView.frame.size.height - 30) / 2, (moreView.frame.size.height - 30) / 2)];
+    UIButton *moneyBtn = [[UIButton alloc] initWithFrame:CGRectMake(locationBtn.frame.origin.y + locationBtn.frame.size.height + 10, locationBtn.frame.origin.y + locationBtn.frame.size.height + 10, (_panelPlus.frame.size.height - 30) / 2, (_panelPlus.frame.size.height - 30) / 2)];
     moneyBtn.backgroundColor = [UIColor clearColor];
     [moneyBtn setImage:[UIImage imageNamed:@"icon_card_after"] forState:UIControlStateNormal];
     [moneyBtn addTarget:self action:@selector(cartButton) forControlEvents:UIControlEventTouchUpInside];
-    [moreView addSubview:moneyBtn];
+    [_panelPlus addSubview:moneyBtn];
     
     
 //    UIButton *moneyBtn = [[UIButton alloc] initWithFrame:CGRectMake(locationBtn.frame.origin.y + locationBtn.frame.size.height + 10, locationBtn.frame.origin.y + locationBtn.frame.size.height + 10, (moreView.frame.size.height - 30) / 2, (moreView.frame.size.height - 30) / 2)];
@@ -1659,7 +1740,16 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(response_received)
                                                  name:globalConn.responseReceivedNotification object:nil];
-    
+
+    float version = [[[UIDevice currentDevice] systemVersion] floatValue];
+    if (version >= 5.0) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillChangeFrame:) name:   UIKeyboardWillChangeFrameNotification object:nil];
+    }
+    else {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardShow:) name:  UIKeyboardWillShowNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDismiss:) name:   UIKeyboardWillHideNotification object:nil];
+    }
+
     if (isSendImage) {
         isSendImage = NO;
         return;
@@ -1771,15 +1861,15 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
                 // reload records
                 [tempArray addObjectsFromArray:chat_entries];
                 chat_entries = [[JSONArray alloc] init];
-                [msgTable reloadData];
+                [_panelMessages reloadData];
                 chat_entries = tempArray;
-                [msgTable reloadData];
+                [_panelMessages reloadData];
                 
                 [self tableViewGoFooter];
                 
-                if (msgTable.contentSize.height > msgTable.frame.size.height) {
+                if (_panelMessages.contentSize.height > _panelMessages.frame.size.height) {
                     if (!_isFirst) {
-                        [msgTable setContentOffset:CGPointMake(0, msgTable.contentSize.height - msgTable.frame.size.height) animated:YES];
+                        [_panelMessages setContentOffset:CGPointMake(0, _panelMessages.contentSize.height - _panelMessages.frame.size.height) animated:YES];
                     }
                     }
             });
@@ -1842,7 +1932,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
                 // add to the list and reload
             dispatch_async(dispatch_get_main_queue(), ^{
                 [chat_entries addObject:data];
-                [msgTable reloadData];
+                [_panelMessages reloadData];
                 [self tableViewGoFooter];
             });
         }

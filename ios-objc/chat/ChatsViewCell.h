@@ -14,4 +14,7 @@
 //image的frame
 @property (nonatomic, assign)NSInteger giveHeight;
 
+// keep a copy, for clipboard etc
+@property (nonatomic, assign)JSONObject* raw_data;
+
 @end

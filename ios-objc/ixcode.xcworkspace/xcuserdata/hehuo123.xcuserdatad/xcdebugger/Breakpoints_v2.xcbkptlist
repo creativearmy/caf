@@ -38,12 +38,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "chat/ChatViewController.m"
-            timestampString = "523028074.240325"
+            timestampString = "546786779.096465"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "751"
-            endingLineNumber = "751"
-            landmarkName = "-imagePickerController:didFinishPickingMediaWithInfo:"
+            startingLineNumber = "794"
+            endingLineNumber = "794"
+            landmarkName = "-pickImage"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
