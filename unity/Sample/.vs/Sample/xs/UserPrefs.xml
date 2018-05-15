@@ -1,10 +1,10 @@
 ﻿<Properties StartupConfiguration="{BBED6A60-90F4-9D15-9E1E-85E878581BE5}|">
   <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="Unity.Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scenes/MainScene.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="../../../../alex/unity/APIConnection/APIConnection.cs">
     <Files>
-      <File FileName="../../../../alex/unity/APIConnection/APIConnection.cs" Line="392" Column="45" />
-      <File FileName="Assets/Scenes/LoginScene.cs" Line="33" Column="5" />
-      <File FileName="Assets/Scenes/MainScene.cs" Line="13" Column="2" />
+      <File FileName="../../../../alex/unity/APIConnection/APIConnection.cs" Line="28" Column="1" />
+      <File FileName="Assets/Scenes/LoginScene.cs" Line="51" Column="11" />
+      <File FileName="Assets/Scenes/MainScene.cs" Line="20" Column="51" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" ActiveRuntime="Mono 5.8.1.0" />

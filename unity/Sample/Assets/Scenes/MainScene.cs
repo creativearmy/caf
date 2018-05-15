@@ -5,8 +5,6 @@ using APIConnection;
 
 public class MainScene : MonoBehaviour {
 
-    public GameObject cube;
-
 	// Use this for initialization
 	void Start () {
         APIConn.Inst.response_received_handlers += this.response_handler;
@@ -20,16 +18,20 @@ public class MainScene : MonoBehaviour {
     public void response_handler (JSONObject jo) {
         
         Debug.Log("mainscene response_handler");
+        var cube = GameObject.FindWithTag("TheCube");
+
+        if (cube == null) return;
 
         if (jo.s("obj") == "test" && jo.s("act") == "scale")
         {
             if (jo.i("scale") == 0)
             {
-                cube.gameObject.transform.localScale -= new Vector3((float)0.1, (float)0.1, (float)0.1);
+                
+                cube.transform.localScale -= new Vector3((float)0.1, (float)0.1, (float)0.1);
             }
             else
             {
-                cube.gameObject.transform.localScale -= new Vector3(jo.i("scale"), jo.i("scale"), jo.i("scale"));
+                cube.transform.localScale -= new Vector3(jo.i("scale"), jo.i("scale"), jo.i("scale"));
             }
         }
     }
