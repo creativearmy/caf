@@ -13,6 +13,7 @@ public class MainScene : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         APIConn.Inst.Update();
+
 	}
 
     public void response_handler (JSONObject jo) {
