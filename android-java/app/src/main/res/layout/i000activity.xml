@@ -25,4 +25,24 @@
         android:id="@+id/INPUT"
         android:layout_below="@+id/OUTPUT"/>
 
+    <EditText
+        android:id="@+id/CHAT_LOGIN_NAME"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/OUTPUT"
+        android:layout_marginTop="205dp"
+        android:ems="10"
+        android:hint="chat with Login Name"
+        android:inputType="textPersonName" />
+
+    <Button
+        android:id="@+id/CHAT_BUTTON"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/CHAT_LOGIN_NAME"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="51dp"
+        android:text="Chat" />
+
 </RelativeLayout>

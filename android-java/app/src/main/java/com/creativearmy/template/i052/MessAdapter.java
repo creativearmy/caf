@@ -36,7 +36,7 @@ public class MessAdapter extends BaseAdapter
      String from_id ;
      String from_image;
      String state;
-     String xtype ;
+     String mtype ;
      */
     private ArrayList<JSONObject> msgs = new ArrayList<JSONObject>();
     private  Context mContext;
@@ -171,7 +171,7 @@ public class MessAdapter extends BaseAdapter
             // plain text
             content.setText(message.s("content"));
 
-            if(message.s("xtype").equals("image")){
+            if(message.s("mtype").equals("image")){
                 imageContent.setVisibility(View.VISIBLE);
                 content.setVisibility(View.GONE);
                 ImageLoader.getInstance().displayImage(APIConnection.server_info.optString("download_path") + message.o("content").s("thumb"), imageContent, options);

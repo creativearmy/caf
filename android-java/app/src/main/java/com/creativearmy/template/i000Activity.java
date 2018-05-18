@@ -1,9 +1,11 @@
 package com.creativearmy.template;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Button;
 import android.os.Handler;
@@ -28,6 +30,9 @@ public class i000Activity extends Activity implements OnClickListener {
 
         Button mock_input_click = (Button)findViewById(R.id.INPUT);
         mock_input_click.setOnClickListener(this);
+
+        Button chat_button = (Button)findViewById(R.id.CHAT_BUTTON);
+        chat_button.setOnClickListener(this);
 
         TextView mock_output = (TextView) findViewById(R.id.OUTPUT);
         mock_output = (TextView) findViewById(R.id.OUTPUT);
@@ -58,6 +63,17 @@ public class i000Activity extends Activity implements OnClickListener {
             data.xput("data", "click");
             mock_capture_input(data);
         }
+
+        if (v.getId() == R.id.CHAT_BUTTON) {
+
+            EditText login_name = (EditText) findViewById(R.id.CHAT_LOGIN_NAME);
+
+            JSONObject data = new JSONObject();
+            data.xput("obj","person");
+            data.xput("act","get");
+            data.xput("login_name", login_name.getText().toString());
+            APIConnection.send(data);
+        }
     }
 
     private TextView mock_output;
@@ -82,6 +98,16 @@ public class i000Activity extends Activity implements OnClickListener {
                 //output.setText(jo.a("data").o(5).s("show"));
                 //output.setText(jo.optString("data"));
                 mock_output.setText(jo.s("data"));
+            }
+
+            if (jo.s("obj").equals("person") && jo.s("act").equals("get")) {
+
+                APIConnection.user_data.xput("chat_person", jo.s("pid"));
+                APIConnection.user_data.xput("chat_mode", "chat");
+
+                Intent intent = new Intent(i000Activity.this, i052Activity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
             }
 
             if (jo.optString("obj").equals("associate") && jo.optString("act").equals("mock")) {

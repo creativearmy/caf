@@ -63,6 +63,24 @@ sub p_server_info {
     return jr({server_info=>server_info()});
 }
 
+$p_person_get = <<EOF;
+get pid of another person by login_name
+
+INPUT:
+	login_name:
+
+OUTPUT:
+	pid:
+
+EOF
+
+sub p_person_get {
+
+    my $account =mdb()->get_collection("account")->find_one({login_name => $gr->{login_name}});
+	
+    return jr({ pid => $account->{pids}->{default} });
+}
+
 $p_person_chksess = <<EOF;
 check session is still valid, normally this api is called by third party applications
 
@@ -422,7 +440,7 @@ sub p_message_chat_send {
     # create new chat block record for new message or simply added to current block
     # chat data are stored with multiple chained blocks where each block stores maximum of 50
     # chat entries.
-    return jr() unless add_new_message_entry($header, $gr->{from_id}, $gr->{chat_type}, $gr->{chat_content});
+    return jr() unless add_new_message_entry($header, $gr->{from_id}, $gr->{to_id}, $gr->{mtype}, $gr->{content});
     
     # Third param "2" will cause system to siliently create an obj of this type with specified id
     # Obj is created as needed instead of assertion failure when obj is accessed before creation.
@@ -437,10 +455,10 @@ sub p_message_chat_send {
     $mailbox->{messages}->{$gr->{from_id}}->{block}  = $header->{block_id};
     
     # Generate label to display on their message center.
-    if ($gr->{chat_type} eq "text") {
-        $mailbox->{messages}->{$gr->{from_id}}->{last_content} = substr($gr->{chat_content}, 0, 30);
+    if ($gr->{mtype} eq "text") {
+        $mailbox->{messages}->{$gr->{from_id}}->{last_content} = substr($gr->{content}, 0, 30);
     } else {
-        $mailbox->{messages}->{$gr->{from_id}}->{last_content} = "[".$gr->{chat_type}."]";
+        $mailbox->{messages}->{$gr->{from_id}}->{last_content} = "[".$gr->{mtype}."]";
     }
     
     $mailbox->{messages}->{$gr->{from_id}}->{last_avatar} = $from_person->{avatar_fid};
@@ -468,9 +486,9 @@ sub p_message_chat_send {
     
     # Generate label to display on their message center.
     if ($gr->{mtype} eq "text") {
-        $mailbox->{messages}->{$gr->{to_id}}->{last_content} = substr($gr->{chat_content}, 0, 30);
+        $mailbox->{messages}->{$gr->{to_id}}->{last_content} = substr($gr->{content}, 0, 30);
     } else {
-        $mailbox->{messages}->{$gr->{to_id}}->{last_content} = "[".$gr->{chat_type}."]";
+        $mailbox->{messages}->{$gr->{to_id}}->{last_content} = "[".$gr->{mtype}."]";
     }
     
     $mailbox->{messages}->{$gr->{to_id}}->{last_avatar} = $to_person->{avatar_fid};
@@ -565,7 +583,7 @@ sub p_message_chat_get {
         # Find chat header record to locate the chat block chain header.
         my $col = mdb()->get_collection("chat");
         
-        my $chat = $col->find_one({pair => join("", @{$gr->{users}})});
+        my $chat = $col->find_one({pair => join("", sort @{$gr->{users}})});
         
         # No chat message entry found. Block is null.
         return jr({block => {
@@ -660,17 +678,21 @@ sub p_message_mailbox_get {
 
 sub add_new_message_entry{
 
-    my ($header, $from_id, $mtype, $content) = @_;
+    my ($header, $from_id, $to_id, $mtype, $content) = @_;
     
     return unless assert($header, "", "ERR_HEADER", "Invalid header data structure.");
     
     my $from_person = obj_read("person", $from_id);  
+    my $to_person = obj_read("person", $to_id);  
     
     # Message entry in a chat block.
     my $message = {
         from_name    => $from_person->{name},
         from_id      => $from_id,
         from_avatar  => $from_person->{avatar_fid}, 
+        to_name    => $to_person->{name},
+        to_id      => $to_id,
+        to_avatar  => $to_person->{avatar_fid}, 
         mtype        => $mtype, 
         content      => $content, 
         send_time    => time(),
@@ -1211,8 +1233,8 @@ user mailbox, message center, in coming and out going message list
             count: new message count under id1
             block: block_record ID for id1
             title: title, subject, group name or private chat party name
-            
-            // cache the last entry to display on message center message list
+			
+			// cache the last entry to display on message center message list
             last_user: last user name
             last_content: last message content
             last_avatar: user avatar
