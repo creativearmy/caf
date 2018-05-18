@@ -51,6 +51,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
         APIConnection.wsURL = "ws://112.124.70.60:51727/demo";
         APIConnection.connect();
 
+        // request External Storage permission
+        ((MyApplication)getApplication()).storagePermitted(this);
+
         initViews();
         binEdt();
         setListener();

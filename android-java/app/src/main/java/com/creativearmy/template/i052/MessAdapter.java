@@ -171,12 +171,7 @@ public class MessAdapter extends BaseAdapter
             // plain text
             content.setText(message.s("content"));
 
-            if(message.s("xtype").equals("image")) {
-                imageContent.setVisibility(View.VISIBLE);
-                content.setVisibility(View.GONE);
-                ImageLoader.getInstance().displayImage(APIConnection.server_info.optString("download_path") + message.s("content"), imageContent, options);
-
-            } else if(message.s("xtype").equals("ximage")){
+            if(message.s("xtype").equals("image")){
                 imageContent.setVisibility(View.VISIBLE);
                 content.setVisibility(View.GONE);
                 ImageLoader.getInstance().displayImage(APIConnection.server_info.optString("download_path") + message.o("content").s("thumb"), imageContent, options);
@@ -219,6 +214,7 @@ public class MessAdapter extends BaseAdapter
             public void run() {
                 super.run();
                 final File file=downLoadFile(uuri, name);
+                if (file == null) return;
                 hd.post(new Runnable() {
                     @Override
                     public void run() {
@@ -246,13 +242,16 @@ public class MessAdapter extends BaseAdapter
 
 
         intent.setDataAndType(/*uri*/Uri.fromFile(file), type);
-
+        try {
         mContext.startActivity(intent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private File downLoadFile(String uri,String name){
         HttpDownloader downloader = new HttpDownloader();
-        String path = Environment.getExternalStorageDirectory() + "/test/";
+        String path = Environment.getExternalStorageDirectory() + "/CAF/";
         return downloader.downFile(uri, path, name);
     }
 

@@ -254,7 +254,7 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
                     m.xput("from_id", from_id);
                     m.xput("from_avatar", from_avatar);
                     m.xput("send_time", send_time);
-                    m.xput("mtype", mtype);
+                    m.xput("xtype", mtype);
 
                     listMsges.add(m);
 
@@ -292,7 +292,7 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
             m.xput("from_id", jo.s("from_id"));
             m.xput("from_avatar", jo.s("from_avatar"));
             m.xput("send_time", jo.i("send_time"));
-            m.xput("mtype", mtype);
+            m.xput("xtype", mtype);
 
             listMsges.add(m);
         }
@@ -414,7 +414,7 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
 
                 req.xput("from_id", APIConnection.user_info.optString("_id"));
 
-                req.xput("mtype", "text");
+                req.xput("xtype", "text");
                 req.xput("content", mEditChatInput.getText().toString());
 
                 APIConnection.send(req);
@@ -425,7 +425,7 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
                 m.xput("type_tran", "SEND");
                 m.xput("content", (mEditChatInput.getText().toString()));
                 m.xput("send_time", ((int)(System.currentTimeMillis()/1000)));
-                m.xput("mtype", "text");
+                m.xput("xtype", "text");
 
                 if (null != mMessAdapter) {
                     mMessAdapter.addNetMessage(m);
@@ -594,7 +594,7 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
                         chat_content.xput("mime", mime);
 
                         req.xput("from_id", APIConnection.user_info.optString("_id"));
-                        req.xput("mtype", "image");
+                        req.xput("xtype", "image");
                         req.xput("content", chat_content);
                         APIConnection.send(req);
 
@@ -602,7 +602,7 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
                         m.xput("type_tran", "SEND");
                         m.xput("content", chat_content);
                         m.xput("send_time", (int) (System.currentTimeMillis() / 1000));
-                        m.xput("mtype", "image");
+                        m.xput("xtype", "image");
                         if (null != mMessAdapter) {
                             mMessAdapter.addNetMessage(m);
                         }
