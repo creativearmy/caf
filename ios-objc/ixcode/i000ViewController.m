@@ -12,6 +12,7 @@
 @implementation i000ViewController
 
 @synthesize OUTPUT;
+@synthesize CHAT_LOGIN_NAME;
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
@@ -47,6 +48,17 @@
     [self mock_capture_input:data];
 }
 
+- (IBAction)chatAction:(id)sender {
+    NSMutableDictionary* data = [[NSMutableDictionary alloc] init];
+    
+    [data setObject:@"person" forKey:@"obj"];
+    [data setObject:@"get" forKey:@"act"];
+    [data setObject:CHAT_LOGIN_NAME.text forKey:@"login_name"];
+    
+    
+    [globalConn send:data];
+}
+
 - (void)response_received:(NSNotification *) notification {
 
     if (![[notification name] isEqualToString:@"response"]) return;
@@ -62,6 +74,17 @@
         }
     }
     
+    if ([[globalConn.response s:@"obj"] isEqualToString:@"person"]) {
+        if ([[globalConn.response s:@"act"] isEqualToString:@"get"]) {
+            
+            [globalConn.user_data setObject:[globalConn.response s:@"pid"] forKey:@"chat_login_name"];
+            [globalConn.user_data setObject:@"chat" forKey:@"chat_mode"];
+
+            // switch to chat page
+            [[AppDelegate APP] switchViewController:@"i052"];
+        }
+    }
+
     if ([[globalConn.response s:@"obj"] isEqualToString:@"associate"]) {
         if ([[globalConn.response s:@"act"] isEqualToString:@"mock"]) {
             struct timeval time;

@@ -33,8 +33,8 @@
     
     outAvatarImageView.layer.cornerRadius=outAvatarImageView.frame.size.width/2;
     outAvatarImageView.layer.masksToBounds=YES;
-    if (data[@"from_image"]!=nil) {
-        [outAvatarImageView sd_setImageWithURL:[NSURL URLWithString:[[globalConn.server_info s:@"download_path"] stringByAppendingString:[data s:@"from_image"]]] placeholderImage:[UIImage imageNamed:@"icon"] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+    if (data[@"from_avatar"]!=nil) {
+        [outAvatarImageView sd_setImageWithURL:[NSURL URLWithString:[[globalConn.server_info s:@"download_path"] stringByAppendingString:[data s:@"from_avatar"]]] placeholderImage:[UIImage imageNamed:@"icon"] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
             if (image) {
                 outAvatarImageView.image=image;
             }
@@ -42,7 +42,7 @@
     }
     
     //**************文字************//
-    if ([[data s:@"xtype"] isEqualToString:@"text"]) {
+    if ([[data s:@"mtype"] isEqualToString:@"text"]) {
         
         NSString * msgStr = [data s:@"content"];
         CGSize msgSize = [msgStr sizeWithFont:[UIFont systemFontOfSize:17] constrainedToSize:CGSizeMake(SCREEN_WIDTH - 70, MAXFLOAT) lineBreakMode:NSLineBreakByWordWrapping];
@@ -82,7 +82,7 @@
     }
     
     //**************图片************//
-    if ([[data s:@"xtype"] isEqualToString:@"image"]) {
+    if ([[data s:@"mtype"] isEqualToString:@"image"]) {
         
         if ([[data s:@"from_id"] isEqualToString:[globalConn.user_info s:@"_id"]]) {
             
@@ -124,7 +124,7 @@
     }
     
     //**************视屏************//
-    if ([[data s:@"xtype"] isEqualToString:@"video"]) {
+    if ([[data s:@"mtype"] isEqualToString:@"video"]) {
         
         JSONObject *content  = [data o:@"content"];
         NSData * imgData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[self getDownloadURL:[content s:@"thumb"]]]];
@@ -167,7 +167,7 @@
     }
 
     //**************声音************//
-    if ([[data s:@"xtype"] isEqualToString:@"voice"]){
+    if ([[data s:@"mtype"] isEqualToString:@"voice"]){
          
          UIImage *uiImage = [UIImage imageNamed:@"mic.jpg"];
          

@@ -12,6 +12,7 @@ extern APIConnection *globalConn;
 @property (nonatomic ,strong)UINavigationController *firstMainVC;
 
 -(void) init_sdk;
+-(void)switchViewController:(NSString*)ixxx;
 + (AppDelegate *) APP;
 
 @end

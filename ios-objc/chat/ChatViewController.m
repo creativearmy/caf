@@ -220,28 +220,30 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
             input = [input stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
             
             JSONObject * data = [[JSONObject alloc]init];
-            [data setObject:self.obj forKey:@"obj"];
-            [data setObject:@"chat_send" forKey:@"act"];
+            [data setObject:@"message" forKey:@"obj"];
+            
             if ([self.obj isEqualToString:@"person"]) {
                 [data setObject:self.to_id forKey:@"to_id"];
+                [data setObject:@"chat_send" forKey:@"act"];
             }
             if ([self.obj isEqualToString:@"task"]){
                  [data setObject:self.to_id forKey:@"task_id"];
+                [data setObject:@"task_send" forKey:@"act"];
             }
             if ([self.obj isEqualToString:@"topic"]){
                 [data setObject:self.to_id forKey:@"topic_id"];
+                [data setObject:@"topic_send" forKey:@"act"];
             }
             [data setObject:[globalConn.user_info s:@"_id"] forKey:@"from_id"];
-            [data setObject:@"text" forKey:@"chat_type"];
-            [data setObject:input forKey:@"chat_content"];
+            [data setObject:@"text" forKey:@"mtype"];
+            [data setObject:input forKey:@"content"];
             
             [globalConn send:data];
             
             [data setObject:[globalConn.user_info s:@"_id"] forKey:@"from_id"];
             [data setObject:self.to_id forKey:@"to_id"];
-            [data setObject:@"text" forKey:@"xtype"];
+            [data setObject:@"text" forKey:@"mtype"];
             [data setObject:input forKey:@"content"];
-            [data setObject:[globalConn.user_info s:@"headFid"] forKey:@"from_image"];
             [chat_entries addObject:data];
             
             [_panelMessages reloadData];
@@ -530,7 +532,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
             return;
         }
         ChatsViewCell *cell = (ChatsViewCell *)[_panelMessages cellForRowAtIndexPath:indexPath];
-        if (cell != nil && cell.raw_data != nil && [[cell.raw_data s:@"xtype"] isEqualToString:@"text"]) {
+        if (cell != nil && cell.raw_data != nil && [[cell.raw_data s:@"mtype"] isEqualToString:@"text"]) {
             UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
             [pasteboard setString: [cell.raw_data s:@"content"]];
             [MBProgressHUD showTextOnly:@"拷贝到剪贴版了"];
@@ -545,7 +547,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     [self textInputReturn];
     JSONObject *row_data = [chat_entries objectAtIndex:indexPath.row];
     
-    NSString *msgType = [row_data s:@"xtype"];
+    NSString *msgType = [row_data s:@"mtype"];
 
     if ([msgType isEqualToString:@"video"]) {
         NSString *video_url = [self getDownloadURL:[[row_data o:@"content"] s:@"fid"]];
@@ -703,7 +705,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
             
             NSDictionary *dictionaryWithJsonString = [self upLoadImageToServer:smallImage];
             
-            NSDictionary *chat_content = @{
+            NSDictionary *content = @{
                                            @"fid":fid,
                                            @"thumb":dictionaryWithJsonString[@"fid"]
                                            };
@@ -712,13 +714,13 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
             
             //[data setObject:smallImage forKey:@"image"];
             //[data setObject:fid forKey:@"content"];
-            [data setObject:chat_content forKey:@"content"];
+            [data setObject:content forKey:@"content"];
             
-            [data setObject:@"video" forKey:@"xtype"];
+            [data setObject:@"video" forKey:@"mtype"];
             //[data setObject:filename forKey:@"filename"];
             [data setObject:[globalConn.user_info s:@"_id"] forKey:@"from_id"];
             [data setObject:[globalConn.user_info s:@"name"] forKey:@"from_name"];
-            [data setObject:[globalConn.user_info s:@"headFid"] forKey:@"from_image"];
+            [data setObject:[globalConn.user_info s:@"headFid"] forKey:@"from_avatar"];
             [chat_entries addObject:data];
             
             [_panelMessages reloadData];
@@ -728,21 +730,24 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
             NSMutableDictionary * sendData = [[NSMutableDictionary alloc]init];
             
             [sendData setObject:[NSString stringWithFormat:@"%@",[NSDate date]] forKey:@"date"];
-            [sendData setObject:self.obj forKey:@"obj"];
-            [sendData setObject:@"chat_send" forKey:@"act"];
+            [sendData setObject:@"message" forKey:@"obj"];
+            
             if ([self.obj isEqualToString:@"person"]) {
                 [sendData setObject:self.to_id forKey:@"to_id"];
                 [sendData setObject:@"" forKey:@"chat_id"];
+                [sendData setObject:@"chat_send" forKey:@"act"];
             }
             if ([self.obj isEqualToString:@"task"]){
                 [sendData setObject:self.to_id forKey:@"task_id"];
+                [sendData setObject:@"task_send" forKey:@"act"];
             }
             if ([self.obj isEqualToString:@"topic"]){
                 [sendData setObject:self.to_id forKey:@"topic_id"];
+                [sendData setObject:@"topic_send" forKey:@"act"];
             }
             [sendData setObject:[globalConn.user_info s:@"_id"] forKey:@"from_id"];
-            [sendData setObject:@"video" forKey:@"chat_type"];
-            [sendData setObject:chat_content forKey:@"chat_content"];
+            [sendData setObject:@"video" forKey:@"mtype"];
+            [sendData setObject:content forKey:@"content"];
             
             [globalConn send:sendData];
             NSLog(@"return fid=%@,fileName=%@", [dictionaryWithJsonString objectForKey:@"fid"], [dictionaryWithJsonString objectForKey:@"filename"]);
@@ -836,12 +841,12 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
         }
         
         JSONObject * data = [[JSONObject alloc]init];
-        [data setObject:@"image" forKey:@"xtype"];
+        [data setObject:@"image" forKey:@"mtype"];
         [data setObject:newImg forKey:@"image"];
 //        [data setObject:fid forKey:@"content"];
         [data setObject:filename forKey:@"filename"];
         [data setObject:[globalConn.user_info s:@"_id"] forKey:@"from_id"];
-        [data setObject:[globalConn.user_info s:@"headFid"] forKey:@"from_image"];
+        [data setObject:[globalConn.user_info s:@"headFid"] forKey:@"from_avatar"];
 //         data[@"fid"]=dictionaryWithJsonString[@"fid"];
 //         data[@"thumb"]=dictionaryWithJsonString[@"thumb"];
          data[@"content"]=@{@"fid":dictionaryWithJsonString[@"fid"],@"thumb":dictionaryWithJsonString[@"thumb"]};
@@ -858,23 +863,25 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
          NSMutableDictionary * sendData = [[NSMutableDictionary alloc]init];
     
          [sendData setObject:[NSString stringWithFormat:@"%@",[NSDate date]] forKey:@"date"];
-         [sendData setObject:self.obj forKey:@"obj"];
-         [sendData setObject:@"chat_send" forKey:@"act"];
+         [sendData setObject:@"message" forKey:@"obj"];
+         
          if ([self.obj isEqualToString:@"person"]) {
              [sendData setObject:self.to_id forKey:@"to_id"];
              [sendData setObject:@"" forKey:@"chat_id"];
+             [sendData setObject:@"chat_send" forKey:@"act"];
          }
          if ([self.obj isEqualToString:@"task"]){
              [sendData setObject:self.to_id forKey:@"task_id"];
+             [sendData setObject:@"task_send" forKey:@"act"];
          }
          if ([self.obj isEqualToString:@"topic"]){
              [sendData setObject:self.to_id forKey:@"topic_id"];
+             [sendData setObject:@"topic_send" forKey:@"act"];
          }
          
          [sendData setObject:[globalConn.user_info s:@"_id"] forKey:@"from_id"];
-         [sendData setObject:@"ximage" forKey:@"chat_type"];
-         //[sendData setObject:fid forKey:@"chat_content"];
-         sendData[@"chat_content"]=@{@"fid":fid,@"thumb":dictionaryWithJsonString[@"thumb"],@"mime":dictionaryWithJsonString[@"type"]};
+         [sendData setObject:@"image" forKey:@"mtype"];
+         sendData[@"content"]=@{@"fid":fid,@"thumb":dictionaryWithJsonString[@"thumb"],@"mime":dictionaryWithJsonString[@"type"]};
          [globalConn send:sendData];
          
          
@@ -1326,13 +1333,13 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
             
             //[data setObject:images forKey:@"image"];
             [data setObject:fid forKey:@"content"];
-            [data setObject:@"voice" forKey:@"xtype"];
+            [data setObject:@"voice" forKey:@"mtype"];
             
             //[data setObject:catFileName forKey:@"filename"];
             
             [data setObject:[globalConn.user_info s:@"_id"] forKey:@"from_id"];
             [data setObject:[globalConn.user_info s:@"name"] forKey:@"from_name"];
-            [data setObject:[globalConn.user_info s:@"headFid"] forKey:@"from_image"];
+            [data setObject:[globalConn.user_info s:@"headFid"] forKey:@"from_avatar"];
             
             [chat_entries addObject:data];
             [_panelMessages reloadData];
@@ -1341,21 +1348,24 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
             NSMutableDictionary * sendData = [[NSMutableDictionary alloc]init];
     
             [sendData setObject:[NSString stringWithFormat:@"%@",[NSDate date]] forKey:@"date"];
-            [sendData setObject:self.obj forKey:@"obj"];
-            [sendData setObject:@"chat_send" forKey:@"act"];
+            [sendData setObject:@"message" forKey:@"obj"];
+            
             if ([self.obj isEqualToString:@"person"]) {
                 [sendData setObject:self.to_id forKey:@"to_id"];
                 [sendData setObject:@"" forKey:@"chat_id"];
+                [sendData setObject:@"chat_send" forKey:@"act"];
             }
             if ([self.obj isEqualToString:@"task"]){
                 [sendData setObject:self.to_id forKey:@"task_id"];
+                [sendData setObject:@"task_send" forKey:@"act"];
             }
             if ([self.obj isEqualToString:@"topic"]){
                 [sendData setObject:self.to_id forKey:@"topic_id"];
+                [sendData setObject:@"topic_send" forKey:@"act"];
             }
             [sendData setObject:[globalConn.user_info s:@"_id"] forKey:@"from_id"];
-            [sendData setObject:@"voice" forKey:@"chat_type"];
-            [sendData setObject:fid forKey:@"chat_content"];
+            [sendData setObject:@"voice" forKey:@"mtype"];
+            [sendData setObject:fid forKey:@"content"];
             
             [globalConn send:sendData];
             NSLog(@"return fid=%@,fileName=%@", [dictionaryWithJsonString objectForKey:@"fid"], [dictionaryWithJsonString objectForKey:@"filename"]);
@@ -1759,18 +1769,21 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     chat_entries = [[JSONArray alloc]init];
     
     NSMutableDictionary   *dic = [[NSMutableDictionary alloc] init];
-    [dic setObject:self.obj forKey:@"obj"];
-    [dic setObject:@"chat_get" forKey:@"act"];
+    [dic setObject:@"message" forKey:@"obj"];
+    
     _isFirst = NO;
     if ([self.obj isEqualToString:@"person"]) {
         [dic setObject:[NSArray arrayWithObjects:[globalConn.user_info s:@"_id"],self.to_id, nil] forKey:@"users"];
-        [dic setObject:@"" forKey:@"chatRecords_id"];
+        [dic setObject:@"" forKey:@"block_id"];
+        [dic setObject:@"chat_get" forKey:@"act"];
     }
     if ([self.obj isEqualToString:@"task"]) {
         [dic setObject:self.to_id forKey:@"task_id"];
+        [dic setObject:@"task_get" forKey:@"act"];
     }
     if ([self.obj isEqualToString:@"topic"]) {
         [dic setObject:self.to_id forKey:@"topic_id"];
+        [dic setObject:@"topic_get" forKey:@"act"];
     }
     [globalConn send:dic];
 
@@ -1795,13 +1808,13 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
         return;
     }
     NSMutableDictionary   *dic = [[NSMutableDictionary alloc] init];
-    [dic setObject:self.obj forKey:@"obj"];
+    [dic setObject:@"message" forKey:@"obj"];
     [dic setObject:@"chat_get" forKey:@"act"];
     if ([_next_id isEqualToString:@""] || [_next_id isEqualToString:@"0"]) {
         return ;
     }
     _isFirst = YES;
-    [dic setObject:_next_id forKey:@"chatRecords_id"];
+    [dic setObject:_next_id forKey:@"block_id"];
     [globalConn send:dic];
 }
 
@@ -1820,8 +1833,8 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
         // user error occurs, return structure can not be certain
         if (![[globalConn.response s:@"uerr"] isEqualToString:@""]) return;
         
-        NSString *next_id = [[globalConn.response o:@"chatRecord"] s:@"next_id"];
-        NSString *_id = [[globalConn.response o:@"chatRecord"] s:@"_id"];
+        NSString *next_id = [[globalConn.response o:@"block"] s:@"next_id"];
+        NSString *_id = [[globalConn.response o:@"block"] s:@"_id"];
         _next_id = next_id;
         
         NSLog(@"%@---------------%@",_next_id,_id);
@@ -1830,16 +1843,13 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 
         if ([[globalConn.response s:@"act"] isEqualToString:@"chat_get"]) {
             
-                NSArray *arr = [[globalConn.response o:@"chatRecord"] a:@"records"];
+                NSArray *arr = [[globalConn.response o:@"block"] a:@"entries"];
                 
                 for (int i= 0; i<arr.count; i++) {
                     
                     JSONObject *dic = [JSONObject dictionaryWithDictionary:arr[i]];
                     NSLog(@"%@",dic);
-                    if ([dic[@"xtype"]isEqualToString:@"ximage"]) {
-                        dic[@"xtype"]=@"image";
-                    }
-                    if ([[dic s:@"xtype"] isEqualToString:@"image"]) {
+                    if ([[dic s:@"mtype"] isEqualToString:@"image"]) {
                         NSData * imgData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[self getDownloadURL:[dic s:@"content"]]]];
 
                         if([dic[@"content"]  isKindOfClass: [NSDictionary class]]){
@@ -1886,38 +1896,29 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
             
             if (
                 // I'm on percon chat page, and it is from the other party
-                ([[globalConn.response s:@"act"] isEqualToString:@"chat_person"]
+                ([[globalConn.response s:@"act"] isEqualToString:@"message_chat"]
                 && [self.obj isEqualToString:@"person"]
                 && [self.to_id isEqualToString:[globalConn.response s:@"from_id"]]) ||
                 
-                ([[globalConn.response s:@"act"] isEqualToString:@"chat_topic"]
+                ([[globalConn.response s:@"act"] isEqualToString:@"message_topic"]
                 && [self.obj isEqualToString:@"topic"]
                 && [self.to_id isEqualToString:[globalConn.response s:@"topic_id"]]) ||
                 
-                ([[globalConn.response s:@"act"] isEqualToString:@"chat_task"]
+                ([[globalConn.response s:@"act"] isEqualToString:@"message_task"]
                  && [self.obj isEqualToString:@"task"]
                  && [self.to_id isEqualToString:[globalConn.response s:@"task_id"]])
                 
                 ) {
                 
-                data = [[JSONObject alloc]init];
+                data = globalConn.response;
                 
-                [data setObject:[globalConn.response s:@"from_id"] forKey:@"from_id"];
-                [data setObject:[globalConn.response s:@"chat_type"] forKey:@"xtype"];
-                [data setObject:[globalConn.response s:@"from_image"] forKey:@"from_image"];
-                [data setObject:globalConn.response[@"chat_content"] forKey:@"content"];
-                [data setObject:[globalConn.response s:@"chat_time"] forKey:@"send_time"];
-                if ([data[@"xtype"]isEqualToString:@"ximage"]) {
-                    data[@"xtype"]=@"image";
-                }
-                if ([[data s:@"xtype"] isEqualToString:@"image"]) {
+                if ([[data s:@"mtype"] isEqualToString:@"image"]) {
                     
                     NSData * imgData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[self getDownloadURL:[data s:@"content"]]]];
 
                     if([data[@"content"]  isKindOfClass: [NSDictionary class]]){
                         imgData = [NSData dataWithContentsOfURL:[NSURL URLWithString:[self getDownloadURL:data[@"content"][@"thumb"]]]];
                     }
-                    
                     
                     UIImage * img = [UIImage imageWithData:imgData];
                     if (img) {
