@@ -51,9 +51,11 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
     // This activity can be used for different kind of real time conversations
     // chat (two-party conversation), group conversation, conversation related to a topic/subject
 
-    private String mode = "chat"; // chat, topic, task, group ...
-    public  String Title = "mode: chat, two party conversation";
+    private String mode = "chat"; // header type chat, topic, task, group ...
+    public  String Title = "two party conversation";
 
+    // message send, these are "header_id"
+    // "chat" is special, instead of stoing chat id, it stores another person's id
     public static String mPersonId; // chat, two party conversation
     public static String mTopicId; // group conversation related to a topic
     public static String mTaskId; // group conversation related to a task
