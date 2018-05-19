@@ -71,14 +71,19 @@ INPUT:
 
 OUTPUT:
 	pid:
-
+	avatar_fid:
+	name:
 EOF
 
 sub p_person_get {
 
     my $account =mdb()->get_collection("account")->find_one({login_name => $gr->{login_name}});
-	
-    return jr({ pid => $account->{pids}->{default} });
+	my $person = obj_read("person", $account->{pids}->{default});
+    return jr({
+		pid =>  $person->{_id},
+		avatar_fid =>  $person->{avatar_fid},
+		name =>  $person->{name},
+	});
 }
 
 $p_person_chksess = <<EOF;
@@ -136,6 +141,7 @@ sub p_person_register {
     
     # Default avatar.
     $pref->{avatar_fid} = $DEFAULT_IMAGE unless $pref->{avatar_fid};
+    $pref->{name} = $gr->{display_name};
     
     return jr({ user_info => $pref, server_info => server_info()});
 }
@@ -319,7 +325,9 @@ sub p_person_logout {
 #                                                                              #
 ################################################################################
 
-# To implement other forms of conversations, define a new header structure, 
+# To implement other forms of conversations, define a new header structure,
+# "header" can be: chat(two person), group(more than two person), topic, ....
+ 
 # push message format, and mailbox entry format, and implement message get and send api.
 # Header structure shall at least contain a field named "block_id". 
 
@@ -331,182 +339,283 @@ push notification: personal chat message received
 PUSH:
     obj              // push
     act              // message_chat
+    mtype            // message type: text/image/voice/link/file ...
     content          // message content text, link, etc.
     time
-    mtype            // message type: text/image/voice/link/file ...
     from_id          // sender person id
     from_name        // sender name
     from_avatar      // sender avatar fid
+	
+	header_id	     // from_id (person id) of this message 
 EOF
 
 sub p_push_message_chat {
     return jr() unless assert(0, "", "ERROR", "push data only, not a callable API");
 }
 
+$p_push_message_group = <<EOF;
+push notification: group message received
+
+    This is a notification sent from server. Not a callable api by client.
+
+PUSH:
+    obj              // push
+    act              // message_group
+    mtype            // message type: text/image/voice/link/file ...
+    content          // message content text, link, etc.
+    time
+    from_id          // sender person id
+    from_name        // sender name
+    from_avatar      // sender avatar fid
+	
+	header_id	     // group id this message belongs to
+EOF
+
+sub p_push_message_group {
+    return jr() unless assert(0, "", "ERROR", "push data only, not a callable API");
+}
+
+##############################################
+
 $p_message_chat_send =<<EOF;
 personal chat send. Client calls this api to send a message to the other party
 
 INPUT:
-    from_id:     "o14477630553830869197",  // sender person id
-    to_id:       "o14477397324317851066",  // person id to send chat to
+    header_id":  "o14489513231729540824"   // to_id, person id of the other party (chat_id not used!)
+	
     mtype:       "text",                   // message type: text/image/voice/link/file
     content:     "Hello"                   // message content text, link, etc.
-    chat_id":    "o14489513231729540824"   // chat header record id, null when chat starts
-
+		// mtype == image
+		// content == {
+		//		fid: larger image, return from upload.pl
+		//		thumb: smaller image, return from upload.pl
+		//		type: mime type, png/jpg/gif .. optional
+		
 OUTPUT:
-    chat_id: "o14489513231729540824",      // chat header record id
+    header_id: "o14489513231729540824",      // chat record id
     
 EOF
 
 sub p_message_chat_send {
 
-    return jr() unless assert($gr->{from_id}, "from_id is missing", "ERR_FROM_ID", "Chat from person id is not specified.");
+    return jr() unless assert($gs->{pid}, "login first", "ERR_LOGIN", "Login first");
+	
+    return jr() unless assert($gr->{header_id}, "header_id is missing", "ERR_TO_ID", "Chat partner person id is not specified.");
+
+    return jr() unless assert($gs->{pid} ne $gr->{header_id}, "from_id header_id identical", "ERR_SEND_TO_SELF", "Sending chat to self is not supported.");
     
-    return jr() unless assert($gr->{from_id} ne $gr->{to_id}, "from_id to_id identical", "ERR_SEND_TO_SELF", "Sending chat to self is not supported.");
+    # Chat header record is empty. Chat is just started. Create a record for this conversation.
+    my $col = mdb()->get_collection("chat");
     
-    # if to_id is not in the format of our system object id, we assume it is a device unique id
-    if ($gr->{to_id} !~ /^o\d{20}$/) {
+    # pair field consist of ordered two person id, is the key to find the chat header record.
+    my $header = $col->find_one({pair => join(",",sort($gs->{pid}, $gr->{header_id}))});
     
-        my $mcol = mdb()->get_collection("account");
-        my $aref = $mcol->find_one({device_id => "device:$gr->{to_id}"});
-        
-        $gr->{to_id} = $aref->{pids}->{$gr->{server}};
+    if(!$header) {
+
+        $header->{_id} = obj_id();
+        $header->{type} = "chat";
+        $header->{pair} = join(",",sort($gs->{pid}, $gr->{header_id}));
+        $header->{block_id} = 0;
+
+        obj_write($header);
     }
+    	
+    my $header = obj_read("chat", $header->{_id});
+	
+	my @other_parties = ($gr->{header_id});
+	
+	my $rt = message_common_send($header, @other_parties);
+	return $rt if ($rt);
+	
+	return jr({ 
+		header_id => $gr->{header_id},
+	});
+}
+
+$p_message_group_send =<<EOF;
+group message send. Client calls this api to send a message to a group
+
+INPUT:
+    header_id":"o14489513231729540824"   // group record id
+	
+    mtype:       "text",                   // message type: text/image/voice/link/file
+    content:     "Hello"                   // message content text, link, etc.
+		// mtype == image
+		// content == {
+		//		fid: larger image, return from upload.pl
+		//		thumb: smaller image, return from upload.pl
+		//		type: mime type, png/jpg/gif .. optional
+		
+
+OUTPUT:
+    header_id: "o14489513231729540824",      // group record id
     
-    return jr() unless assert($gr->{to_id}, "to_id is missing", "ERR_TO_ID", "Chat partner person id is not specified.");
+EOF
+
+
+sub p_message_group_send {
+
+    return jr() unless assert($gs->{pid}, "login first", "ERR_LOGIN", "Login first");
+	
+    return jr() unless assert($gr->{header_id}, "header_id is missing", "ERR_TO_ID", "Group id is not specified.");
+    
+   	my $header = obj_read("group", $gr->{header_id});
+    
+    if(!$header) {
+
+        $header->{_id} = obj_id();
+        $header->{type} = "group";
+        $header->{members} = [];
+        $header->{block_id} = 0;
+
+        obj_write($header);
+    }
+    	
+    my $header = obj_read("group", $header->{_id});
+	
+	my @other_parties = @{$header->{members}};
+	
+	my $rt = message_common_send($header, @other_parties);
+	return $rt if ($rt);
+	
+	return jr({ 
+		header_id => $header->{_id},
+	});
+}
+
+sub message_common_send {
+
+	my @other_parties = @_;
+	
+	# header - conversation specific header structure, holds block chain, as block_id the latest block
+	
+	# and other information:
+	#
+	# 	- title (group title, topic title, etc)
+	#	- avatar_fid (group icon, topic icon, etc)
+	#
+	
+	my $header = shift @other_parties;
+	
+    return jr() unless assert($gs->{pid}, "login first", "ERR_LOGIN", "Login first");
     
     return jr() unless assert($gr->{content}, "content is missing", "ERR_CONTENT", "Message content is empty.");
     
     return jr() unless assert($gr->{mtype}, "mtype is missing", "ERR_MTYPE", "Message content type is not specified.");
     
-    my $chat_id = $gr->{chat_id};
+    my $from_person = obj_read("person", $gs->{pid});
     
-    if(!$chat_id) {
-    
-        # Chat header record is empty. Chat is just started. Create a record for this conversation.
-        my $col = mdb()->get_collection("chat");
-        
-        # pair field consist of ordered two person id, is the key to find the chat header record.
-        my $header = $col->find_one({pair => join("",sort($gr->{from_id}, $gr->{to_id}))});
-        
-        if(!$header) {
-
-            $header->{_id} = obj_id();
-            $header->{type} = "chat";
-            $header->{pair} = join("",sort($gr->{from_id}, $gr->{to_id}));
-            $header->{block_id} = 0;
-
-            obj_write($header);
-        }
-        
-        $chat_id = $header->{_id};
-    }
-    
-    my $from_person = obj_read("person", $gr->{from_id});
-    
+	# special case for chat, where header id is not chat record id, but pid of the other party
+	my $header_id = $header->{_id};
+	if ($header->{type} eq "chat") {
+		$header_id = $gs->{pid};
+	}
+	
     my $message = {
         obj             => "push",
-        act             => "message_chat",
+        act             => "message_".$header->{type},
         content         => $gr->{content},
         time            => time,
         mtype           => $gr->{mtype},
-        from_id         => $gr->{from_id},
-        from_name       => $from_person->{name},
-        from_avatar     => $from_person->{avatar_fid},
+        from_id         => $gs->{pid},
+        from_name       => $from_person->{name} || "Noname",
+        from_avatar     => $from_person->{avatar_fid} || $DEFAULT_IMAGE_FID,
+		header_id		=> $header_id,
     };
     
     $message->{from_avatar} = $DEFAULT_IMAGE_FID unless $message->{from_avatar};
     
-    # Push this message to chat partner. count - actuall message number sent
+    # Push this message to other parties. count - actuall message number sent
     # count may be more than one if there are more than one logins with the same account
     # $gr->{server} - same server where the request is coming from.
-    my $count = sendto_pid($gr->{server}, $gr->{to_id}, $message);  
-
-    # If none of them is online to receives message through our communication channel, push this
-    # message through third-party push notification mechanism.
-    if(!$count){
-    
-        my $person = obj_read("person", $gr->{to_id});
-        
-        # devicetoken stores the token needed for third-party push notification
-        # Client sends this token after it logins the system.
-        if($person->{devicetoken} && $person->{devicetype} eq "ios") {
-            net_apns_batch($message, $person->{devicetoken});
-        }
-    }
-
-    my $header = obj_read("chat", $chat_id);
-
+	
+	my @ios_push = ();
+	my @android_push = ();
+	
+	foreach my $p (@other_parties) {
+	    my $count = sendto_pid($gr->{server}, $p, $message);  
+	
+	    # If none of them is online to receives message through our communication channel, push this
+	    # message through third-party push notification mechanism.
+	    if(!$count){
+	    
+	        my $person = obj_read("person", $p);
+	        
+	        # devicetoken stores the token needed for third-party push notification
+	        # Client sends this token after it logins the system.
+	        if($person->{devicetoken} && $person->{devicetype} eq "ios") {
+				push @ios_push, $person->{devicetoken};
+	        }
+	    }
+	}
+	
+	net_apns_batch($message, @ios_push);
+	# TODO
+	# android push notification
+	
     # create new chat block record for new message or simply added to current block
     # chat data are stored with multiple chained blocks where each block stores maximum of 50
     # chat entries.
-    return jr() unless add_new_message_entry($header, $gr->{from_id}, $gr->{to_id}, $gr->{mtype}, $gr->{content});
+    return jr() unless add_new_message_entry($header, $gs->{pid}, $gr->{mtype}, $gr->{content});
+	
+	foreach my $p ($gs->{pid}, @other_parties) {
+	
+	    # Third param "2" will cause system to siliently create an obj of this type with specified id
+	    # Obj is created as needed instead of assertion failure when obj is accessed before creation.
+	    my $mailbox = obj_read("mailbox", $p, 2);
+	    
+	    # Add an entry in chat sender's message center as well.
+	    $mailbox->{ut} = time;
+	    $mailbox->{messages}->{$header_id}->{htype}  = $header->{type}; # conversation type
+	    $mailbox->{messages}->{$header_id}->{hid}	 = $header->{_id};
+	    $mailbox->{messages}->{$header_id}->{ut} 	= time;
+	    $mailbox->{messages}->{$header_id}->{count} ++;
+	    $mailbox->{messages}->{$header_id}->{block}  = $header->{block_id};
+	    
+	    # Generate label to display on their message center.
+	    if ($gr->{mtype} eq "text") {
+	        $mailbox->{messages}->{$header_id}->{last_content} = substr($gr->{content}, 0, 30);
+	    } else {
+	        $mailbox->{messages}->{$header_id}->{last_content} = "[".$gr->{mtype}."]";
+	    }
+	    
+	    $mailbox->{messages}->{$header_id}->{last_avatar} = $from_person->{avatar_fid} || $DEFAULT_IMAGE_FID;
+	    $mailbox->{messages}->{$header_id}->{last_name}   = $from_person->{name} || "Noname";
+		
+		# two person chat, special handling, make it easier for client programming
+		if ($header->{type} eq "chat") {
+		
+			# store the other party only as title of the conversation
+			my ($id1, $id2) = split /,/, $header->{pair};
+			my $person = $id1;
+			$person = $id2 if $person eq $p;
+			my $pref = obj_read("person", $person);
+			
+	    	$mailbox->{messages}->{$header_id}->{title} 	= $pref->{name} || "Noname";
+	    	$mailbox->{messages}->{$header_id}->{avatar_fid}= $pref->{avatar_fid} || $DEFAULT_IMAGE_FID;
+	    	$mailbox->{messages}->{$header_id}->{id}     	= $person;
+			
+	    } else {
+		
+	    	# generic header has these two fields
+			$mailbox->{messages}->{$header_id}->{title} = $header->{title};
+	    	$mailbox->{messages}->{$header_id}->{avatar_fid} = $header->{avatar_fid};
+		}
+		
+	    obj_write($mailbox);
+	}
     
-    # Third param "2" will cause system to siliently create an obj of this type with specified id
-    # Obj is created as needed instead of assertion failure when obj is accessed before creation.
-    my $mailbox = obj_read("mailbox", $gr->{to_id}, 2);
-    
-    # Add an entry in chat sender's message center as well.
-    $mailbox->{ut} = time;
-    $mailbox->{messages}->{$gr->{from_id}}->{ctype}  = "chat"; # conversation type
-    $mailbox->{messages}->{$gr->{from_id}}->{id}     = $gr->{from_id};
-    $mailbox->{messages}->{$gr->{from_id}}->{ut}     = time;
-    $mailbox->{messages}->{$gr->{from_id}}->{count} ++;
-    $mailbox->{messages}->{$gr->{from_id}}->{block}  = $header->{block_id};
-    
-    # Generate label to display on their message center.
-    if ($gr->{mtype} eq "text") {
-        $mailbox->{messages}->{$gr->{from_id}}->{last_content} = substr($gr->{content}, 0, 30);
-    } else {
-        $mailbox->{messages}->{$gr->{from_id}}->{last_content} = "[".$gr->{mtype}."]";
-    }
-    
-    $mailbox->{messages}->{$gr->{from_id}}->{last_avatar} = $from_person->{avatar_fid};
-    $mailbox->{messages}->{$gr->{from_id}}->{last_name}   = $from_person->{name};
-
-    $mailbox->{messages}->{$gr->{from_id}}->{title} = $from_person->{name};
-    
-    obj_write($mailbox);
-
-    # Now do the same for the other chat party.
-    
-    # Obj is created as needed instead of causing assertion fails when obj is not created yet.
-    my $mailbox =obj_read("mailbox", $gr->{from_id}, 2);
-
-    my $to_person = obj_read("person", $gr->{to_id});
-    
-    # Add an entry in chat receiver's message center.
-    $mailbox->{ut} = time;
-    $mailbox->{messages}->{$gr->{to_id}}->{ctype}  = "chat"; # conversation type
-    $mailbox->{messages}->{$gr->{to_id}}->{id}     = $gr->{to_id};
-    $mailbox->{messages}->{$gr->{to_id}}->{ut}     = time;
-    $mailbox->{messages}->{$gr->{to_id}}->{vt}     = time;
-    $mailbox->{messages}->{$gr->{to_id}}->{count}  = 0;
-    $mailbox->{messages}->{$gr->{to_id}}->{block}  = $header->{block_id};
-    
-    # Generate label to display on their message center.
-    if ($gr->{mtype} eq "text") {
-        $mailbox->{messages}->{$gr->{to_id}}->{last_content} = substr($gr->{content}, 0, 30);
-    } else {
-        $mailbox->{messages}->{$gr->{to_id}}->{last_content} = "[".$gr->{mtype}."]";
-    }
-    
-    $mailbox->{messages}->{$gr->{to_id}}->{last_avatar} = $to_person->{avatar_fid};
-    $mailbox->{messages}->{$gr->{to_id}}->{last_name}   = $to_person->{name};
-
-    $mailbox->{messages}->{$gr->{to_id}}->{title} = $to_person->{name};
-    
-    obj_write($mailbox);
-    
-    return jr({ chat_id => $chat_id });
+    return undef;
 }
+
+##############################################
 
 $p_message_chat_get =<<EOF;
 retrieve personal chat, get a list of chat content entries
 
 INPUT:
-    users:["o14477397324317851066","o14477630553830869197"]    //sender and receiver pid
-    block_id: // to request next block of chat entries, use the block id from the last block record
+    header_id: // the other party id, get the first block
+    block_id: // OR: to request next block of chat entries, use the block id from the last block record
 
 OUTPUT:
     block: {
@@ -552,38 +661,23 @@ sub p_message_chat_get {
 
     # $gs stores the data for this login session. It contains pid of the api caller.
     return jr() unless assert($gs->{pid}, "login first", "ERR_LOGIN", "Login first");
+	
+    if($gr->{header_id}){
     
-    if($gr->{users}){
-    
-        # If to_id is not in the format of our system object id, we assume it is for a device unique id.
-        my $mcol = mdb()->get_collection("account");
-        if ($gr->{users}->[0] !~ /^o\d{20}$/) {
-            my $aref = $mcol->find_one({device_id => "device:$gr->{users}->[0]"});
-            $gr->{users}->[0] = $aref->{pids}->{$gr->{server}};
-        }
-        
-        if ($gr->{users}->[1] !~ /^o\d{20}$/) {
-            my $aref = $mcol->find_one({device_id => "device:$gr->{users}->[1]"});
-            $gr->{users}->[1] = $aref->{pids}->{$gr->{server}};
-        }
-        
-        # The other chat party
-        my $theother = $gr->{users}->[0];
-        $theother = $gr->{users}->[1] if $theother eq $gs->{pid};
-        
+    	my $col = mdb()->get_collection("chat");
+		
+        # Find chat header record to locate the chat block chain header.
+    	my $header = $col->find_one({pair => join(",",sort($gs->{pid}, $gr->{header_id}))});
+		
+		# update mailbox status
         my $mailbox = obj_read("mailbox", $gs->{pid}, 2);
         
-        if ($mailbox->{messages}->{$theother}) {
+        if ($mailbox->{messages}->{$gr->{header_id}}) {
             # Update the message center visit status. reset new message count to 0.
-            $mailbox->{messages}->{$theother}->{vt} = time;
-            $mailbox->{messages}->{$theother}->{count} = 0;
+            $mailbox->{messages}->{$gr->{header_id}}->{vt} = time;
+            $mailbox->{messages}->{$gr->{header_id}}->{count} = 0;
             obj_write($mailbox);
         }
-        
-        # Find chat header record to locate the chat block chain header.
-        my $col = mdb()->get_collection("chat");
-        
-        my $chat = $col->find_one({pair => join("", sort @{$gr->{users}})});
         
         # No chat message entry found. Block is null.
         return jr({block => {
@@ -593,15 +687,23 @@ sub p_message_chat_get {
             entries => [],
             et => time,
             ut => time,        
-        }}) unless $chat->{block_id};
+        }}) unless $header->{block_id};
 
-        my $block_record = obj_read("messages_block", $chat->{block_id});
+        my $block_record = obj_read("messages_block", $header->{block_id});
         
         return jr({ block => $block_record });
 
     } else {
     
-        return jr() unless assert($gr->{block_id}, "block_id is missing", "ERR_BLOCK_ID", "Chat entries block is null.");
+        # No chat message entry found. Block is null.
+        return jr({block => {
+            _id => 0,
+            type => "messages_block",
+            next_id => 0,
+            entries => [],
+            et => time,
+            ut => time,        
+        }}) unless $gr->{block_id};
         
         my $block_record = obj_read("messages_block", $gr->{block_id});
         
@@ -609,7 +711,108 @@ sub p_message_chat_get {
     }
 }
 
-$p_message_mailbox_get = <<EOF;
+$p_message_group_get =<<EOF;
+retrieve group messages, get a list of group message content entries
+
+INPUT:
+    header_id: // group id, get the first block
+    block_id: // OR: to request next block of chat entries, use the block id from the last block record
+
+OUTPUT:
+    block: {
+        _id: "o14489513231757400035", 
+        next_id: 0,
+        
+        entries: [
+        
+        {
+            content:    "Hello?",                    // message content
+            from_name:  "Tom",                       // sender name
+            from_avatar:"f14477630553830869196",     // sender avatar
+            send_time:  1448955461,                  // send timestamp
+            sender_pid: "o14477397324317851066",     // sender pid
+            mtype:      "text"                       // message type: text/image/voice/link/file
+        },
+        
+        {
+            content:    "Hi, whats up", 
+            from_name:  "Smith",
+            from_avatar:"f14477630553830869190", 
+            send_time:  1448955486, 
+            sender_pid: "o14477630553830869197", 
+            mtype:      "text"
+        },
+        
+        {
+            content:    "Jane", 
+            from_avatar: "f14477630553830869192", 
+            send_time:  1448956085, 
+            sender_pid: "o14477397324317851066", 
+            mtype:      "text"
+        }
+        
+        ],
+        
+        type: "messages_block"
+    }
+    
+EOF
+
+sub p_message_group_get {
+
+    # $gs stores the data for this login session. It contains pid of the api caller.
+    return jr() unless assert($gs->{pid}, "login first", "ERR_LOGIN", "Login first");
+	
+    if($gr->{header_id}){
+    		
+        # Find chat header record to locate the chat block chain header.
+    	my $header = obj_read("group", $gr->{header_id});
+		
+		# update mailbox status
+        my $mailbox = obj_read("mailbox", $gs->{pid}, 2);
+        
+        if ($mailbox->{messages}->{$gr->{header_id}}) {
+            # Update the message center visit status. reset new message count to 0.
+            $mailbox->{messages}->{$gr->{header_id}}->{vt} = time;
+            $mailbox->{messages}->{$gr->{header_id}}->{count} = 0;
+            obj_write($mailbox);
+        }
+        
+        # No chat message entry found. Block is null.
+        return jr({block => {
+            _id => 0,
+            type => "messages_block",
+            next_id => 0,
+            entries => [],
+            et => time,
+            ut => time,        
+        }}) unless $header->{block_id};
+
+        my $block_record = obj_read("messages_block", $header->{block_id});
+        
+        return jr({ block => $block_record });
+
+    } else {
+    
+        # No chat message entry found. Block is null.
+        return jr({block => {
+            _id => 0,
+            type => "messages_block",
+            next_id => 0,
+            entries => [],
+            et => time,
+            ut => time,        
+        }}) unless $gr->{block_id};
+        
+        my $block_record = obj_read("messages_block", $gr->{block_id});
+        
+        return jr({ block => $block_record });
+    }
+}
+
+##############################################
+
+$p_message_mailbox = <<EOF;
 retrieve list of received and outgoing messages on user message center
 
 INPUT:
@@ -622,13 +825,15 @@ OUTPUT:
     mailbox: [
     
     {
-        ctype:       "group" // conversation type
-        id:          "o14613657119255800247", 
+        htype:       "group" // conversation header type
+        hid:          "o14613657119255800247", 
         ut:          1462579955, 
         vt:          1462579955, 
         count:       0, 
         block:       0, 
+		
         title:       "Class 2000 Reunion Group", 
+        avatar_fid:  "f14605622061056489944001", 
 
         last_avatar: "f14605622061056489944001", 
         last_content:"Hello everyone!", 
@@ -636,13 +841,15 @@ OUTPUT:
     },
     
     {
-        ctype:       "chat" // conversation type
-        id:          "o14589256603505270481", 
+        htype:       "chat" // conversation header type
+        hid:          "o14589256603505270481", 
         ut:          1462583109, 
         vt:          1462583111, 
         count:       0, 
         block:       "o14625831090064589977", 
+		
         title:       "Smith", 
+        avatar_fid:  "f14605622061056489944001", 
 
         last_avatar: "f14605622061056489944001", 
         last_content:"Message Two", 
@@ -652,7 +859,7 @@ OUTPUT:
     ]
 EOF
 
-sub p_message_mailbox_get {
+sub p_message_mailbox {
 
     # $gs stores the data for this log in session. It contains pid of the api caller.
     return jr() unless assert($gs->{pid}, "login first", "ERR_LOGIN", "Login first");
@@ -678,28 +885,25 @@ sub p_message_mailbox_get {
 
 sub add_new_message_entry{
 
-    my ($header, $from_id, $to_id, $mtype, $content) = @_;
+    my ($header, $from_id, $mtype, $content) = @_;
     
     return unless assert($header, "", "ERR_HEADER", "Invalid header data structure.");
-    
-    my $from_person = obj_read("person", $from_id);  
-    my $to_person = obj_read("person", $to_id);  
-    
+	
+    my $pref = obj_read("person", $from_id);
+	
     # Message entry in a chat block.
     my $message = {
-        from_name    => $from_person->{name},
         from_id      => $from_id,
-        from_avatar  => $from_person->{avatar_fid}, 
-        to_name    => $to_person->{name},
-        to_id      => $to_id,
-        to_avatar  => $to_person->{avatar_fid}, 
+        from_avatar  => $pref->{avatar_fid},
+        from_name    => $pref->{name},
         mtype        => $mtype, 
         content      => $content, 
         send_time    => time(),
     };
-        
+	
     $message->{from_avatar} = $DEFAULT_IMAGE_FID unless $message->{from_avatar};
-        
+    $message->{from_name} = "Noname" unless $message->{from_name};
+		
     # This is the first message. New block will be created
     if (!$header->{block_id}) {
 
@@ -1204,6 +1408,9 @@ user record, store personal information other than account information
     devicetoken: unique device id
     devicetype: unique device type, android/ios ...
     
+	name:
+	avatar_fid:
+	
     // user personal record update time and entry time
     ut: update time
     et: entry time
@@ -1224,10 +1431,10 @@ user mailbox, message center, in coming and out going message list
     
         id1: {  // conversation header id
 
-            ctype: chat/topic/group  // conversation type
+            htype: chat/topic/group  // conversation header type
             // two party chat (private) or group conversion (not yet implemented)
 
-            id: same as id1
+            hid: same as id1
             ut: unix time, last update time
             vt: unix time, last visit time
             count: new message count under id1
@@ -1242,6 +1449,25 @@ user mailbox, message center, in coming and out going message list
     }
 EOF
 
+$man_ds_group = <<EOF;
+group conversation header structure, more than 2 person
+    
+    // person ids. 
+    members:{
+		pid1 => 1,
+		pid2 => 1,
+	}
+    
+	title: // group title, subject, name
+	avatar_fid: // group logo
+	
+    // Instead of each person storing header object id, paired person ids of counter party and self 
+    // are good enough to locate the chat record.
+
+    // Required field for all conversation header structure.
+    block_id: last message entries block record id, for new chat, this fields is set to 0
+EOF
+
 $man_ds_chat = <<EOF;
 personal two-party conversation header structure
     
@@ -1252,12 +1478,16 @@ personal two-party conversation header structure
     
     // Ordered two person ids. Use two ids to look up the header structure
     pair: "id1.id2"
+	
+	//title: // specially handled in code
+	//avatar_fid: // specially handled in code
     
     // Instead of each person storing header object id, paired person ids of counter party and self 
     // are good enough to locate the chat record.
 
     // Required field for all conversation header structure.
     block_id: last message entries block record id, for new chat, this fields is set to 0
+	
 EOF
 
 $man_ds_messages_block = <<EOF;
