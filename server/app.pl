@@ -869,7 +869,7 @@ sub p_message_mailbox {
     my $mailbox = obj_read("mailbox", $gs->{pid}, 2);
     
     # No new message.
-    return jr({ changed => 0 }) if $gr->{ut} && $gr->{ut} < $mailbox->{ut};
+    return jr({ changed => 0 }) if $gr->{ut} && $gr->{ut} >= $mailbox->{ut};
     
     my @ids = keys %{$mailbox->{messages}};
     
