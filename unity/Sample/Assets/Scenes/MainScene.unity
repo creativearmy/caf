@@ -220,7 +220,7 @@ GameObject:
   - component: {fileID: 350214564}
   m_Layer: 0
   m_Name: Cube
-  m_TagString: Untagged
+  m_TagString: TheCube
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -643,7 +643,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5afaa393525534cbf8af0e0d1d147701, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cube: {fileID: 350214563}
 --- !u!1 &1807754622
 GameObject:
   m_ObjectHideFlags: 0

@@ -77,8 +77,8 @@
     if ([[globalConn.response s:@"obj"] isEqualToString:@"person"]) {
         if ([[globalConn.response s:@"act"] isEqualToString:@"get"]) {
             
-            [globalConn.user_data setObject:[globalConn.response s:@"pid"] forKey:@"chat_login_name"];
-            [globalConn.user_data setObject:@"chat" forKey:@"chat_mode"];
+            [globalConn.user_data setObject:[globalConn.response s:@"pid"] forKey:@"header_id"];
+            [globalConn.user_data setObject:@"chat" forKey:@"header_type"];
 
             // switch to chat page
             [[AppDelegate APP] switchViewController:@"i052"];

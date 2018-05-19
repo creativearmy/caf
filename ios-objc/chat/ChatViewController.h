@@ -30,11 +30,11 @@
     BOOL _reloading;
     BOOL _isFirst;
 }
-@property (nonatomic, copy) NSString *obj; // mode: person, task, topic
-@property (nonatomic, copy) NSString *to_id;
+@property (nonatomic, copy) NSString *header_type; // chat(two person), group(more than two person), topic, ...
+@property (nonatomic, copy) NSString *header_id; // For chat, it is pid of the other person, for others, it is the header record id
 @property (nonatomic, retain) NSString *title_text;
 @property (nonatomic, retain) NSData *userHeadImageData;
-@property (nonatomic, copy) NSString *next_id;
+@property (nonatomic, copy) NSString *next_block_id;
 - (void)reloadTableViewDataSource;
 - (void)doneLoadingTableViewData;
 

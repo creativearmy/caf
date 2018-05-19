@@ -80,13 +80,13 @@ APIConnection *globalConn;
     // Messaging demo, two-party conversation chat
     if ([ixxx isEqualToString:@"i052"]) {
         
-        if ([[globalConn.user_data s:@"chat_mode"] isEqualToString:@"chat"]) {
+        if ([[globalConn.user_data s:@"header_type"] isEqualToString:@"chat"]) {
             
             ChatViewController* c = [[ChatViewController alloc] init];
             
-            c.obj = @"person";
-            c.to_id = [globalConn.user_data s:@"chat_login_name"];
-            c.title_text = @"mode: chat, two-party conversation";
+            c.header_type = @"chat";
+            c.header_id = [globalConn.user_data s:@"header_id"];
+            c.title_text = @"two-party conversation";
             vc = c;
         }
     }

@@ -221,27 +221,24 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
             
             JSONObject * data = [[JSONObject alloc]init];
             [data setObject:@"message" forKey:@"obj"];
+            [data setObject:self.header_id forKey:@"header_id"];
             
-            if ([self.obj isEqualToString:@"person"]) {
-                [data setObject:self.to_id forKey:@"to_id"];
+            if ([self.header_type isEqualToString:@"chat"]) {
                 [data setObject:@"chat_send" forKey:@"act"];
             }
-            if ([self.obj isEqualToString:@"task"]){
-                 [data setObject:self.to_id forKey:@"task_id"];
-                [data setObject:@"task_send" forKey:@"act"];
+            if ([self.header_type isEqualToString:@"group"]){
+                [data setObject:@"group_send" forKey:@"act"];
             }
-            if ([self.obj isEqualToString:@"topic"]){
-                [data setObject:self.to_id forKey:@"topic_id"];
+            if ([self.header_type isEqualToString:@"topic"]){
                 [data setObject:@"topic_send" forKey:@"act"];
             }
-            [data setObject:[globalConn.user_info s:@"_id"] forKey:@"from_id"];
             [data setObject:@"text" forKey:@"mtype"];
             [data setObject:input forKey:@"content"];
             
             [globalConn send:data];
             
             [data setObject:[globalConn.user_info s:@"_id"] forKey:@"from_id"];
-            [data setObject:self.to_id forKey:@"to_id"];
+            [data setObject:self.header_id forKey:@"header_id"];
             [data setObject:@"text" forKey:@"mtype"];
             [data setObject:input forKey:@"content"];
             [chat_entries addObject:data];
@@ -731,21 +728,17 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
             
             [sendData setObject:[NSString stringWithFormat:@"%@",[NSDate date]] forKey:@"date"];
             [sendData setObject:@"message" forKey:@"obj"];
+            [sendData setObject:self.header_id forKey:@"header_id"];
             
-            if ([self.obj isEqualToString:@"person"]) {
-                [sendData setObject:self.to_id forKey:@"to_id"];
-                [sendData setObject:@"" forKey:@"chat_id"];
+            if ([self.header_type isEqualToString:@"chat"]) {
                 [sendData setObject:@"chat_send" forKey:@"act"];
             }
-            if ([self.obj isEqualToString:@"task"]){
-                [sendData setObject:self.to_id forKey:@"task_id"];
-                [sendData setObject:@"task_send" forKey:@"act"];
+            if ([self.header_type isEqualToString:@"group"]){
+                [sendData setObject:@"group_send" forKey:@"act"];
             }
-            if ([self.obj isEqualToString:@"topic"]){
-                [sendData setObject:self.to_id forKey:@"topic_id"];
+            if ([self.header_type isEqualToString:@"topic"]){
                 [sendData setObject:@"topic_send" forKey:@"act"];
             }
-            [sendData setObject:[globalConn.user_info s:@"_id"] forKey:@"from_id"];
             [sendData setObject:@"video" forKey:@"mtype"];
             [sendData setObject:content forKey:@"content"];
             
@@ -864,22 +857,18 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     
          [sendData setObject:[NSString stringWithFormat:@"%@",[NSDate date]] forKey:@"date"];
          [sendData setObject:@"message" forKey:@"obj"];
+         [sendData setObject:self.header_id forKey:@"header_id"];
          
-         if ([self.obj isEqualToString:@"person"]) {
-             [sendData setObject:self.to_id forKey:@"to_id"];
-             [sendData setObject:@"" forKey:@"chat_id"];
+         if ([self.header_type isEqualToString:@"chat"]) {
              [sendData setObject:@"chat_send" forKey:@"act"];
          }
-         if ([self.obj isEqualToString:@"task"]){
-             [sendData setObject:self.to_id forKey:@"task_id"];
-             [sendData setObject:@"task_send" forKey:@"act"];
+         if ([self.header_type isEqualToString:@"group"]){
+             [sendData setObject:@"group_send" forKey:@"act"];
          }
-         if ([self.obj isEqualToString:@"topic"]){
-             [sendData setObject:self.to_id forKey:@"topic_id"];
+         if ([self.header_type isEqualToString:@"topic"]){
              [sendData setObject:@"topic_send" forKey:@"act"];
          }
          
-         [sendData setObject:[globalConn.user_info s:@"_id"] forKey:@"from_id"];
          [sendData setObject:@"image" forKey:@"mtype"];
          sendData[@"content"]=@{@"fid":fid,@"thumb":dictionaryWithJsonString[@"thumb"],@"mime":dictionaryWithJsonString[@"type"]};
          [globalConn send:sendData];
@@ -1349,21 +1338,17 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     
             [sendData setObject:[NSString stringWithFormat:@"%@",[NSDate date]] forKey:@"date"];
             [sendData setObject:@"message" forKey:@"obj"];
+            [sendData setObject:self.header_id forKey:@"header_id"];
             
-            if ([self.obj isEqualToString:@"person"]) {
-                [sendData setObject:self.to_id forKey:@"to_id"];
-                [sendData setObject:@"" forKey:@"chat_id"];
+            if ([self.header_type isEqualToString:@"chat"]) {
                 [sendData setObject:@"chat_send" forKey:@"act"];
             }
-            if ([self.obj isEqualToString:@"task"]){
-                [sendData setObject:self.to_id forKey:@"task_id"];
-                [sendData setObject:@"task_send" forKey:@"act"];
+            if ([self.header_type isEqualToString:@"group"]){
+                [sendData setObject:@"group_send" forKey:@"act"];
             }
-            if ([self.obj isEqualToString:@"topic"]){
-                [sendData setObject:self.to_id forKey:@"topic_id"];
+            if ([self.header_type isEqualToString:@"topic"]){
                 [sendData setObject:@"topic_send" forKey:@"act"];
             }
-            [sendData setObject:[globalConn.user_info s:@"_id"] forKey:@"from_id"];
             [sendData setObject:@"voice" forKey:@"mtype"];
             [sendData setObject:fid forKey:@"content"];
             
@@ -1716,7 +1701,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 - (void)rightClick
 {
     /*// take it to the right page dependign on the context
-    if ([self.obj isEqualToString:@"task"]) {
+    if ([self.obj isEqualToString:@"group"]) {
         i043_2WETaskEditViewController *i043_2VC=[[i043_2WETaskEditViewController alloc]init];
         i043_2VC._taskID=self.to_id;
         i043_2VC.project_id=[globalConn.user_data s:@"project_id"];    //
@@ -1772,19 +1757,16 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     [dic setObject:@"message" forKey:@"obj"];
     
     _isFirst = NO;
-    if ([self.obj isEqualToString:@"person"]) {
-        [dic setObject:[NSArray arrayWithObjects:[globalConn.user_info s:@"_id"],self.to_id, nil] forKey:@"users"];
-        [dic setObject:@"" forKey:@"block_id"];
+    if ([self.header_type isEqualToString:@"chat"]) {
         [dic setObject:@"chat_get" forKey:@"act"];
     }
-    if ([self.obj isEqualToString:@"task"]) {
-        [dic setObject:self.to_id forKey:@"task_id"];
+    if ([self.header_type isEqualToString:@"group"]) {
         [dic setObject:@"task_get" forKey:@"act"];
     }
-    if ([self.obj isEqualToString:@"topic"]) {
-        [dic setObject:self.to_id forKey:@"topic_id"];
+    if ([self.header_type isEqualToString:@"topic"]) {
         [dic setObject:@"topic_get" forKey:@"act"];
     }
+    [dic setObject:self.header_id forKey:@"header_id"];
     [globalConn send:dic];
 
 
@@ -1810,11 +1792,11 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
     NSMutableDictionary   *dic = [[NSMutableDictionary alloc] init];
     [dic setObject:@"message" forKey:@"obj"];
     [dic setObject:@"chat_get" forKey:@"act"];
-    if ([_next_id isEqualToString:@""] || [_next_id isEqualToString:@"0"]) {
+    if ([_next_block_id isEqualToString:@""] || [_next_block_id isEqualToString:@"0"]) {
         return ;
     }
     _isFirst = YES;
-    [dic setObject:_next_id forKey:@"block_id"];
+    [dic setObject:_next_block_id forKey:@"block_id"];
     [globalConn send:dic];
 }
 
@@ -1833,11 +1815,10 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
         // user error occurs, return structure can not be certain
         if (![[globalConn.response s:@"uerr"] isEqualToString:@""]) return;
         
-        NSString *next_id = [[globalConn.response o:@"block"] s:@"next_id"];
+        _next_block_id = [[globalConn.response o:@"block"] s:@"next_id"];
         NSString *_id = [[globalConn.response o:@"block"] s:@"_id"];
-        _next_id = next_id;
         
-        NSLog(@"%@---------------%@",_next_id,_id);
+        NSLog(@"%@---------------%@",_next_block_id,_id);
         
         
 
@@ -1897,16 +1878,16 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
             if (
                 // I'm on percon chat page, and it is from the other party
                 ([[globalConn.response s:@"act"] isEqualToString:@"message_chat"]
-                && [self.obj isEqualToString:@"person"]
-                && [self.to_id isEqualToString:[globalConn.response s:@"from_id"]]) ||
+                && [self.header_type isEqualToString:@"chat"]
+                && [self.header_id isEqualToString:[globalConn.response s:@"header_id"]]) ||
                 
                 ([[globalConn.response s:@"act"] isEqualToString:@"message_topic"]
-                && [self.obj isEqualToString:@"topic"]
-                && [self.to_id isEqualToString:[globalConn.response s:@"topic_id"]]) ||
+                && [self.header_type isEqualToString:@"topic"]
+                && [self.header_id isEqualToString:[globalConn.response s:@"header_id"]]) ||
                 
-                ([[globalConn.response s:@"act"] isEqualToString:@"message_task"]
-                 && [self.obj isEqualToString:@"task"]
-                 && [self.to_id isEqualToString:[globalConn.response s:@"task_id"]])
+                ([[globalConn.response s:@"act"] isEqualToString:@"message_group"]
+                 && [self.header_type isEqualToString:@"group"]
+                 && [self.header_id isEqualToString:[globalConn.response s:@"header_id"]])
                 
                 ) {
                 
