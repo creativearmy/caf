@@ -170,12 +170,7 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
             req.xput("obj", "message");
             req.xput("act", "chat_get");
 
-            JSONArray ja = new JSONArray();
-
-            ja.put(APIConnection.user_info.optString("_id"));
-            ja.put(mPersonId);
-
-            req.xput("users", ja);
+            req.xput("header_id", mPersonId);
         }
 
         req.xput("person_id", APIConnection.user_info.optString("_id"));
@@ -414,11 +409,9 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
                 if (mode.equals("chat")) {
                     req.xput("obj", "message");
                     req.xput("act", "chat_send");
-                    req.xput("to_id", mPersonId);
+                    req.xput("header_id", mPersonId);
 
                 }
-
-                req.xput("from_id", APIConnection.user_info.optString("_id"));
 
                 req.xput("mtype", "text");
                 req.xput("content", mEditChatInput.getText().toString());
@@ -590,7 +583,7 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
                         if (mode.equals("chat")) {
                             req.xput("obj", "message");
                             req.xput("act", "chat_send");
-                            req.xput("to_id", mPersonId);
+                            req.xput("header_id", mPersonId);
                         }
 
                         JSONObject chat_content = new JSONObject();
@@ -598,7 +591,6 @@ public class i052Activity extends Activity implements OnLayoutChangeListener, Sw
                         chat_content.xput("fid", fid);
                         chat_content.xput("mime", mime);
 
-                        req.xput("from_id", APIConnection.user_info.optString("_id"));
                         req.xput("mtype", "image");
                         req.xput("content", chat_content);
                         APIConnection.send(req);
