@@ -135,6 +135,7 @@ iOS是NSMutableDictionary/NSMutableArray+SafeJSONAccess。缩写接口提供了�
     <b>int i(String name);</b>
     <b>long l(String name);</b>
     <b>String s(String name);</b>
+
     <b>JSONArray a(String name);</b>
     <b>JSONObject o(String name);</b>
 
@@ -160,10 +161,14 @@ iOS是NSMutableDictionary/NSMutableArray+SafeJSONAccess。缩写接口提供了�
     <b>JSONObject xput(String name, boolean value);</b>
     <b>JSONObject xput(String name, int value);</b>
     <b>JSONObject xput(String name, long value);</b>
+    <b>JSONObject xput(String name, String value);</b>
+
     <b>JSONObject xput(int index, JSONObject value);</b>
     <b>JSONObject xput(int index, JSONArray value);</b>
 
     <b>Object remove(String name);</b>
+
+
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 <b>JSONArray 接口文档</b>
@@ -176,6 +181,7 @@ iOS是NSMutableDictionary/NSMutableArray+SafeJSONAccess。缩写接口提供了�
     <b>int i(int index);</b>
     <b>long l(int index);</b>
     <b>String s(int index);</b>
+
     <b>JSONArray a(int index);</b>
     <b>JSONObject o(int index);</b>
 
@@ -201,6 +207,8 @@ iOS是NSMutableDictionary/NSMutableArray+SafeJSONAccess。缩写接口提供了�
     <b>JSONArray xput(int index, boolean value);</b>
     <b>JSONArray xput(int index, int value);</b>
     <b>JSONArray xput(int index, long value);</b>
+    <b>JSONArray xput(int index, String value);</b>
+
     <b>JSONArray xput(int index, JSONObject value);</b>
     <b>JSONArray xput(String name, JSONArray value);</b>
 
