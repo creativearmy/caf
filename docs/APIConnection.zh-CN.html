@@ -1,0 +1,212 @@
+
+<html><head><meta charset="utf-8" /><head><body><pre>
+
+<b>APIConnection/JSONObject/JSONArray 接口说明文档</b>
+
+<a href="http://www.hehuo168.com/docs/">其他禾火文档中心</a>
+这个文档适用于 web端，C#/Unity，安卓端和苹果端，这里用的是安卓语法
+
+
+<b>** APIConnection **</b>
+
+客户端包括web端，安卓端和苹果端。 对服务器的调用先登录，登录后，
+SDK会保活这个连接，并会自动重连在切换网络的时候。登录后客户端只要使用就可。
+登录要用SDK提供的接口，这样才可以保存登录信息以便后面的SDK保活登录
+
+并监听服务端返回的数据和连接状态的改变。客户端写SDK回调函数。
+所有接口调用都是通过全局单例变量APIConnection
+
+    /* APIConnection.States SDK 状态
+
+        LOGIN_SCREEN_SHOWN 最初状态
+        SERVERINFO_REQ 试图获取服务端配置 server_info
+        LOGIN_SCREEN_ENABLED 现在输入用户名密码
+        GUEST_SEND 没有登录时候服务端请求
+        INITIAL_LOGIN 试图登录（用户手动或自动初次登录）
+        IN_SESSION 登录成功（SDK开始保活连接）
+        SESSION_LOGIN 掉线，再登录（保活自动登录）
+        REGISTRATION 注册中
+        CONNECTING 连接中（连接后自动进入其他状态）
+    */
+
+
+<b>** JSONObject/JSONArray **</b>
+
+客户端应该尽量使用这些服务端数据解析能力，其中包括了数据容错的能力，
+比如，“1”自动解析成字符串或整数，看客户端需要哪种类型。
+
+安卓的是对JSONObject/JSONArray继承，C# 是继承 Dictionary/List, JS 是直接用对象和列表
+iOS是NSMutableDictionary/NSMutableArray+SafeJSONAccess。缩写接口提供了。
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+<b>APIConnection 接口文档</b>
+    
+    <b>String version();</b>
+        SDK 版本号
+
+    <b>boolean is_logged_in();</b>
+        SDK 判断当前是不是登录状态 IN_SESSION
+
+    <b>String wsURL;</b>
+        SDK 连接到服务端，用的唯一的服务端地址，其他服务端配置的地址信息通过 server_info
+        字段获得。server_info 是SDK自动会更新的
+    
+    /* 记录当前状态，前面一个状态，和连接时下一个状态 */
+    <b>APIConnection.States state = APIConnection.States.LOGIN_SCREEN_SHOWN;</b>
+    <b>APIConnection.States from_state = APIConnection.States.LOGIN_SCREEN_SHOWN;</b>
+    <b>APIConnection.States target_state = APIConnection.States.SERVERINFO_REQ;</b>
+    
+    <b>JSONObject server_info;</b>
+        全局变量 服务端接口返回的，保存系统的配置信息   
+    <b>JSONObject user_info;</b>
+        全局变量 服务端接口返回的，保存用户的信息
+
+    <b>JSONObject client_info;</b>
+        全局变量 客户端写入，客户端信息，在每次接口调用，自动上传服务端    
+    <b>JSONObject user_pref;</b>
+        全局变量 客户端写入，SDK用的，说明客户端配置SDK的
+    
+    <b>JSONObject user_data;</b>
+        全局变量 客户端用来保存任意全局数据，用来界面间跳转传递数据（参数）
+    
+    <b>JSONObject user_joread();</b>
+        持久化变量 读取数据，这个数据APP重启后还有
+
+    <b>void user_jowrite(JSONObject data);</b>
+        持久化变量 保存数据，这个数据APP重启后还有
+    
+    <b>void registerHandler(Handler handler);</b>
+    <b>void removeHandler(Handler handler);</b>
+        作为每个页面构造的过程，注册本页面监听函数。这个要注册以后，再调用服务端接口
+        才能收到服务端返回的数据，页面销毁前要注销监听
+
+        每个页面有自己的监听函数， 监听函数里面可以判断是关于状态变化的回调还是服务端
+        来的数据回调，参考样例的里面的写法。不同的端的前端注册不一样，iOS是通过
+        NotificationCenter，JS 是实现控制器里面的方法自动收到通知。
+
+    <b>void connect();</b>
+        配置好 wsURL 地址后，建立连接。 要通过上面的监听函数确定连接已经成功后，才能
+        进入后续操作，一般是 LOGIN_SCREEN_ENABLED 状态出现后，才能后面的操作。
+        connect 之后，SDK 灰自动调用 server_info 接口，获得服务端下发给客户端的配置。
+        服务端的server_info 是保存系统配置信息合适的地方。
+
+    <b>void login(String username, String passwd);</b>
+        常规登录
+
+    <b>void loginx(JSONObject cred);</b>
+        扩展登录，登录用的所有信息在 cred, 字段由服务端决定。参考文档中心。
+    
+    <b>void logout();</b>
+        注销
+    
+    <b>void register(JSONObject reg);</b>
+        注册，注册字段由服务端决定，参考 t009 文档中心文档
+    
+    <b>void log_add(String logstr);</b>
+        客户端运行过程收集的数据，这些数据可以在工具箱远程获取，用来辅助调试
+
+    <b>boolean send(JSONObject req);</b>
+    <b>boolean send(String req);</b>
+    <b>boolean send(HashMap<String, Object> req);</b>
+       客户端调用服务端接口，返回数据通过回调，客户端每个页面要注册监听函数才能
+       收到调用返回的或者服务端推送的数据
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+<b>APIConnection SDK 缺省设置</b>
+
+	user_pref.xput("perf_enabled", "true"); // 每个接口返回运算时间
+	user_pref.xput("auto_login", "true"); // 自动登录，手机保存密码
+	user_pref.xput("precise_ping_timing", "false"); // 新版（>LOLLIPOP）ping 检测时间用闹钟，准确
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+<b>JSONObject 接口文档</b>
+
+    <b>JSONObject parse(String json);</b>
+        
+    /* 这些是读缩写 */
+    <b>boolean b(String name);</b>
+    <b>double d(String name);</b>
+    <b>int i(String name);</b>
+    <b>long l(String name);</b>
+    <b>String s(String name);</b>
+    <b>JSONArray a(String name);</b>
+    <b>JSONObject o(String name);</b>
+
+    /* 这些是读缩写，自定义缺省值 */
+    <b>boolean b(String name, boolean defaultValue);</b>
+    <b>double d(String name, double defaultValue);</b>
+    <b>int i(String name, int defaultValue);</b>
+    <b>long l(String name, long defaultValue);</b>
+    <b>String s(String name, String defaultValue);</b>
+    
+    /* get getXXX 会抛异常不用了, 用 optXXX 系列 */
+    <b>boolean optBoolean(String name);</b>
+    <b>double optDouble(String name);</b>
+    <b>int optInt(String name);</b>
+    <b>JSONArray optJSONArray(String name);</b>
+    <b>JSONObject optJSONObject(String name);</b>
+    <b>long optLong(String name);</b>
+    <b>String optString(String name);</b>
+    <b>JSONArray optJSONArray(String name);</b>
+    <b>JSONObject optJSONObject(String name);</b>
+    
+    <b>JSONObject xput(String name, double value);</b>
+    <b>JSONObject xput(String name, boolean value);</b>
+    <b>JSONObject xput(String name, int value);</b>
+    <b>JSONObject xput(String name, long value);</b>
+    <b>JSONObject xput(int index, JSONObject value);</b>
+    <b>JSONObject xput(int index, JSONArray value);</b>
+
+    <b>Object remove(String name);</b>
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+<b>JSONArray 接口文档</b>
+
+    <b>JSONArray parse(String json);</b>
+
+    /* 这些是读缩写 */
+    <b>boolean b(int index);</b>
+    <b>double d(int index);</b>
+    <b>int i(int index);</b>
+    <b>long l(int index);</b>
+    <b>String s(int index);</b>
+    <b>JSONArray a(int index);</b>
+    <b>JSONObject o(int index);</b>
+
+    /* 这些是读缩写，自定义缺省值 */
+    <b>boolean b(int index, boolean defaultValue);</b>
+    <b>double d(int index, double defaultValue);</b>
+    <b>int i(int index, int defaultValue);</b>
+    <b>long l(int index, long defaultValue);</b>
+    <b>String s(int index, String defaultValue);</b>
+
+    /* get getXXX 会抛异常不用了, 用 optXXX 系列 */
+    <b>boolean optBoolean(int index);</b>
+    <b>double optDouble(int index);</b>
+    <b>int optInt(int index);</b>
+    <b>JSONArray optJSONArray(int index);</b>
+    <b>JSONObject optJSONObject(int index);</b>
+    <b>long optLong(int index);</b>
+    <b>String optString(int index);</b>
+    <b>JSONArray optJSONArray(int index);</b>
+    <b>JSONObject optJSONObject(int index);</b>
+
+    <b>JSONArray xput(int index, double value);</b>
+    <b>JSONArray xput(int index, boolean value);</b>
+    <b>JSONArray xput(int index, int value);</b>
+    <b>JSONArray xput(int index, long value);</b>
+    <b>JSONArray xput(int index, JSONObject value);</b>
+    <b>JSONArray xput(String name, JSONArray value);</b>
+
+    <b>Object remove(int index);</b>
+
+
+
+    
+</pre></body></html>
