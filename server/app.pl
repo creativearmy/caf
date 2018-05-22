@@ -560,6 +560,14 @@ sub message_common_send {
 	
 	foreach my $p ($gs->{pid}, @other_parties) {
 	
+		if ($header->{type} eq "chat") {
+			if ($p eq $gs->{pid}) {
+				$header_id = $other_parties[0];
+			} else {
+				$header_id = $gs->{pid};
+			}
+		}
+		
 	    # Third param "2" will cause system to siliently create an obj of this type with specified id
 	    # Obj is created as needed instead of assertion failure when obj is accessed before creation.
 	    my $mailbox = obj_read("mailbox", $p, 2);
