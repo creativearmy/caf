@@ -932,19 +932,17 @@ sub add_new_message_entry{
         
     } else {
 
-        my $block = obj_read("messages_block", $header->{block_id});
+        my $messages_block = obj_read("messages_block", $header->{block_id});
         
-        my $count = $block->{entries};
-        
-        # Maximum number of chat entries is 50.
+        # Maximum number of chat entries in a block is 50.
         # This is the first message of a new block. New block will be created
-        if ((scalar(@{$block->{entries}}) + 1) > 50) {
+        if ((scalar(@{$messages_block->{entries}})+1) > 50) {
 
             my $block;
             
             $block->{_id}     = obj_id();
             $block->{type}    = "messages_block";
-            $block->{next_id} = $block->{_id};
+            $block->{next_id} = $messages_block->{_id};
             $block->{entries} = [];
             
             push @{$block->{entries}}, $message;
@@ -957,9 +955,9 @@ sub add_new_message_entry{
             
         } else {
 
-            push @{$block->{entries}}, $message;
+            push @{$messages_block->{entries}}, $message;
 
-            obj_write($block); 
+            obj_write($messages_block); 
         }  
     }
     
