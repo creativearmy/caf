@@ -10,6 +10,7 @@
 
 // singleton global Creativearmy App Framework SDK obj
 APIConnection *globalConn;
+NSString* apns_device_token;
 
 @interface AppDelegate ()
 
@@ -36,6 +37,30 @@ APIConnection *globalConn;
     
     // singleton, init once, used through out app
     if (globalConn == nil) globalConn = [[APIConnection alloc] init];
+    ////////////////////////////////////////////////// APNS RELATED /////////////////////////////////////////////////////////
+    // make sure Background_Mode in info.plist remote_notification turned on as well!
+    
+    // Register the supported interaction types.
+    UIUserNotificationType types = UIUserNotificationTypeBadge | UIUserNotificationTypeSound | UIUserNotificationTypeAlert;
+    
+    UIUserNotificationSettings *mySettings = [UIUserNotificationSettings settingsForTypes:types categories:nil];
+    
+    [[UIApplication sharedApplication] registerUserNotificationSettings:mySettings];
+    
+    // Register for remote notifications.
+    [[UIApplication sharedApplication] registerForRemoteNotifications];
+    
+    // redfault is empty string
+    apns_device_token = [NSString string];
+        
+    ////////////////////////////////////////////////// APNS TRIGGERED APP LAUNCH //////////////////////////////////////////////
+    NSDictionary *remotenotif =[launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+    if (remotenotif != nil) {
+        // set a flag and defer action after login
+        [globalConn.user_data setObject:@"1" forKey:@"show_inbox"];
+    }
+    
+    // RootViewController initialization: e.g. userLoginViewController
     
     return YES;
 }
@@ -52,6 +77,26 @@ APIConnection *globalConn;
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
     // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+    
+    // if it is triggered by remote notification, user choose to open/bring it to foreground
+    if ([[globalConn.user_data s:@"show_inbox"] isEqualToString:@"1"]) {
+        // one time deal, reset the flag
+        [globalConn.user_data setObject:@"0" forKey:@"show_inbox"];
+        
+        // TODO if top vc is already inbox vc, do nothing, refresh
+        
+        //if ([[self.firstMainVC topViewController] isKindOfClass:[i080InboxViewController class]]) {
+        //    NSMutableDictionary *req = [[NSMutableDictionary alloc] init];
+        //    [req setObject:@"inbox" forKey:@"obj"];
+        //    [req setObject:@"get" forKey:@"act"];
+        //    [globalConn send:req];
+        //    
+        //} else {
+        //    // switch to inbox view controller
+        //    // unified remote notification handler http://samwize.com/2015/08/07/how-to-handle-remote-notification-with-background-mode-enabled/
+        //    // TODO
+        //}
+    }
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
@@ -60,6 +105,83 @@ APIConnection *globalConn;
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+}
+
+////////////////////////////////////////////////// APNS RELATED /////////////////////////////////////////////////////////
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)token {
+    
+    NSString *token_str = [[token description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
+    apns_device_token = [token_str stringByReplacingOccurrencesOfString:@" " withString:@""];
+    
+    NSLog(@"apns_device_token: %@", apns_device_token);
+    NSLog(@"original device token: %@", [token description]);
+
+}
+
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)err {
+    NSLog(@"Error: %@", err);
+}
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    
+    // somehow, this is called first when remote notification triggers the launch
+    if (globalConn == nil) globalConn = [[APIConnection alloc] init];
+    
+    // what is this?
+    completionHandler(UIBackgroundFetchResultNewData);
+
+    NSLog(@"didReceiveRemoteNotification check show_inbox: %@ state: %i", [globalConn.user_data s:@"show_inbox"], globalConn.state);
+    // launch triggered by remote notification
+    if (globalConn.state <= LOGIN_SCREEN_SHOWN) {
+        // deferred, wait after login,
+        [globalConn.user_data setObject:@"1" forKey:@"show_inbox"];
+        return;
+    }
+    
+    NSLog(@"%@",userInfo);
+    JSONObject *payload = (JSONObject*)[userInfo objectForKey:@"p"];
+    [globalConn.user_data setObject:payload forKey:@"last_alert_payload"];
+    
+    NSString *title = @"";
+    if ([[payload s:@"t"] isEqual:@"A"]) title = @"NOTIFICATION CATAGORY NAME 1";
+    if ([[payload s:@"t"] isEqual:@"B"]) title = @"NOTIFICATION CATAGORY NAME 1";
+    
+    if (application.applicationState == UIApplicationStateActive) {
+        
+        NSString *alert = [[userInfo objectForKey:@"aps"] objectForKey:@"alert"];
+        UIAlertView *alertView1 = [[UIAlertView alloc] initWithTitle:@"TITLE" message:alert delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Inbox",nil];
+        alertView1.tag = 10;
+        [alertView1 show];
+    }
+}
+
+// UIAlertView delegate
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+
+{
+    if (buttonIndex == 0) {
+        // ignore does nothing
+        
+    } else {
+        
+        JSONObject *payload = [globalConn.user_data o:@"last_alert_payload"];
+        
+        // TODO go directly to task or topic comment or chat page, for now go to inbox
+        //if (true) {
+        //    // if top vc is already inbox vc, do nothing, refresh
+        //    if ([[self.firstMainVC topViewController] isKindOfClass:[i080InboxViewController class]]) {
+        //    
+        //        NSMutableDictionary *req = [[NSMutableDictionary alloc] init];
+        //        [req setObject:@"inbox" forKey:@"obj"];
+        //        [req setObject:@"get" forKey:@"act"];
+        //        [globalConn send:req];
+        //    
+        //    } else {
+        //        // switch to inbox vc
+        //        // unified remote notification handler http://samwize.com/2015/08/07/how-to-handle-remote-notification-with-background-mode-enabled/
+        //    }
+        //}
+    }
 }
 
 ////////////////////////////////////////////////// SDK RELATED /////////////////////////////////////////////////////////
