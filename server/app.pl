@@ -1527,7 +1527,7 @@ message entries block record, conversation messages are divided into chained blo
     ]
 EOF
 
-$man_geotest = <<EOF;
+$man_ds_geotest = <<EOF;
 MongoDB geo location based algorithms test
 
     "loc": {
