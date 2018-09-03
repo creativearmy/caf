@@ -67,7 +67,7 @@ if (-s "$UPLOAD_ROOT/$FILE_ID") {
 				if $1 > $RESIZE_UPLOAD_IMAGE_THUMB_WIDTH_TO;
 			
 			# pic is smaller than thumb? do nothing, make a copy	
-			system("cp $UPLOAD_ROOT/$file_id $UPLOAD_ROOT/$THUMB")
+			system("cp $UPLOAD_ROOT/$FILE_ID $UPLOAD_ROOT/$THUMB")
 				if $1 <= $RESIZE_UPLOAD_IMAGE_THUMB_WIDTH_TO;
 		}
 	}
