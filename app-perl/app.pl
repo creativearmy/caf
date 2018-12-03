@@ -15,7 +15,10 @@ sub response_handler {
 	
     ####################################
 	if ($jo->{obj} eq "server" && $jo->{act} eq "info" && !$session) {
-		# Go on and start the login process.
+		# Go on and start the login process automatically.
+		if ($login_name && $login_passwd) {
+		    send_obj_str('{"obj":"person","act":"login","login_name":"'.$login_name.'","login_passwd":"'.$login_passwd.'"}');
+		}
     }
 	
     ####################################
@@ -26,10 +29,21 @@ sub response_handler {
     }
 	
 	####################################
+	# login returns, attemp to execute json_input command
 	if ($jo->{obj} eq "person" && $jo->{act} eq "login") {
 		# Check if login succeeded.
+		if ($json_input) {
+		    send_obj_str($json_input);
+		}
 	}
-        
+	
+	####################################
+	# single execution
+	if ($jo->{obj} eq "objA" && $jo->{act} eq "actA") {
+	    # quit once commmand execution returns from server
+	    # $json_input, '{"obj":"objA","act":"actA"}''
+	    exit;
+    }        
 }
 
 # Minder recurring routine will be executed at $MINDER_TIME interval
@@ -62,7 +76,8 @@ $json = JSON->new->allow_nonref;
 $json_pretty = JSON->new->allow_nonref->pretty;
 
 # ws:// or wss:// string for WebSocket server
-($ws_server_url) = @ARGV;
+# automatically login, and execute a $json_input command
+($ws_server_url, $login_name, $login_passwd, $json_input) = @ARGV;
 
 errlog("WebSocket server url ws_server_url missing\n")
     and exit unless $ws_server_url;
