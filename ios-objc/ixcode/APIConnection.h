@@ -146,9 +146,11 @@ typedef enum {
     - (void)user_jowrite:(JSONObject*)data;
 
     // notifcation will fire on these names
-    @property (readonly) NSString* stateChangedNotification;
-    @property (readonly) NSString* responseReceivedNotification;
-
+    @property (readonly) NSNotificationName stateChangedNotification;
+    @property (readonly) NSNotificationName responseReceivedNotification;
+	- (void)addObserver:(id)observer selector:(SEL)aSelector name:(NSNotificationName)aName object:(id)anObject;
+	- (void)removeObserver:(id)observer;
+	
     // called when sdk does a logsend, send extra info here
     @property (nonatomic, copy) NSString* (^log_extra) (void);
     

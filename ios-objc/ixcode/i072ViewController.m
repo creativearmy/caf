@@ -143,7 +143,7 @@
     [super viewWillAppear:YES];
 
     NSLog(@"addObserver: %@", NSStringFromClass([self class]));
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(response_received) name:globalConn.responseReceivedNotification object:nil];
+    [globalConn addObserver:self selector:@selector(response_received) name:globalConn.responseReceivedNotification object:nil];
     
     self.selectButtons = [@[] mutableCopy];
     
@@ -195,7 +195,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
+    [globalConn addObserver:self selector:@selector(keyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
     
     width = [UIScreen mainScreen].bounds.size.width;
     CGRect frame = [UIScreen mainScreen].bounds;
@@ -319,7 +319,7 @@
 
 - (void)dealloc{
     NSLog(@"removeObserver: %@", NSStringFromClass([self class]));
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [globalConn removeObserver:self];
 }
 
 - (IBAction)uphead:(UIButton *)sender {

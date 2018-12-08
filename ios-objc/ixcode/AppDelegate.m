@@ -255,8 +255,8 @@ NSString* apns_device_token;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     NSLog(@"addObserver: %@", NSStringFromClass([self class]));
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(state_changed) name: globalConn.stateChangedNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(response_received) name: globalConn.responseReceivedNotification object:nil];
+    [globalConn addObserver:self selector:@selector(state_changed) name: globalConn.stateChangedNotification object:nil];
+    [globalConn addObserver:self selector:@selector(response_received) name: globalConn.responseReceivedNotification object:nil];
     
     [globalConn.client_info setObject:@"iOS" forKey:@"clienttype"];
     [globalConn.client_info setObject:@"1.9" forKey:@"version"];

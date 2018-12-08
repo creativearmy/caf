@@ -29,7 +29,7 @@
     [super viewWillAppear:animated];
 }
 -(void )viewWillDisappear:(BOOL)animated{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [globalConn removeObserver:self];
 }
 
 - (void)viewDidLoad {
@@ -54,9 +54,9 @@
     self.account.text = [[jo o:@"Account"] s:@"account"];
     
     NSLog(@"addObserver: %@", NSStringFromClass([self class]));
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(response_received) name:globalConn.responseReceivedNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(state_changed) name:globalConn.stateChangedNotification object:nil];
+    [globalConn removeObserver:self];
+    [globalConn addObserver:self selector:@selector(response_received) name:globalConn.responseReceivedNotification object:nil];
+    [globalConn addObserver:self selector:@selector(state_changed) name:globalConn.stateChangedNotification object:nil];
     
     // now we are ready to connect to server, and retrieve server_info
     [AppDelegate.APP init_sdk];

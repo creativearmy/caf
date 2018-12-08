@@ -23,7 +23,7 @@ typedef void (^btnAction)(void);
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
-        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(changeStyle:) name:kChangeStyle object:nil];
+        [globalConn addObserver:self selector:@selector(changeStyle:) name:kChangeStyle object:nil];
     }
     return self;
 }
@@ -33,7 +33,7 @@ typedef void (^btnAction)(void);
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onUserOporatrerNoti:) name:@"wcuser_oporator_notification" object:nil];
+    [globalConn addObserver:self selector:@selector(onUserOporatrerNoti:) name:@"wcuser_oporator_notification" object:nil];
     if ([self respondsToSelector:@selector(setAutomaticallyAdjustsScrollViewInsets:)]) {
         self.automaticallyAdjustsScrollViewInsets=NO;
     }
@@ -42,7 +42,7 @@ typedef void (^btnAction)(void);
 }
 
 - (void)viewDidUnload {
-    [[NSNotificationCenter defaultCenter]removeObserver:self name:@"wcuser_oporator_notification" object:nil];
+    [globalConnremoveObserver:self name:@"wcuser_oporator_notification" object:nil];
 }
 
 

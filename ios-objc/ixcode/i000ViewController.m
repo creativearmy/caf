@@ -21,15 +21,15 @@
     
     // Register to receive any data sent from server, through SDK
     NSLog(@"addObserver: %@", NSStringFromClass([self class]));
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(response_received:) name:globalConn.responseReceivedNotification object:nil];
+    [globalConn removeObserver:self];
+    [globalConn addObserver:self selector:@selector(response_received:) name:globalConn.responseReceivedNotification object:nil];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     
     NSLog(@"removeObserver: %@", NSStringFromClass([self class]));
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [globalConn removeObserver:self];
 }
 
 - (void)didReceiveMemoryWarning {
