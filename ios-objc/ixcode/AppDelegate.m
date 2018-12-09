@@ -252,7 +252,7 @@ NSString* apns_device_token;
     if ([[globalConn.user_data s:@"init_sdk"] isEqualToString:@"1"]) return;
     [globalConn.user_data setObject:@"1" forKey:@"init_sdk"];
     
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [globalConn removeObserver:self];
     
     NSLog(@"addObserver: %@", NSStringFromClass([self class]));
     [globalConn addObserver:self selector:@selector(state_changed) name: globalConn.stateChangedNotification object:nil];

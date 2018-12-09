@@ -38,12 +38,28 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "chat/ChatViewController.m"
-            timestampString = "548394903.03382"
+            timestampString = "566022383.316303"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "792"
-            endingLineNumber = "792"
+            startingLineNumber = "791"
+            endingLineNumber = "791"
             landmarkName = "-pickImage"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ixcode/AppDelegate.m"
+            timestampString = "566022383.316373"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "255"
+            endingLineNumber = "255"
+            landmarkName = "-init_sdk"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

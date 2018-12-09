@@ -8,7 +8,6 @@
 #import <AVFoundation/AVFoundation.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "Model.h"
-#import "MapLocationViewController.h"
 #import "MoneyViewController.h"
 #import "RequestPostUploadHelper.h"
 #import "VideoController.h"
@@ -1733,7 +1732,7 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 {
     [super viewWillAppear:animated];
 
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(response_received)
+    [globalConn addObserver:self selector:@selector(response_received)
                                                  name:globalConn.responseReceivedNotification object:nil];
 
     float version = [[[UIDevice currentDevice] systemVersion] floatValue];
@@ -1776,13 +1775,13 @@ NSString *TMP_UPLOAD_IMG_PATH=@"";
 {
     [super viewWillDisappear:animated];
 
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [globalConn removeObserver:self];
 
     [self dismissLoading];
 }
 
 - (void)loadMoreData {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(response_received)
+    [globalConn addObserver:self selector:@selector(response_received)
                                                  name:globalConn.responseReceivedNotification object:nil];
     
     if (isSendImage) {

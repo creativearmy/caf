@@ -28,18 +28,14 @@
 		A880D5D71D3B5B000007C89C /* MBProgressHUD+ND.m in Sources */ = {isa = PBXBuildFile; fileRef = A880D5D51D3B5B000007C89C /* MBProgressHUD+ND.m */; };
 		A880D5D81D3B5B000007C89C /* MBProgressHUD.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A880D5D61D3B5B000007C89C /* MBProgressHUD.bundle */; };
 		A8D77D001F2CB7E300742404 /* libicucore.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A8D77CFF1F2CB7E300742404 /* libicucore.tbd */; };
-		A8D77D4C1F2CBAED00742404 /* AMapSearchKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A8D77D031F2CBAED00742404 /* AMapSearchKit.framework */; };
 		A8D77D4D1F2CBAED00742404 /* ChatCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A8D77D051F2CBAED00742404 /* ChatCell.m */; };
 		A8D77D4E1F2CBAED00742404 /* ChatsViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A8D77D071F2CBAED00742404 /* ChatsViewCell.m */; };
 		A8D77D4F1F2CBAED00742404 /* ChatViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A8D77D091F2CBAED00742404 /* ChatViewController.m */; };
-		A8D77D501F2CBAED00742404 /* CustomAnnotationView.m in Sources */ = {isa = PBXBuildFile; fileRef = A8D77D0B1F2CBAED00742404 /* CustomAnnotationView.m */; };
 		A8D77D511F2CBAED00742404 /* CustomCalloutView.m in Sources */ = {isa = PBXBuildFile; fileRef = A8D77D0D1F2CBAED00742404 /* CustomCalloutView.m */; };
 		A8D77D521F2CBAED00742404 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = A8D77D0E1F2CBAED00742404 /* icon.png */; };
 		A8D77D531F2CBAED00742404 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A8D77D0F1F2CBAED00742404 /* Images.xcassets */; };
 		A8D77D541F2CBAED00742404 /* left_bubble@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A8D77D151F2CBAED00742404 /* left_bubble@2x.png */; };
 		A8D77D551F2CBAED00742404 /* LVRecordTool.m in Sources */ = {isa = PBXBuildFile; fileRef = A8D77D171F2CBAED00742404 /* LVRecordTool.m */; };
-		A8D77D561F2CBAED00742404 /* MAMapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A8D77D181F2CBAED00742404 /* MAMapKit.framework */; };
-		A8D77D571F2CBAED00742404 /* MapLocationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A8D77D1A1F2CBAED00742404 /* MapLocationViewController.m */; };
 		A8D77D581F2CBAED00742404 /* MessageModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A8D77D1C1F2CBAED00742404 /* MessageModel.m */; };
 		A8D77D591F2CBAED00742404 /* Model.m in Sources */ = {isa = PBXBuildFile; fileRef = A8D77D1E1F2CBAED00742404 /* Model.m */; };
 		A8D77D5A1F2CBAED00742404 /* MoneyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A8D77D201F2CBAED00742404 /* MoneyViewController.m */; };
@@ -85,7 +81,6 @@
 		A8D77D901F2CBB0A00742404 /* grayArrow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A8D77D871F2CBB0A00742404 /* grayArrow@2x.png */; };
 		A8D77D911F2CBB0A00742404 /* whiteArrow.png in Resources */ = {isa = PBXBuildFile; fileRef = A8D77D881F2CBB0A00742404 /* whiteArrow.png */; };
 		A8D77D921F2CBB0A00742404 /* whiteArrow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = A8D77D891F2CBB0A00742404 /* whiteArrow@2x.png */; };
-		A8D77D941F2CBD6400742404 /* libstdc++.6.0.9.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A8D77D931F2CBD6400742404 /* libstdc++.6.0.9.tbd */; };
 		A8D77D961F2CBD7500742404 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A8D77D951F2CBD7500742404 /* libc++.tbd */; };
 		A8D77D981F2CBD7F00742404 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A8D77D971F2CBD7F00742404 /* libz.tbd */; };
 		A8D77D9A1F2CBF0200742404 /* libmp3lame.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A8D77D991F2CBF0200742404 /* libmp3lame.a */; };
@@ -142,15 +137,12 @@
 		A880D5D61D3B5B000007C89C /* MBProgressHUD.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = MBProgressHUD.bundle; sourceTree = "<group>"; };
 		A880D5D91D3B5B1F0007C89C /* UtilsMacro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UtilsMacro.h; sourceTree = "<group>"; };
 		A8D77CFF1F2CB7E300742404 /* libicucore.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libicucore.tbd; path = usr/lib/libicucore.tbd; sourceTree = SDKROOT; };
-		A8D77D031F2CBAED00742404 /* AMapSearchKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AMapSearchKit.framework; sourceTree = "<group>"; };
 		A8D77D041F2CBAED00742404 /* ChatCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatCell.h; sourceTree = "<group>"; };
 		A8D77D051F2CBAED00742404 /* ChatCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatCell.m; sourceTree = "<group>"; };
 		A8D77D061F2CBAED00742404 /* ChatsViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatsViewCell.h; sourceTree = "<group>"; };
 		A8D77D071F2CBAED00742404 /* ChatsViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatsViewCell.m; sourceTree = "<group>"; };
 		A8D77D081F2CBAED00742404 /* ChatViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatViewController.h; sourceTree = "<group>"; };
 		A8D77D091F2CBAED00742404 /* ChatViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChatViewController.m; sourceTree = "<group>"; };
-		A8D77D0A1F2CBAED00742404 /* CustomAnnotationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomAnnotationView.h; sourceTree = "<group>"; };
-		A8D77D0B1F2CBAED00742404 /* CustomAnnotationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomAnnotationView.m; sourceTree = "<group>"; };
 		A8D77D0C1F2CBAED00742404 /* CustomCalloutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomCalloutView.h; sourceTree = "<group>"; };
 		A8D77D0D1F2CBAED00742404 /* CustomCalloutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomCalloutView.m; sourceTree = "<group>"; };
 		A8D77D0E1F2CBAED00742404 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
@@ -160,9 +152,6 @@
 		A8D77D151F2CBAED00742404 /* left_bubble@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "left_bubble@2x.png"; sourceTree = "<group>"; };
 		A8D77D161F2CBAED00742404 /* LVRecordTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LVRecordTool.h; sourceTree = "<group>"; };
 		A8D77D171F2CBAED00742404 /* LVRecordTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LVRecordTool.m; sourceTree = "<group>"; };
-		A8D77D181F2CBAED00742404 /* MAMapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = MAMapKit.framework; sourceTree = "<group>"; };
-		A8D77D191F2CBAED00742404 /* MapLocationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapLocationViewController.h; sourceTree = "<group>"; };
-		A8D77D1A1F2CBAED00742404 /* MapLocationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapLocationViewController.m; sourceTree = "<group>"; };
 		A8D77D1B1F2CBAED00742404 /* MessageModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageModel.h; sourceTree = "<group>"; };
 		A8D77D1C1F2CBAED00742404 /* MessageModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MessageModel.m; sourceTree = "<group>"; };
 		A8D77D1D1F2CBAED00742404 /* Model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Model.h; sourceTree = "<group>"; };
@@ -220,7 +209,6 @@
 		A8D77D871F2CBB0A00742404 /* grayArrow@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "grayArrow@2x.png"; sourceTree = "<group>"; };
 		A8D77D881F2CBB0A00742404 /* whiteArrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = whiteArrow.png; sourceTree = "<group>"; };
 		A8D77D891F2CBB0A00742404 /* whiteArrow@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "whiteArrow@2x.png"; sourceTree = "<group>"; };
-		A8D77D931F2CBD6400742404 /* libstdc++.6.0.9.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libstdc++.6.0.9.tbd"; path = "usr/lib/libstdc++.6.0.9.tbd"; sourceTree = SDKROOT; };
 		A8D77D951F2CBD7500742404 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		A8D77D971F2CBD7F00742404 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		A8D77D991F2CBF0200742404 /* libmp3lame.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmp3lame.a; sourceTree = "<group>"; };
@@ -234,11 +222,8 @@
 			files = (
 				A8D77D981F2CBD7F00742404 /* libz.tbd in Frameworks */,
 				A8D77D961F2CBD7500742404 /* libc++.tbd in Frameworks */,
-				A8D77D941F2CBD6400742404 /* libstdc++.6.0.9.tbd in Frameworks */,
-				A8D77D561F2CBAED00742404 /* MAMapKit.framework in Frameworks */,
 				A8D77D001F2CB7E300742404 /* libicucore.tbd in Frameworks */,
 				A8D77D9A1F2CBF0200742404 /* libmp3lame.a in Frameworks */,
-				A8D77D4C1F2CBAED00742404 /* AMapSearchKit.framework in Frameworks */,
 				A880D5BA1D3B53D80007C89C /* libAPIConnection-simulator.a in Frameworks */,
 				DEA2E9D3DD83663D04575438 /* libPods-ixcode.a in Frameworks */,
 				A880D5BC1D3B53DD0007C89C /* libAPIConnection.a in Frameworks */,
@@ -343,7 +328,6 @@
 			children = (
 				A8D77D971F2CBD7F00742404 /* libz.tbd */,
 				A8D77D951F2CBD7500742404 /* libc++.tbd */,
-				A8D77D931F2CBD6400742404 /* libstdc++.6.0.9.tbd */,
 				A8D77D7C1F2CBB0A00742404 /* EGOTableViewPullRefresh */,
 				A8D77D021F2CBAED00742404 /* chat */,
 			);
@@ -353,15 +337,12 @@
 		A8D77D021F2CBAED00742404 /* chat */ = {
 			isa = PBXGroup;
 			children = (
-				A8D77D031F2CBAED00742404 /* AMapSearchKit.framework */,
 				A8D77D041F2CBAED00742404 /* ChatCell.h */,
 				A8D77D051F2CBAED00742404 /* ChatCell.m */,
 				A8D77D061F2CBAED00742404 /* ChatsViewCell.h */,
 				A8D77D071F2CBAED00742404 /* ChatsViewCell.m */,
 				A8D77D081F2CBAED00742404 /* ChatViewController.h */,
 				A8D77D091F2CBAED00742404 /* ChatViewController.m */,
-				A8D77D0A1F2CBAED00742404 /* CustomAnnotationView.h */,
-				A8D77D0B1F2CBAED00742404 /* CustomAnnotationView.m */,
 				A8D77D0C1F2CBAED00742404 /* CustomCalloutView.h */,
 				A8D77D0D1F2CBAED00742404 /* CustomCalloutView.m */,
 				A8D77D0E1F2CBAED00742404 /* icon.png */,
@@ -371,9 +352,6 @@
 				A8D77D151F2CBAED00742404 /* left_bubble@2x.png */,
 				A8D77D161F2CBAED00742404 /* LVRecordTool.h */,
 				A8D77D171F2CBAED00742404 /* LVRecordTool.m */,
-				A8D77D181F2CBAED00742404 /* MAMapKit.framework */,
-				A8D77D191F2CBAED00742404 /* MapLocationViewController.h */,
-				A8D77D1A1F2CBAED00742404 /* MapLocationViewController.m */,
 				A8D77D1B1F2CBAED00742404 /* MessageModel.h */,
 				A8D77D1C1F2CBAED00742404 /* MessageModel.m */,
 				A8D77D1D1F2CBAED00742404 /* Model.h */,
@@ -384,7 +362,6 @@
 				A8D77D221F2CBAED00742404 /* RequestPostUploadHelper.m */,
 				A8D77D231F2CBAED00742404 /* resource */,
 				A8D77D3D1F2CBAED00742404 /* right_bubble@2x.png */,
-				A8D77D3E1F2CBAED00742404 /* SDWebImage */,
 				A8D77D3F1F2CBAED00742404 /* ShowChatImageView.h */,
 				A8D77D401F2CBAED00742404 /* ShowChatImageView.m */,
 				A8D77D411F2CBAED00742404 /* SmallVideoView.h */,
@@ -457,13 +434,6 @@
 				A8D77D3C1F2CBAED00742404 /* video.png */,
 			);
 			path = resource;
-			sourceTree = "<group>";
-		};
-		A8D77D3E1F2CBAED00742404 /* SDWebImage */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = SDWebImage;
 			sourceTree = "<group>";
 		};
 		A8D77D7C1F2CBB0A00742404 /* EGOTableViewPullRefresh */ = {
@@ -768,7 +738,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A8D77D501F2CBAED00742404 /* CustomAnnotationView.m in Sources */,
 				A880D5C41D3B583B0007C89C /* ViewController.m in Sources */,
 				A8D77D5A1F2CBAED00742404 /* MoneyViewController.m in Sources */,
 				A8D77D4E1F2CBAED00742404 /* ChatsViewCell.m in Sources */,
@@ -791,7 +760,6 @@
 				A8D77D771F2CBAED00742404 /* TexstModel.m in Sources */,
 				A880D5D71D3B5B000007C89C /* MBProgressHUD+ND.m in Sources */,
 				A82C42101D3996E50013974E /* HttpTool.m in Sources */,
-				A8D77D571F2CBAED00742404 /* MapLocationViewController.m in Sources */,
 				A8D77D5B1F2CBAED00742404 /* RequestPostUploadHelper.m in Sources */,
 				A880D5D01D3B5A1C0007C89C /* DDBMNavBarViewController.m in Sources */,
 				063BA3B91B97305C009CD509 /* AppDelegate.m in Sources */,
