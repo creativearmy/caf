@@ -1,5 +1,5 @@
 #import "DDBMBaseViewController.h"
-//#import "UIImageView+WebCache.h"
+#import "AppDelegate.h"
 //#import "SFTAppInfo.h"
 typedef void (^btnAction)(void);
 
@@ -42,7 +42,7 @@ typedef void (^btnAction)(void);
 }
 
 - (void)viewDidUnload {
-    [globalConnremoveObserver:self name:@"wcuser_oporator_notification" object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"wcuser_oporator_notification" object:nil];
 }
 
 

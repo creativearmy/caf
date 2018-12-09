@@ -6,7 +6,7 @@
 
 #import "MBProgressHUD+ND.h"
 
-#define WSURL @"ws://112.124.70.60:51727/demo"
+#define WSURL @"ws://47.92.169.34:51700/demo"
 
 // singleton global Creativearmy App Framework SDK obj
 APIConnection *globalConn;
