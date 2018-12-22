@@ -1,3 +1,8 @@
+
+// import util from "utils/util.js"
+// util.cb["a/b"] = function () {};
+// util.apiconn.send_obj({"obj":"a","act":"b",...});
+
 import apimod from "APIConnectionWX.min.js";
 
 var apiconn = new apimod.APIConnection();
@@ -38,5 +43,9 @@ function login_at_launch() {
   });
 }
 
-// cb["a/b"] = function () {};
-// apiconn.send_obj({"obj":"a","act":"b",...});
+module.exports = {
+  login_at_launch: login_at_launch,
+  cb: cb,
+  apiconn: apiconn
+};
+
