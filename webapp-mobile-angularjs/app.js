@@ -77,6 +77,11 @@ apiconn.state_changed_handler = function() {
 				var cred_obj = null;
 				if (cred !== "") cred_obj = JSON.parse(cred);
 	
+				// reset stored cred to prevent infinite loop in case of failure
+				sessionStorage.setItem("login_name", "");
+				sessionStorage.setItem("login_passwd", "");
+				sessionStorage.setItem("credential_data", "");
+	
 				if (login_name != "" && login_name != null) {
 					apiconn.login(login_name, login_passwd);
 	
