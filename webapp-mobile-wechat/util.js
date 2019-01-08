@@ -6,7 +6,7 @@
 import apimod from "APIConnectionWX.min.js";
 
 var apiconn = new apimod.APIConnection();
-apiconn.wsUri = "wss://wahalife.cn/waha_ga";
+apiconn.wsUri = "wss://abc-corp.cn/abc_ga";
 
 apiconn.state_changed_handler = function() {
 };
@@ -34,10 +34,22 @@ apiconn.response_received_handler = function(jo) {
   }
 };
 
-function login_at_launch() {
+// app.js -----
+//App({
+//  onShow: function() {
+//	  utils.login_on_app_show();
+//  }
+//});
+// ws connection will be destroyed after onHide for 5s
+// login in again when app is back onShow
+function login_on_app_show() {
+  if (apiconn.websocket != null) return;
   wx.login({
     success: res => {
 	  apiconn.user_data.wxcode = res.code;
+	  apiconn.conn_state = "LOGIN_SCREEN_SHOWN";
+	  apiconn.from_state = "LOGIN_SCREEN_SHOWN";
+	  apiconn.target_state = "SERVERINFO_REQ";
 	  apiconn.connect();
 	}
   });
