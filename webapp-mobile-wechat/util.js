@@ -36,8 +36,15 @@ apiconn.response_received_handler = function(jo) {
 
 // app.js -----
 //App({
+//  // onShow, create a new websocket connection
+//  // old connection will be destroyed in onConnectionError
 //  onShow: function() {
 //	  utils.login_on_app_show();
+//  },
+//  // onHide to destroy the websocket connection explicitly, it is necessary for
+//  // iOS WeChat, otherwise, the connection will have problem
+//  onHide: function() {
+//    utils.apiconn.reset_websocket_conn();
 //  }
 //});
 // ws connection will be destroyed after onHide for 5s
