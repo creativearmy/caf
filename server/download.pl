@@ -22,13 +22,41 @@ $DOWNLOAD_ROOT = $DOWNLOAD_ROOT."/$proj" if $proj;
 my $content = read_from_file("$DOWNLOAD_ROOT/$fid");
 my $mime = mimetype("$DOWNLOAD_ROOT/$fid");
 
+my $length = -s "$DOWNLOAD_ROOT/$fid";
+
+# not Range!
+my $range = $ENV{'HTTP_RANGE'};
+
+if ($range =~ /^bytes=(\d+)-(\d+)$/) {
+    $content = substr($content, $1, $2-$1+1);
+    if ($1 != 0 || $2 != ($length-1)) {
+        print "Status: 206 Partial Content\r\n";
+    }
+    print "Content-Range: bytes $1-$2/$length\r\n";
+    print "Content-Length: ".length($content)."\r\n";
+    
+} elsif ($range =~ /^bytes=(\d+)-$/) {
+    $content = substr($content, $1);
+    my $to = $length-1;
+    if ($1 != 0) {
+        print "Status: 206 Partial Content\r\n";
+    }
+    print "Content-Range: bytes $1-$to/$length\r\n";
+    print "Content-Length: ".length($content)."\r\n";
+    
+} else {
+    print "Content-Length: $length\r\n";
+}
+
 my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = stat("$DOWNLOAD_ROOT/$fid");
 my $last = scalar(gmtime($mtime));
 print "Last-Modified: $last\r\n";
 
-my $length = -s "$DOWNLOAD_ROOT/$fid";
-print "Content-Length: $length\r\n";
+print "Accept-Ranges: bytes\r\n";
 print "Content-Type: $mime\r\n\r\n";
+
+
+
 print $content;
 
 sub read_from_file {
@@ -37,4 +65,13 @@ sub read_from_file {
 	my $c = <FILE>;
 	close FILE;
 	return $c;
+}
+
+sub print_to_file {
+    
+    # TO DEBUG, print_to_file("/tmp/download.log", $x);
+
+   	open FILE, ">>$_[0]";
+    print FILE $_[1];
+    close FILE;
 }
