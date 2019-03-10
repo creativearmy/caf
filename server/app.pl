@@ -576,8 +576,8 @@ sub message_common_send {
 	    $mailbox->{ut} = time;
 	    $mailbox->{messages}->{$header_id}->{htype}  = $header->{type}; # conversation type
 	    $mailbox->{messages}->{$header_id}->{hid}	 = $header->{_id};
-	    $mailbox->{messages}->{$header_id}->{ut} 	= time;
-	    $mailbox->{messages}->{$header_id}->{count} ++;
+	    $mailbox->{messages}->{$header_id}->{ut} 	 = time;
+	    $mailbox->{messages}->{$header_id}->{count} ++ if $p ne $gs->{pid};
 	    $mailbox->{messages}->{$header_id}->{block}  = $header->{block_id};
 	    
 	    # Generate label to display on their message center.
@@ -1443,7 +1443,7 @@ user mailbox, message center, in coming and out going message list
             hid: same as id1
             ut: unix time, last update time
             vt: unix time, last visit time
-            count: new message count under id1
+            count: unread new message count under id1
             block: block_record ID for id1
             title: title, subject, group name or private chat party name
 			
