@@ -49,6 +49,7 @@ if (-s $request_str) {
     my $c = <REQFILE>;
     close REQFILE;
     print Log $c."\n";
+	$c = Encode::decode("utf8", $c);
     @request_strs = split /\n/, $c;
     
     # proj or ws... string
