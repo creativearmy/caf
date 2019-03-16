@@ -1,7 +1,16 @@
 #!/opt/perl/bin/perl
 
 # usage: callWS.pl '{"proj":"xxx","obj":"objA","act":"actA", ..., json-string }'
+#
+# usage: callWS.pl Your/script/file/name
 
+# ---- script file spec begin ---------------------         
+# proj or ws... string
+# {"obj":"objA1","act":"actA1", ..., json-string }
+# {"obj":"objA2","act":"actA2", ..., json-string }
+# ...
+# ---- script file spec end   ---------------------
+#
 use Mojo::UserAgent;
 use JSON;
 use utf8;
@@ -21,22 +30,43 @@ $json = JSON->new;
 # project WS server for development and production
 $WS_URLS = {
 	xxx => "ws://1.2.3.4:51717/xxx",
-	xxx_ga => "ws://1.2.3.4:80/xxx_ga"
+	xxx_ga => "ws://1.2.3.4:80/xxx_ga",
 };
 
-my ($RSP) = @ARGV;
+my ($request_str) = @ARGV;
 
 open Log,">>/tmp/callWS.log";
-print Log $RSP."\n";
+print Log "[".localtime()."] ".$request_str."\n";
 
-$RSP = Encode::decode("utf8", $RSP);
-#print Log "decode_utf8: ".$RSP."\n";
+my @request_strs; # support multiple request, with login session
+my $sess = ""; # keep track of sess in response from server
 
-my $rsp_json = $json->decode($RSP);
-$WS_SERVER = $WS_URLS->{$rsp_json->{proj}};
+$WS_SERVER = "";
 
-print Log Dumper($rsp_json)."\n";
+if (-s $request_str) {
+    local $/;
+    open REQFILE, $request_str;
+    my $c = <REQFILE>;
+    close REQFILE;
+    print Log $c."\n";
+    @request_strs = split /\n/, $c;
+    
+    # proj or ws... string
+    $WS_SERVER = shift @request_strs;
+    $WS_SERVER = $WS_URLS->{$WS_SERVER} unless ($WS_SERVER =~ /^ws/);
+    
+} else {
+    @request_strs = ($request_str);
+    $request_str = Encode::decode("utf8", $request_str);
+    #print Log "decode_utf8: ".$RSP."\n";
+    my $request_json = $json->decode($request_str);
+    $WS_SERVER = $WS_URLS->{$request_json->{proj}};
+}
 close Log;
+
+die "WS_SERVER or REQ invalid" unless $WS_SERVER && scalar(@request_strs);
+
+#############################################################################################
 
 my $ua = Mojo::UserAgent->new;
 $resp_len = 0;
@@ -78,10 +108,20 @@ $ua->websocket($WS_SERVER => sub {
         chomp $resp_buf;
         if ($resp_buf =~ /^\{/s && $resp_buf =~ /\}$/s) {
         
-            # response handling here
+            # response handling here, extract sess
             print $resp_buf."\n";
+            my $resp_obj = $json->decode($resp_buf);
             
-		    exit;
+            $sess = $resp_obj->{sess};
+            
+            my $req = shift @request_strs;
+		    exit unless $req;;
+		    
+            # inject sess into request
+            my $req_obj = $json->decode($req);
+            $req_obj->{sess} = $sess;
+            $req = $json->encode($req_obj);
+		    $tx->send($req."\n");
 		    
         } else {
             die "Fatal, illformed json string!!\n\n";
@@ -89,7 +129,13 @@ $ua->websocket($WS_SERVER => sub {
     });
     
     $resp_len = 0;
-    $tx->send($RSP."\n")
+    my $req = shift @request_strs;
+    
+    # inject sess into request
+    my $req_obj = $json->decode($req);
+    $req_obj->{sess} = $sess;
+    $req = $json->encode($req_obj);
+    $tx->send($req."\n");
 });
 
 Mojo::IOLoop->start unless Mojo::IOLoop->is_running;
