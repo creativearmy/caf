@@ -1370,6 +1370,10 @@ sub load_configuration {
     $DISABLE_ERRLOG = 0;
     $ASSOCIATE_UNLOCKED = 1;
     
+    # disable capabilies
+    $DISABLE_WEBRTC = 0;
+    $DISABLE_PROTOTYPE_TOOL = 0;
+    
     # Universal password for testing and development.
     # Comment this line for production server.
     $UNIVERSAL_PASSWD = bytecode_bypass_passwd_encrypt("1");
