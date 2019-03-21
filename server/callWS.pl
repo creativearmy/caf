@@ -3,9 +3,9 @@
 # usage: callWS.pl '{"proj":"xxx","obj":"objA","act":"actA", ..., json-string }'
 #
 # usage: callWS.pl Your/script/file/name
-
+#
 # ---- script file spec begin ---------------------         
-# proj or ws... string
+# [proj or ws... string] [pretty]
 # {"obj":"objA1","act":"actA1", ..., json-string }
 # {"obj":"objA2","act":"actA2", ..., json-string }
 # ...
@@ -26,6 +26,7 @@ binmode(STDERR, ':encoding(utf8)');
 $| = 1;
 
 $json = JSON->new;
+$json_pretty = JSON->new->pretty;
 
 # project WS server for development and production
 $WS_URLS = {
@@ -42,6 +43,7 @@ my @request_strs; # support multiple request, with login session
 my $sess = ""; # keep track of sess in response from server
 
 $WS_SERVER = "";
+$PRETTY = 0; # pretty output instead of one line per output response
 
 if (-s $request_str) {
     local $/;
@@ -53,8 +55,15 @@ if (-s $request_str) {
     @request_strs = split /\n/, $c;
     
     # proj or ws... string
-    $WS_SERVER = shift @request_strs;
-    $WS_SERVER = $WS_URLS->{$WS_SERVER} unless ($WS_SERVER =~ /^ws/);
+    my @tokens = split /\s+/, (shift @request_strs);
+	while (my $t = shift @tokens) {
+    	if ($t eq "pretty") {
+			$PRETTY = 1;
+			next;
+		}
+		$WS_SERVER = $t;	
+		$WS_SERVER = $WS_URLS->{$t} unless ($t =~ /^ws/);
+	}
     
 } else {
     @request_strs = ($request_str);
@@ -110,9 +119,11 @@ $ua->websocket($WS_SERVER => sub {
         if ($resp_buf =~ /^\{/s && $resp_buf =~ /\}$/s) {
         
             # response handling here, extract sess
-            print $resp_buf."\n";
+            print $resp_buf."\n" unless $PRETTY;
+
             my $resp_obj = $json->decode($resp_buf);
-            
+			print $json_pretty->encode($resp_obj)."\n" if $PRETTY;
+
             $sess = $resp_obj->{sess};
             
             my $req = shift @request_strs;
@@ -121,11 +132,12 @@ $ua->websocket($WS_SERVER => sub {
             # inject sess into request
             my $req_obj = $json->decode($req);
             $req_obj->{sess} = $sess;
+			die "\nFatal, illformed json request!! $req\n\n" unless $req_obj->{obj} && $req_obj->{act};
             $req = $json->encode($req_obj);
 		    $tx->send($req."\n");
 		    
         } else {
-            die "Fatal, illformed json string!!\n\n";
+            die "\nFatal, illformed json response!! $resp_buf\n\n";
         }
     });
     
