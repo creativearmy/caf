@@ -1353,6 +1353,7 @@ sub load_configuration {
     $MONGODB_SERVER = "MONGODBSERVER";
     $MONGODB_USER = "MONGODBUSER";
     $MONGODB_PASSWD = "MONGODBPASSWD";
+    $AGENT_PASSWD = "AGENTPASSWD";
 
     %VALID_TYPES = map {$_=>1} (keys %VALID_TYPES, qw(business person test));
     
