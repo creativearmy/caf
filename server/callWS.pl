@@ -45,6 +45,7 @@ my $sess = ""; # keep track of sess in response from server
 $WS_SERVER = "";
 $PRETTY = 0; # pretty output instead of one line per output response
 
+# request is a file of command script
 if (-s $request_str) {
     local $/;
     open REQFILE, $request_str;
@@ -65,6 +66,26 @@ if (-s $request_str) {
 		$WS_SERVER = $WS_URLS->{$t} unless ($t =~ /^ws/);
 	}
     
+# piped input of command script, just like above
+} elsif (!$request_str) {
+    local $/;
+    my $c = <STDIN>;
+    print Log $c."\n";
+    $c = Encode::decode("utf8", $c);
+    @request_strs = split /\n/, $c;
+
+    # proj or ws... string
+    my @tokens = split /\s+/, (shift @request_strs);
+    while (my $t = shift @tokens) {
+        if ($t eq "pretty") {
+            $PRETTY = 1;
+            next;
+        }
+        $WS_SERVER = $t;
+        $WS_SERVER = $WS_URLS->{$t} unless ($t =~ /^ws/);
+    }
+	
+# request is a json string, specify proj in one of the field
 } else {
     @request_strs = ($request_str);
     $request_str = Encode::decode("utf8", $request_str);
@@ -72,6 +93,7 @@ if (-s $request_str) {
     my $request_json = $json->decode($request_str);
     $WS_SERVER = $WS_URLS->{$request_json->{proj}};
 }
+
 close Log;
 
 die "WS_SERVER or REQ invalid" unless $WS_SERVER && scalar(@request_strs);
