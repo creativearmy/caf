@@ -1375,6 +1375,9 @@ sub load_configuration {
     $DISABLE_WEBRTC = 0;
     $DISABLE_PROTOTYPE_TOOL = 0;
     
+    # key required to unlock proto
+    # $PROTO_UNLOCK_KEY = "";
+    
     # Universal password for testing and development.
     # Comment this line for production server.
     $UNIVERSAL_PASSWD = bytecode_bypass_passwd_encrypt("1");
