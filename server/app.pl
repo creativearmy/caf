@@ -969,6 +969,18 @@ sub add_new_message_entry{
 #                  TEST API, TEST VARIOUS SYSTEM CAPABILITIES                  #
 #                                                                              #
 ################################################################################
+$p_test_echo = <<EOF;
+Test server API call
+INPUT:
+	data: // string to be echoed back
+OUTPUT
+	echo: // data echoed back
+EOF
+
+sub p_test_echo {
+	return jr({echo => $gr->{data}});
+}
+ 
 $p_test_geo = <<EOF;
 MongoDB geo location LBS algorithm test
 
