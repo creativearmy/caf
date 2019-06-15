@@ -27,7 +27,9 @@ dependencies:
   shared_preferences: ^0.4.3
   web_socket_channel: "^1.0.8"
   creativearmy:
-    path: /xxxx/flutter
+    git:
+      url: https://github.com/creativearmy/caf.git
+      path: flutter_lib
 
 dev_dependencies:
   flutter_test:
