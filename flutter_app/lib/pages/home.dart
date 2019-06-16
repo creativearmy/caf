@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:creativearmy/creativearmy.dart';
 
+import 'chat.dart';
+
 class HomePage extends StatefulWidget {
   @override
   HomePageState createState() => new HomePageState();
@@ -36,7 +38,7 @@ class HomePageState extends State<HomePage> with APIConnectionListener {
 
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text('CAF Flutter Demo'),
+        title: new Text('CAF Flutter Demo Home Page'),
       ),
 
       body: new Center(
@@ -71,6 +73,33 @@ class HomePageState extends State<HomePage> with APIConnectionListener {
                   children: [
                     new Text(
                       'Test Echo',
+                      textAlign: TextAlign.center,
+                      style: new TextStyle(
+                        fontSize: 16.0,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            new RaisedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChatPage()),
+                );
+              },
+              color: Colors.white,
+              child: new Container(
+                width: 230.0,
+                height: 50.0,
+                alignment: Alignment.center,
+                child: new Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    new Text(
+                      'Group Chat Demo',
                       textAlign: TextAlign.center,
                       style: new TextStyle(
                         fontSize: 16.0,

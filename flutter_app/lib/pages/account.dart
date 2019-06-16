@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:creativearmy/creativearmy.dart';
 
 import 'home.dart';
-import 'chat.dart';
+
 class AccountPage extends StatefulWidget {
   @override
   AccountPageState createState() {
@@ -18,7 +18,7 @@ class AccountPageState extends State<AccountPage> with APIConnectionListener {
       APIConnection.inst.clog("AccountPageState goto HomePage");
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => ChatPage()),
+        MaterialPageRoute(builder: (context) => HomePage()),
       );
     }
   }
@@ -86,7 +86,7 @@ class AccountPageState extends State<AccountPage> with APIConnectionListener {
 
     return new Scaffold(
         appBar: new AppBar(
-        title: new Text('CAF Flutter Demo'),
+        title: new Text('CAF Flutter Demo Login'),
       ),
 
       body: new Center(
