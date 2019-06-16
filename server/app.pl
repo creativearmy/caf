@@ -34,6 +34,7 @@ $DEFAULT_IMAGE = "f14686539620564930448001";
 
 # make a copy of image with script
 unless (-s $FILE_ROOT."/".$DEFAULT_IMAGE) {
+	system("mkdir -p $FILE_ROOT");
     system("cp $SCRIPT_ROOT/default.jpg $FILE_ROOT/$DEFAULT_IMAGE");
 }
     
