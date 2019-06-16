@@ -432,6 +432,52 @@ sub p_message_chat_send {
 	});
 }
 
+$p_group_join =<<EOF;
+join a group, for demo, join the first group if unspecified, and create it if necessary
+
+INPUT:
+    header_id":"o14489513231729540824"   // group record id
+	
+OUTPUT:
+    header_id: "o14489513231729540824",      // group record id
+    
+EOF
+
+
+sub p_group_join {
+    return jr() unless assert($gs->{pid}, "login first", "ERR_LOGIN", "Login first");
+    
+   	my $header;
+   	
+   	# ignore non-existent obj id, do not trigger assertion failure
+   	$header = obj_read("group", $gr->{header_id}, 1) if $gr->{header_id};
+   	
+   	# find the first group in the database
+   	if(!$header) {
+        my @objs = mdb()->get_collection("group")->find({}, { _id => 1 })->limit(1)->all();
+        $header = $objs[0] if scalar(@objs);
+    }
+    
+    # otherwise, create the first group
+    if(!$header) {
+
+        $header->{_id} = obj_id();
+        $header->{type} = "group";
+        # easier to manipulate membershipt with {} instead of []
+        $header->{members} = {};
+        $header->{block_id} = 0;
+    }
+    
+    if (!$header->{members}->{$gs->{pid}}) {
+        $header->{members}->{$gs->{pid}} = 1;
+        obj_write($header);
+    }
+    
+    return jr({ 
+		header_id => $header->{_id},
+	});
+}
+
 $p_message_group_send =<<EOF;
 group message send. Client calls this api to send a message to a group
 
@@ -457,21 +503,10 @@ sub p_message_group_send {
 
     return jr() unless assert($gs->{pid}, "login first", "ERR_LOGIN", "Login first");
 	
-    return jr() unless assert($gr->{header_id}, "header_id is missing", "ERR_TO_ID", "Group id is not specified.");
+    return jr() unless assert($gr->{header_id}, "header_id is missing", "ERR_GROUP_ID", "Group id is not specified.");
     
    	my $header = obj_read("group", $gr->{header_id});
-    
-    if(!$header) {
-
-        $header->{_id} = obj_id();
-        $header->{type} = "group";
-        $header->{members} = [];
-        $header->{block_id} = 0;
-
-        obj_write($header);
-    }
-    	
-    my $header = obj_read("group", $header->{_id});
+    return jr() unless assert($header, "header_id is not valid", "ERR_GROUP_ID", "Group id is not valid.");
 	
 	my @other_parties = @{$header->{members}};
 	
