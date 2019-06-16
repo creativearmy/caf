@@ -30,6 +30,9 @@ dependencies:
     git:
       url: https://github.com/creativearmy/caf.git
       path: flutter_lib
+  #  path: ../flutter_lib
+
+  image_picker: any
 
 dev_dependencies:
   flutter_test:

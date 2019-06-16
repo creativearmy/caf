@@ -613,8 +613,8 @@ class APIConnectionImpl implements APIConnection {
     if (cmd == null) return false;
 
     // inject the sess information if not present
-    if (cmd.s("sess") != "") cmd["sess"] = sess;
-    if (cmd.s("io") != "") cmd["io"] = "i";
+    if (cmd.s("sess") == "") cmd["sess"] = sess;
+    if (cmd.s("io") == "") cmd["io"] = "i";
 
     if (user_pref.s("perf_enabled") == "true") {
       cmd["perf"] = 1;

@@ -12,6 +12,11 @@ use Net::APNS::Persistent;
 #                                                                              #
 ################################################################################
 
+# these are normally where they are, script like this script, and file 
+# is where cgi upload files to/download files from.
+$SCRIPT_ROOT = "/var/www/games/app/".lc(__PACKAGE__);
+$FILE_ROOT = "/var/www/games/files/".lc(__PACKAGE__);
+
 # http post form submissiong, for image and file upload, client app shall include "proj" field
 # the value of project code normally is included in the server_info hash
 $UPLOAD_SERVERS="http://112.124.70.60/cgi-bin/upload.pl";
@@ -25,7 +30,12 @@ $DOWN_SERVERS="http://112.124.70.60/cgi-bin/download.pl?proj=".lc(__PACKAGE__)."
 
 # fid for image where image is required but not provided by clients
 # After image file is uploaded, a fid is returned. Client use fid where is required.
-$DEFAULT_IMAGE = "f14686539620564930438001";
+$DEFAULT_IMAGE = "f14686539620564930448001";
+
+# make a copy of image with script
+unless (-s $FILE_ROOT."/".$DEFAULT_IMAGE) {
+    system("cp $SCRIPT_ROOT/default.jpg $FILE_ROOT/$DEFAULT_IMAGE");
+}
     
 sub server_info {
     
@@ -38,6 +48,8 @@ sub server_info {
         # file upload and download server address        
         upload_to => $UPLOAD_SERVERS,
         download_path => $DOWN_SERVERS,
+        
+        default_image_fid => $DEFAULT_IMAGE,
         
         # App store or downloadable app version number. Client compares these version with
         # their own version to decide whether to prompt the user to update or not.
@@ -466,6 +478,8 @@ sub p_group_join {
         # easier to manipulate membershipt with {} instead of []
         $header->{members} = {};
         $header->{block_id} = 0;
+        
+        obj_write($header);
     }
     
     if (!$header->{members}->{$gs->{pid}}) {
@@ -508,7 +522,7 @@ sub p_message_group_send {
    	my $header = obj_read("group", $gr->{header_id});
     return jr() unless assert($header, "header_id is not valid", "ERR_GROUP_ID", "Group id is not valid.");
 	
-	my @other_parties = @{$header->{members}};
+	my @other_parties = keys %{$header->{members}};
 	
 	my $rt = message_common_send($header, @other_parties);
 	return $rt if ($rt);
