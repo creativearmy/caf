@@ -1,9 +1,12 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:creativearmy/creativearmy.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
+import 'package:image_picker/image_picker.dart';
+
+import 'package:creativearmy/creativearmy.dart';
 
 class ChatPage extends StatefulWidget {
   @override
@@ -27,8 +30,9 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
   void response_received(JSONObject jo) {
 
     if (jo.s("obj") == "push" && jo.s("act") == "message_group") {
-      messages.data.insert(0, jo.data);
-      setState((){});
+      messages.data.add(jo.data);
+      //setState((){}); notify AnimiatedList through listKey instead of setState
+      listKey.currentState.insertItem(messages.data.length-1);
     }
 
     if (jo.s("obj") == "group" && jo.s("act") == "join") {
@@ -97,7 +101,6 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
                 child: new AnimatedList(
                   key: listKey,
                   padding: const EdgeInsets.all(8.0),
-                  reverse: true,
                   initialItemCount: messages.data.length,
                   itemBuilder: (context, index, animation) {
                     return new ChatMessageListItem(
@@ -111,7 +114,7 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
               new Container(
                 decoration:
                 new BoxDecoration(color: Theme.of(context).cardColor),
-                child: _buildTextComposer(),
+                child: _buildTextComposer(context),
               ),
               new Builder(builder: (BuildContext context) {
                 return new Container(width: 0.0, height: 0.0);
@@ -146,7 +149,7 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
     );
   }
 
-  Widget _buildTextComposer() {
+  Widget _buildTextComposer(BuildContext context) {
     return new IconTheme(
         data: new IconThemeData(
           color: _isComposingMessage
@@ -175,23 +178,23 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
 
                       request.fields['proj'] = APIConnection.inst.server_info.s("proj");
 
-                      request.files.add(new http.MultipartFile.fromBytes('local_file', bytes));
+                      // filename is required!
+                      request.files.add(new http.MultipartFile.fromBytes('local_file', bytes, filename: basename(imageFile.path)));
 
                       // StreamedResponse
                       request.send().then((response) {
 
                         if (response.statusCode == 200) {
 
-                          // ByteStream
-                          response.stream.bytesToString().then((String s) {
+                          // ByteStream listen for response
+                          response.stream.transform(utf8.decoder).listen((value) {
 
-                            JSONObject jo = JSONObject.parse(s);
+                            JSONObject jo = JSONObject.parse(value);
 
-                            print("chat.dart upload return: $s");
+                            print("chat.dart upload return: $value");
 
                             // send chat image
                             _sendMessageImage(jo.s("fid"), jo.s("thumb"));
-
                           });
 
                         } else {
@@ -359,7 +362,7 @@ class ChatMessageListItem extends StatelessWidget {
               child: message.s("mtype") == "image" ?
               new Image.network(
                 APIConnection.inst.server_info.s("download_path")
-                    + message.s("content"),
+                    + message.o("content").s("thumb"),
                 width: 250.0,
               ) : new Text(message.s("content")),
             ),

@@ -11,8 +11,8 @@ abstract class JSONObject {
   /// parse JSON string to JSONObject
   static JSONObject parse(String json) {
     JSONObject jo = new JSONObjectImpl();
-    jo["data"] = jsonDecode(json);
-    if (jo["data"] == null) jo["data"] = new Map<String, dynamic>();
+    jo.data = jsonDecode(json);
+    if (jo.data == null) jo.data = new Map<String, dynamic>();
     return jo;
   }
 
