@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:creativearmy/creativearmy.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 
 class ChatPage extends StatefulWidget {
   @override
@@ -156,6 +157,7 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
           margin: const EdgeInsets.symmetric(horizontal: 8.0),
           child: new Row(
             children: <Widget>[
+
               new Container(
                 margin: new EdgeInsets.symmetric(horizontal: 4.0),
                 child: new IconButton(
@@ -164,10 +166,42 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
                       color: Theme.of(context).accentColor,
                     ),
                     onPressed: () async {
-                      File imageFile = await ImagePicker.pickImage();
-                      // TODO
+
+                      File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery); //ImageSource.camera
+                      List<int> bytes = await imageFile.readAsBytes();
+
+                      var request = new http.MultipartRequest("POST",
+                          Uri.parse(APIConnection.inst.server_info.s("upload_to")));
+
+                      request.fields['proj'] = APIConnection.inst.server_info.s("proj");
+
+                      request.files.add(new http.MultipartFile.fromBytes('local_file', bytes));
+
+                      // StreamedResponse
+                      request.send().then((response) {
+
+                        if (response.statusCode == 200) {
+
+                          // ByteStream
+                          response.stream.bytesToString().then((String s) {
+
+                            JSONObject jo = JSONObject.parse(s);
+
+                            print("chat.dart upload return: $s");
+
+                            // send chat image
+                            _sendMessageImage(jo.s("fid"), jo.s("thumb"));
+
+                          });
+
+                        } else {
+                          print("chat.dart upload error: " + response.statusCode.toString());
+                        }
+
+                      });
                     }),
               ),
+
               new Flexible(
                 child: new TextField(
                   controller: _textEditingController,
@@ -181,6 +215,7 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
                   new InputDecoration.collapsed(hintText: "Message text"),
                 ),
               ),
+
               new Container(
                 margin: const EdgeInsets.symmetric(horizontal: 4.0),
                 child: Theme.of(context).platform == TargetPlatform.iOS
@@ -199,10 +234,10 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
       _isComposingMessage = false;
     });
 
-    _sendMessage(messageText: text, imageUrl: null);
+    _sendMessageText(text);
   }
 
-  void _sendMessage({String messageText, String imageUrl}) {
+  void _sendMessageText(String messageText) {
     if (messageText != null) {
       APIConnection.inst.send_obj(JSONObject.jo() << {
         'obj': "message",
@@ -212,15 +247,20 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
         'content': messageText,
       });
     }
+  }
 
-    // TODO
-    if (imageUrl != null) {
+  void _sendMessageImage(String imageFID, String imageThumb) {
+
+    if (imageFID != null && imageThumb != null) {
       APIConnection.inst.send_obj(JSONObject.jo() << {
         'obj': "message",
         'act': "group_send",
         'header_id': group_id,
         'mtype': "image",
-        'content': imageUrl,
+        'content': {
+          'fid': imageFID,
+          'thumb': imageThumb,
+        },
       });
     }
   }
@@ -265,7 +305,7 @@ class ChatMessageListItem extends StatelessWidget {
               child: message.s("mtype") == "image" ?
                 new Image.network(
                   APIConnection.inst.server_info.s("download_path")
-                      + message.s("content"),
+                      + message.o("content").s("thumb"),
                   width: 250.0,
                 ) : new Text(message.s("content")),
             ),

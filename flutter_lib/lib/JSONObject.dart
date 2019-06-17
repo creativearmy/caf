@@ -1,10 +1,10 @@
 import 'JSONArray.dart';
 import 'src/JSONObjectImpl.dart';
 import 'dart:convert';
-/// safe JSON object read/write
+/// safe JSON object read/write, use internal .data for Map operations
 abstract class JSONObject {
 
-  /// getter/setter of member Map data
+  /// getter/setter of internal member Map data
   Map<String, dynamic> get data;
   void set data(Map<String, dynamic> m);
 

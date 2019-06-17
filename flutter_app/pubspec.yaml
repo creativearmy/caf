@@ -33,6 +33,7 @@ dependencies:
   #  path: ../flutter_lib
 
   image_picker: any
+  http: any
 
 dev_dependencies:
   flutter_test:

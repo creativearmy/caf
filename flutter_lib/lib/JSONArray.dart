@@ -1,10 +1,10 @@
 import 'JSONObject.dart';
 import 'src/JSONArrayImpl.dart';
 import 'dart:convert';
-/// safe JSON array read/write
+/// safe JSON array read/write, use internal .data for List operations
 abstract class JSONArray {
 
-  /// getter/setter of member List data
+  /// getter/setter of internal member List data
   List<dynamic> get data;
   void set data(List<dynamic> m);
 
