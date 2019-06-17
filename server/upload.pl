@@ -95,7 +95,8 @@ if (-s "$UPLOAD_ROOT/$FILE_ID") {
 =cut
 
 print "Access-Control-Allow-Origin: *\r\n";
-print "Content-Type: application/json\r\n\r\n";
+print "Content-Type: application/json\r\n";
+print "Content-Length: ".length($output)."\r\n\r\n";
 print $output;
 
 ######################################################################################################################################################################

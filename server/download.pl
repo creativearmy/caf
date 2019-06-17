@@ -7,6 +7,9 @@ use File::MimeInfo::Magic;
 # remote server path 
 $DOWNLOAD_ROOT = "/var/www/games/files";
 
+# fallback image
+$DEFAULT_IMAGE = "f14686539620564930448001";
+
 # scheme id determines how to intepret the file id, version and algo etc.
 my $SCHEME_ID = "001";
 
@@ -14,11 +17,13 @@ my $SCHEME_ID = "001";
 $cgi = CGI->new();
 
 my $fid = $cgi->param('fid');
+$fid = $DEFAULT_IMAGE unless $fid;
 
 # download from sub directory for each proj
 my $proj = $cgi->param('proj');
 $DOWNLOAD_ROOT = $DOWNLOAD_ROOT."/$proj" if $proj;
 
+$fid = $DEFAULT_IMAGE unless -s "$DOWNLOAD_ROOT/$fid";
 my $content = read_from_file("$DOWNLOAD_ROOT/$fid");
 my $mime = mimetype("$DOWNLOAD_ROOT/$fid");
 
