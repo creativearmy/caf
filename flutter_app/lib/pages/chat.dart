@@ -17,22 +17,35 @@ class ChatPage extends StatefulWidget {
 
 class ChatPageState extends State<ChatPage> with APIConnectionListener {
 
-  final TextEditingController _textEditingController = new TextEditingController();
-  bool _isComposingMessage = false;
-
   // chat - two person chat; group - group chat
   // for demo, we support group chat only
   String mode = "group";
+
   String group_id; // header_id
+
+  // we reverse the AnimatedList view, to be able to jumpTo 0,
+  // entries are reversed after they are reveived from the server
   JSONArray messages;
+  
+  final TextEditingController text_editing_controller = new TextEditingController();
+  // key for animation purpose
+  final GlobalKey<AnimatedListState> list_key = GlobalKey<AnimatedListState>();
+  final ScrollController scroll_controller = ScrollController();
+
+  bool is_composing_message = false;
 
   @override // APIConnectionListener
   void response_received(JSONObject jo) {
 
     if (jo.s("obj") == "push" && jo.s("act") == "message_group") {
-      messages.data.add(jo.data);
+
+      // place the new message at the front
+      messages.data.insert(0, jo.data);
+
       //setState((){}); notify AnimiatedList through listKey instead of setState
-      listKey.currentState.insertItem(messages.data.length-1);
+      list_key.currentState.insertItem(0);
+
+      scroll_controller.jumpTo(0);
     }
 
     if (jo.s("obj") == "group" && jo.s("act") == "join") {
@@ -47,12 +60,16 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
     if (jo.s("obj") == "message" && jo.s("act") == "group_get") {
 
       // get two blocks of messages, because first block might only
-      // have one message entry
+      // have one message entry; we get two blocks to be sure
       bool first = (messages == null);
 
-      if (first) messages = jo.o("block").a("entries");
-      else messages = JSONArray.ja() << (jo.o("block").a("entries").data + messages.data);
+      // reverse the entries after receiving it
+      List<dynamic> m = jo.o("block").a("entries").data.reversed.toList();
 
+      if (first) messages = (JSONArray.ja() << m);
+      else messages = (JSONArray.ja() << (m + messages.data));
+
+      // get a second block
       if (first && jo.s("next_id") != "") {
         APIConnection.inst.send_obj(JSONObject.jo()<<
             {"obj":"message","act":"group_get","header_id":jo.s("next_id")});
@@ -77,9 +94,6 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
     super.dispose();
   }
 
-  // key for animation purpose
-  final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
-
   @override
   Widget build(BuildContext context) {
     if (messages == null) return new Container();
@@ -99,7 +113,12 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
             children: <Widget>[
               new Flexible(
                 child: new AnimatedList(
-                  key: listKey,
+
+                  controller: scroll_controller, // scroll controller
+
+                  key: list_key, // for animation, keep all the global states
+                  reverse: true, // reverse view, jumpTo 0 goes to the "bottom"
+
                   padding: const EdgeInsets.all(8.0),
                   initialItemCount: messages.data.length,
                   itemBuilder: (context, index, animation) {
@@ -134,8 +153,8 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
   CupertinoButton getIOSSendButton() {
     return new CupertinoButton(
       child: new Text("Send"),
-      onPressed: _isComposingMessage
-          ? () => _textMessageSubmitted(_textEditingController.text)
+      onPressed: is_composing_message
+          ? () => _textMessageSubmitted(text_editing_controller.text)
           : null,
     );
   }
@@ -143,8 +162,8 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
   IconButton getDefaultSendButton() {
     return new IconButton(
       icon: new Icon(Icons.send),
-      onPressed: _isComposingMessage
-          ? () => _textMessageSubmitted(_textEditingController.text)
+      onPressed: is_composing_message
+          ? () => _textMessageSubmitted(text_editing_controller.text)
           : null,
     );
   }
@@ -152,7 +171,7 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
   Widget _buildTextComposer(BuildContext context) {
     return new IconTheme(
         data: new IconThemeData(
-          color: _isComposingMessage
+          color: is_composing_message
               ? Theme.of(context).accentColor
               : Theme.of(context).disabledColor,
         ),
@@ -168,6 +187,7 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
                       Icons.photo_camera,
                       color: Theme.of(context).accentColor,
                     ),
+
                     onPressed: () async {
 
                       File imageFile = await ImagePicker.pickImage(source: ImageSource.gallery); //ImageSource.camera
@@ -207,10 +227,10 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
 
               new Flexible(
                 child: new TextField(
-                  controller: _textEditingController,
+                  controller: text_editing_controller,
                   onChanged: (String messageText) {
                     setState(() {
-                      _isComposingMessage = messageText.length > 0;
+                      is_composing_message = messageText.length > 0;
                     });
                   },
                   onSubmitted: _textMessageSubmitted,
@@ -231,10 +251,10 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
   }
 
   Future<Null> _textMessageSubmitted(String text) async {
-    _textEditingController.clear();
+    text_editing_controller.clear();
 
     setState(() {
-      _isComposingMessage = false;
+      is_composing_message = false;
     });
 
     _sendMessageText(text);
