@@ -12,6 +12,9 @@ class AccountPage extends StatefulWidget {
 
 class AccountPageState extends State<AccountPage> with APIConnectionListener {
 
+  // returned data from api call test:echo
+  String echo = null;
+
   @override // APIConnectionListener
   void response_received(JSONObject jo) {
     if (jo.s("obj") == "person" && jo.s("act") == "login") {
@@ -20,6 +23,10 @@ class AccountPageState extends State<AccountPage> with APIConnectionListener {
         context,
         MaterialPageRoute(builder: (context) => HomePage()),
       );
+    }
+    if (jo.s("obj") == "test" && jo.s("act") == "echo") {
+      echo = jo.s("echo");
+      setState((){});
     }
   }
 
@@ -67,7 +74,7 @@ class AccountPageState extends State<AccountPage> with APIConnectionListener {
       color: Colors.white,
       child: new Container(
         width: 230.0,
-        height: 50.0,
+        height: 30.0,
         alignment: Alignment.center,
         child: new Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -93,14 +100,50 @@ class AccountPageState extends State<AccountPage> with APIConnectionListener {
         child: new Column(
         mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              new Text(
+                'Not Logged In:',
+                style: new TextStyle(
+                  fontSize: 18.0,
+                ),
+              ),
+              new Text(
+                (echo==null?"no data from server yet":"server return: "+echo),
+                style: new TextStyle(fontSize: 24.0),
+              ),
 
-              SizedBox(height: 45.0),
+              new RaisedButton(
+                onPressed: () {
+                  JSONObject jo = JSONObject.jo();
+                  jo << {"obj":"test","act":"echo","data":APIConnection.inst.getUnixTime()};
+                  APIConnection.inst.send_obj(jo);
+                },
+                color: Colors.white,
+                child: new Container(
+                  width: 230.0,
+                  height: 30.0,
+                  alignment: Alignment.center,
+                  child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      new Text(
+                        'Test Echo',
+                        textAlign: TextAlign.center,
+                        style: new TextStyle(
+                          fontSize: 16.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 15.0),
               loginField,
-              SizedBox(height: 25.0),
+              SizedBox(height: 15.0),
               passwordField,
-              SizedBox(height: 35.0),
+              SizedBox(height: 15.0),
               loginButon,
-              SizedBox(height: 35.0),
+              SizedBox(height: 15.0),
             ],
         ),
       ),

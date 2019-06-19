@@ -38,7 +38,6 @@ class AppRootWidgetState extends State<AppRootWidget> with APIConnectionListener
       APIConnection.inst.response_received_handlers_subscribe(this);
       APIConnection.inst.state_changed_handlers_subscribe(this);
       APIConnection.inst.connect();
-      APIConnection.inst.req_server_info();
     }
   }
 

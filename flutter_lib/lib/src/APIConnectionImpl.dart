@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:connectivity/connectivity.dart';
 
 import '../JSONObject.dart';
 import '../JSONArray.dart';
@@ -11,7 +13,6 @@ import 'JSONObjectImpl.dart';
 class APIConnectionImpl implements APIConnection {
 
   bool DEBUG = true;
-  bool ADVANCED_DEBUG = true;
 
   // these expected to be assgined by the user of this module
   String wsUri = "";
@@ -38,9 +39,14 @@ class APIConnectionImpl implements APIConnection {
   // check the connection and response regularly
   int MINDER_TIME = 30;
 
-  // connecting state shall not exceed this limit, or will be reset
-  int MAX_CONNECTING_TIME = 5;
-  int last_connecting = 0; // timestamp
+  // for two minutes, try to connect every 2 seconds
+  int CONNECTING_TIMER = 2;
+  int CONNECTING_MAX = 60;
+  int CONNECTING_TIMEOUT = 5;
+
+  // connecting triggered by fast timer
+  bool connecting_is = false;
+  int connecting_count = 0;
 
   // last_resp is keepalive time ago, we will reuse the connection for GUEST_SEND
   int GUEST_SEND_KEEPALIVE_TIME = 30;
@@ -182,21 +188,54 @@ class APIConnectionImpl implements APIConnection {
     target_state = "INITIAL_LOGIN";
   }
 
+  // minding websocket connection, pings
   Timer minder_timer;
 
-  void connect() {
+  // fast timer for active reconnecting
+  Timer connecting_timer;
 
-    // kick of the periodic timer, only once
-    if (minder_timer == null) minder_timer = Timer.periodic(Duration(seconds: MINDER_TIME), (Timer timer) {
-      minder();
-    });
+  Future<void> connect() async {
+
+    // kick of the periodic timer and subscribe to connectivity change, only once
+    if (minder_timer == null) {
+
+      minder_timer = Timer.periodic(Duration(seconds: MINDER_TIME), (Timer timer) { minder(); });
+
+      Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+        // Got a new connectivity status!
+        if (result == ConnectivityResult.mobile) {
+          // I am connected to a mobile network.
+        } else if (result == ConnectivityResult.wifi) {
+          // I am connected to a wifi network.
+        }
+
+        // actively trying to connect to server, reactivate
+        if (conn_state == "CONNECTING") {
+          connecting_count = CONNECTING_MAX;
+          if (connecting_timer == null) {
+            connecting_timer = Timer.periodic(Duration(seconds: CONNECTING_TIMER), (Timer timer) {
+              // done trying, pass on to minder
+              connecting_count --;
+              if (connecting_count <= 0) {
+                if (!connecting_is) {
+                  connecting_timer.cancel();
+                  connecting_timer = null;
+                }
+                return;
+              }
+              connecting();
+            });
+          }
+        }
+      });
+    }
 
     // for non-interference, if it is in -ing state, ignore this request
     if (conn_state == "CONNECTING") {
 
       // since failure to open new connection will revert back to previous state,
-      // this filter will not stop it from attemping new connection
-      // every connecting attemp will have a resolution in the end, no need to retry while it is in progress
+      // this filter will not stop it from attempting new connection
+      // every connecting attempt will have a resolution in the end, no need to retry while it is in progress
 
       clog("connect: already connecting, connect request is ignored");
       return;
@@ -206,7 +245,7 @@ class APIConnectionImpl implements APIConnection {
     if (conn_state == "LOGIN_SCREEN_ENABLED" && registration != null) {
       // registration is accepted only at this state
       target_state = "REGISTRATION";
-      reset_websocket_conn();
+      reset_websocket_conn("to register, inside connect()");
     }
 
     if (target_state == "INITIAL_LOGIN") {
@@ -217,47 +256,43 @@ class APIConnectionImpl implements APIConnection {
       }
     }
 
-    // reset the connection timer here
-    last_connecting = getUnixTime();
-
     set_state("CONNECTING", false);
 
-    clog("websocket create: wsUri:"+wsUri+" from_state:"+from_state+" state:"+conn_state);
-
-    // do not add "protocl", chromium browser will complain no response back
-    //this.websocket = new WebSocket(this.wsUri, "myprotocol");
-    websocket = IOWebSocketChannel.connect(wsUri);
-	
-    websocket.stream.listen((data) {
-        handle_message(data);
-      },	  
-	  onDone: () {
-	    clog("websocket onDone");
-	  },	  
-	  onError: (error) {
-	    clog("websocket onError: $error");
-	  },
-	);
+    connecting_count = CONNECTING_MAX;
+    if (connecting_timer == null) {
+      connecting_timer = Timer.periodic(Duration(seconds: CONNECTING_TIMER), (Timer timer) {
+        // done trying, pass on to minder
+        connecting_count --;
+        if (connecting_count <= 0) {
+          if (!connecting_is) {
+            connecting_timer.cancel();
+            connecting_timer = null;
+          }
+          return;
+        }
+        connecting();
+      });
+    }
   }
 
   void login(String username, String passwd) {
     credential(username, passwd);
-    login_(true);
+    connect();
   }
 
   void loginx(JSONObject cred) {
     credentialx(cred);
-    login_(true);
+    connect();
   }
 
   void logout() {
     credential("","");
-    logout_();
+    connect();
   }
 
   void register(JSONObject reg) {
     registration = reg;
-    send_registration();
+    connect();
   }
 
   void login_(verbose) {
@@ -405,85 +440,10 @@ class APIConnectionImpl implements APIConnection {
     send_obj_now(jo);
   }
 
-  void reset_websocket_conn() {
-    clog("reset_websocket_conn: websocket:"+((websocket==null)?"null":websocket));
+  void reset_websocket_conn(String msg) {
+    clog("reset_websocket_conn: "+msg);
+    if (websocket != null) websocket.sink.close();
     websocket = null;
-  }
-
-  void revert_and_reset_state() {
-    clog("revert_and_reset_state: from_state:"+from_state+" state:"+conn_state);
-    // resert and reset back to base state: LOGIN_SCREEN_SHOWN LOGIN_SCREEN_ENABLED IN_SESSION
-
-    if (conn_state == "CONNECTING") {
-      conn_state = from_state;
-      // target state remain the same
-    }
-
-    if (conn_state == "SESSION_LOGIN") {
-      conn_state = "IN_SESSION";
-      target_state = "SESSION_LOGIN";
-    }
-
-    if (conn_state == "REGISTRATION") {
-      conn_state = "LOGIN_SCREEN_ENABLED";
-      target_state = "REGISTRATION";
-    }
-
-    if (conn_state == "INITIAL_LOGIN") {
-      conn_state = "LOGIN_SCREEN_ENABLED";
-      target_state = "INITIAL_LOGIN";
-    }
-
-    if (conn_state == "SERVERINFO_REQ") {
-      conn_state = "LOGIN_SCREEN_SHOWN";
-      target_state = "SERVERINFO_REQ";
-    }
-
-    // GUEST_SEND state is imaginary and transient
-  }
-
-  void wsconn_and_state_sanity_check() {
-    // this routine only put the state back to sanity, it does not initiate connect
-
-    // this is insane !!
-    if (conn_state == "LOGIN_SCREEN_SHOWN") {
-      clog("wsconn_and_state_sanity_check: LOGIN_SCREEN_SHOWN, it appears it is restarted");
-      target_state = "SERVERINFO_REQ";
-      reset_websocket_conn();
-      connect();
-      return;
-    }
-
-    var time_now = getUnixTime();
-
-    // check to see if it connecting takes too long, revert back to old state
-    // do not get stuck in connecting state
-    if (conn_state == "CONNECTING" && (time_now - last_connecting > MAX_CONNECTING_TIME)) {
-      // target_state will remain the same
-      revert_and_reset_state();
-      reset_websocket_conn();
-    }
-
-    if (conn_state == "IN_SESSION") {
-
-      var ping_interval = 180;
-
-      // this interval is configurable on the server side but can not be disabled
-      if (server_info != null && server_info.i("web_app_ping") > 0)
-        ping_interval = server_info.i("web_app_ping");
-
-      // it takes too long to serve an request, something is wrong
-      if ((last_resp < last_ping) && (time_now - last_ping > MAX_RESPONSE_TIME)) {
-        revert_and_reset_state();
-        reset_websocket_conn();
-      }
-
-      // reset websocket connection if stale, minder is failing, here is safeguard
-      if ((time_now - last_resp) > 2*ping_interval) {
-        revert_and_reset_state();
-        reset_websocket_conn();
-      }
-    }
   }
 
   bool send_str(String msg) {
@@ -508,8 +468,8 @@ class APIConnectionImpl implements APIConnection {
     }
 
     // depends on what state we are now at, drop onto different FIFO request queue
-    if (conn_state == "IN_SESSION" || conn_state == "SESSION_LOGIN" ||
-        conn_state == "CONNECTING" && from_state == "IN_SESSION") {
+    if (conn_state == "IN_SESSION" || conn_state == "SESSION_LOGIN" || conn_state == "INITIAL_LOGIN" ||
+        conn_state == "CONNECTING" && (target_state == "SESSION_LOGIN" || target_state == "INITIAL_LOGIN")) {
 
       req_queue_after_login.add(req);
 
@@ -520,7 +480,7 @@ class APIConnectionImpl implements APIConnection {
     if (conn_state == "LOGIN_SCREEN_ENABLED") {
 
       if (websocket != null) {
-        // reuse the connection for performance
+        // reuse the connection for performance, risky
         var now = getUnixTime();
         if (now-last_resp < GUEST_SEND_KEEPALIVE_TIME) {
           return send_all_after_connect();
@@ -528,14 +488,10 @@ class APIConnectionImpl implements APIConnection {
       }
     }
 
-    wsconn_and_state_sanity_check();
-
     if (conn_state == "LOGIN_SCREEN_ENABLED") {
 
-      reset_websocket_conn();
-
+      reset_websocket_conn("send guest request");
       target_state = "GUEST_SEND";
-
       connect();
 
       return true;
@@ -547,9 +503,7 @@ class APIConnectionImpl implements APIConnection {
 
         // print state information for debugging
         clog("send: websocket is null, from_state: " + from_state + "  state: " + conn_state);
-
         target_state = "SESSION_LOGIN";
-
         connect();
 
         return true;
@@ -559,6 +513,7 @@ class APIConnectionImpl implements APIConnection {
       return send_all_after_login();
     }
 
+    // ignore the rest
     return true;
   }
 
@@ -652,8 +607,93 @@ class APIConnectionImpl implements APIConnection {
     return true;
   }
 
+  // called by minder, connect(), and network connectivity
+  // actively trying to connect to server
+  // connecting loop, network transition, server reboot, unstable connection etc
+  void connecting() async {
+
+    if (connecting_is) return;
+
+    clog("websocket create: wsUri:" + wsUri
+        + " from_state:" + from_state
+        + " conn_state:" + conn_state
+        + " target_state:" + target_state);
+
+    //websocket = IOWebSocketChannel.connect(wsUri);
+    connecting_is = true;
+    try {
+      final socket = await WebSocket
+          .connect(wsUri)
+          .timeout(Duration(seconds: CONNECTING_TIMEOUT));
+
+      if (socket == null) {
+        connecting_is = false;
+        return;
+      }
+
+      websocket = IOWebSocketChannel(socket);
+      connecting_is = false;
+
+      if (websocket == null)  {
+        return;
+      }
+    } catch (exception, stackTrace) {
+      connecting_is = false;
+      clog("connecting exception: "+exception.toString());
+      return;
+    }
+
+    // cancel the fast timer
+    connecting_timer.cancel();
+    connecting_timer = null;
+
+    websocket.stream.listen(
+      (data) {
+        onConnectionMessage(data);
+      },
+      onDone: () {
+        if (conn_state == "CONNECTING" || conn_state == "LOGIN_SCREEN_SHOWN") return;
+        if (conn_state == "IN_SESSION") target_state = "SESSION_LOGIN";
+        else if (conn_state == "LOGIN_SCREEN_ENABLED") target_state = "SERVERINFO_REQ";
+        else target_state = conn_state;
+
+        reset_websocket_conn("onDone, trying to restore to state");
+        connect();
+        clog("websocket onDone");
+      },
+      onError: (error) {
+        if (conn_state == "CONNECTING" || conn_state == "LOGIN_SCREEN_SHOWN") return;
+        if (conn_state == "IN_SESSION") target_state = "SESSION_LOGIN";
+        else if (conn_state == "LOGIN_SCREEN_ENABLED") target_state = "SERVERINFO_REQ";
+        else target_state = conn_state;
+
+        reset_websocket_conn("onError, trying to restore to state");
+        connect();
+        clog("websocket onError: $error");
+      },
+    );
+
+    // no server info, request to get server info first
+    if (target_state == "SERVERINFO_REQ") req_server_info();
+
+    // we already have the user to send username and passwd, now validate it
+    else if (target_state == "INITIAL_LOGIN") login_(true);
+
+    // simple re-login to get new session, slimmer info, save bandwidth, not verbose login
+    else if (target_state == "SESSION_LOGIN") login_(false);
+
+    // tear down old session, register for new account
+    else if (target_state == "REGISTRATION") send_registration();
+
+    // this request is treated as priority, for http like behavior
+    else if (target_state == "GUEST_SEND") {
+        conn_state = "LOGIN_SCREEN_ENABLED";
+        send_all_after_connect();
+    }
+  }
+
   // handle message from the wire
-  void handle_message(var data) {
+  void onConnectionMessage(var data) {
 
     last_resp = getUnixTime();
 
@@ -757,7 +797,7 @@ class APIConnectionImpl implements APIConnection {
             login_passwd = "";
             credential_data = null;
 
-            reset_websocket_conn();
+            reset_websocket_conn("logout, clean the scene");
 
             set_state("LOGIN_SCREEN_ENABLED", true);
         }
@@ -799,8 +839,7 @@ class APIConnectionImpl implements APIConnection {
 	
     if (notify) state_changed_handlers_post();
 
-    // turn this off when releasing this library
-    if (ADVANCED_DEBUG) clog("set_state: "+from_state+" => "+conn_state);
+    clog("set_state: "+from_state+" => "+conn_state);
 
     // certain state transition shall not bother our clients
     // CONNECTING state is of no interest to our clients
@@ -808,13 +847,11 @@ class APIConnectionImpl implements APIConnection {
   
   // maintaining connection
   void minder() {
-    clog("minder is running, conn_state: "+conn_state);
+    clog("minder is running, from_state: "+from_state+" conn_state: "+conn_state+" target_state: "+target_state);
 
     // in-memory credential is good and not in-session state, start working toward session'ed state
-    if (conn_state == "LOGIN_SCREEN_SHOWN" ||
-        conn_state == "LOGIN_SCREEN_ENABLED") {
-      if (login_name != "" && login_passwd != "")
-        login(login_name, login_passwd);
+    if (conn_state == "LOGIN_SCREEN_SHOWN" || conn_state == "LOGIN_SCREEN_ENABLED") {
+      if (login_name != "" && login_passwd != "") login(login_name, login_passwd);
       else if (credential_data != null) loginx(credential_data);
 
       // it has been silent, check to see if OK
@@ -834,11 +871,15 @@ class APIConnectionImpl implements APIConnection {
           (time_now - last_ping > MAX_RESPONSE_TIME)) {
         // no timely response since last ping, reconnect the websocket
         // it is possible: APIConnection.last_resp == APIConnection.last_ping
-        reset_websocket_conn();
+        reset_websocket_conn("minder reset connection");
       } else if ((time_now - last_ping) >= ping_interval) {
         clog("connection_minder ping initiated");
         ping();
       }
+
+    } else if (conn_state == "CONNECTING" && connecting_count <= 0) {
+      // slow connecting, done by minder
+      connecting();
     }
   }
 }

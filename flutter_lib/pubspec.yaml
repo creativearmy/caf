@@ -16,6 +16,7 @@ dev_dependencies:
     sdk: flutter
   shared_preferences: ^0.4.3
   web_socket_channel: "^1.0.8"
+  connectivity: any
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

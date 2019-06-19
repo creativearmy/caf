@@ -20,7 +20,6 @@ abstract class APIConnection {
   }
 
   bool DEBUG = true;
-  bool ADVANCED_DEBUG = true;
 
   /// these expected to be assgined by the user of this module
   String wsUri = "";
