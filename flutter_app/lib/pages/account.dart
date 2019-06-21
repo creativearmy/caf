@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:creativearmy/creativearmy.dart';
+import 'package:toast/toast.dart';
 
 import 'home.dart';
 
@@ -15,11 +16,23 @@ class AccountPageState extends State<AccountPage> with APIConnectionListener {
   // returned data from api call test:echo
   String echo = null;
 
+  final loginController = TextEditingController();
+  final passwordController = TextEditingController();
+
   @override // APIConnectionListener
   void response_received(JSONObject jo) {
+
     if (jo.s("obj") == "person" && jo.s("act") == "login") {
+      if (jo.s("ustr") != "")
+        return Toast.show(jo.s("ustr"), context, duration: Toast.LENGTH_SHORT, gravity:  Toast.TOP);
+
+      APIConnection.inst.user_joread().then((JSONObject jo){
+        jo.sp("login_name", loginController.text);
+        APIConnection.inst.user_jowrite(jo);
+      });
+
       APIConnection.inst.clog("AccountPageState goto HomePage");
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomePage()),
       );
@@ -46,8 +59,10 @@ class AccountPageState extends State<AccountPage> with APIConnectionListener {
   Widget build(BuildContext context) {
 
     var width = MediaQuery.of(context).size.width;
-    final loginController = TextEditingController();
-    final passwordController = TextEditingController();
+
+    APIConnection.inst.user_joread().then((JSONObject jo){
+      loginController.text = jo.s("login_name");
+    });
 
     final loginField = TextField(
       obscureText: false,

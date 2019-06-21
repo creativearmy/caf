@@ -23,6 +23,7 @@ class AppRootWidgetState extends State<AppRootWidget> with APIConnectionListener
   void response_received(JSONObject jo) {
     if (jo.s("ustr") != "") {
       // global error notification
+
     }
   }
 
@@ -43,6 +44,7 @@ class AppRootWidgetState extends State<AppRootWidget> with APIConnectionListener
 
   @override
   Widget build(BuildContext context) {
+
     return new MaterialApp(
       title: 'Inherited',
       debugShowCheckedModeBanner: false,

@@ -104,8 +104,6 @@ class ChatPageState extends State<ChatPage> with APIConnectionListener {
           elevation:
           Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
           actions: <Widget>[
-            new IconButton(
-                icon: new Icon(Icons.exit_to_app), onPressed: (){})
           ],
         ),
         body: new Container(
