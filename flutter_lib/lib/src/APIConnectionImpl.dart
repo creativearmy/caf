@@ -49,7 +49,7 @@ class APIConnectionImpl implements APIConnection {
   int connecting_count = 0;
 
   // last_resp is keepalive time ago, we will reuse the connection for GUEST_SEND
-  int GUEST_SEND_KEEPALIVE_TIME = 30;
+  int REUSE_UNMAINTAINED_CONNECTION_TIME = 30;
 
   ////////////////////////////////////////////////////////////////////////
   // utilities
@@ -159,34 +159,6 @@ class APIConnectionImpl implements APIConnection {
       s.state_changed();
     });
   }
-  
-  void credential(String name, String passwd) {
-    // set credential, reset state back to start, expecting connect() call right way
-    login_name = name;
-    login_passwd = passwd;
-    credential_data = null;
-
-    user_info = null;
-    registration = null;
-
-    // set the target for state transition, if credential/login_name empty,
-    // this is actually an logout request, with the same target_state here
-    target_state = "INITIAL_LOGIN";
-  }
-
-  void credentialx(JSONObject cred) {
-    // set credential, extended version, arbitury format
-    login_name = "";
-    login_passwd = "";
-    credential_data = cred;
-
-    user_info = null;
-    registration = null;
-
-    // set the target for state transition, if credential/login_name empty,
-    // this is actually an logout request, with the same target_state here
-    target_state = "INITIAL_LOGIN";
-  }
 
   // minding websocket connection, pings
   Timer minder_timer;
@@ -232,28 +204,8 @@ class APIConnectionImpl implements APIConnection {
 
     // for non-interference, if it is in -ing state, ignore this request
     if (conn_state == "CONNECTING") {
-
-      // since failure to open new connection will revert back to previous state,
-      // this filter will not stop it from attempting new connection
-      // every connecting attempt will have a resolution in the end, no need to retry while it is in progress
-
       clog("connect: already connecting, connect request is ignored");
       return;
-    }
-
-    // target_state is set outside this routine, with this one exception
-    if (conn_state == "LOGIN_SCREEN_ENABLED" && registration != null) {
-      // registration is accepted only at this state
-      target_state = "REGISTRATION";
-      reset_websocket_conn("to register, inside connect()");
-    }
-
-    if (target_state == "INITIAL_LOGIN") {
-      // this actually is an logout request, simply logout and done!
-      if ((login_name == null || login_name == "") && credential_data == null) {
-        logout_();
-        return;
-      }
     }
 
     set_state("CONNECTING", false);
@@ -276,22 +228,74 @@ class APIConnectionImpl implements APIConnection {
   }
 
   void login(String username, String passwd) {
-    credential(username, passwd);
+    // set credential, reset state back to start, expecting connect() call right way
+    login_name = username;
+    login_passwd = passwd;
+    credential_data = null;
+
+    user_info = null;
+    registration = null;
+
+    // set the target for state transition, if credential/login_name empty,
+    // this is actually an logout request, with the same target_state here
+    target_state = "INITIAL_LOGIN";
+
+    // reuse the connection for performance, risky
+    var now = getUnixTime();
+    if (now-last_resp < REUSE_UNMAINTAINED_CONNECTION_TIME) {
+      return login_(true);
+    }
+
+    reset_websocket_conn("to login, login()");
     connect();
   }
 
   void loginx(JSONObject cred) {
-    credentialx(cred);
+    // set credential, extended version, arbitury format
+    login_name = "";
+    login_passwd = "";
+    credential_data = cred;
+
+    user_info = null;
+    registration = null;
+
+    // set the target for state transition, if credential/login_name empty,
+    // this is actually an logout request, with the same target_state here
+    target_state = "INITIAL_LOGIN";
+
+    // reuse the connection for performance, risky
+    var now = getUnixTime();
+    if (now-last_resp < REUSE_UNMAINTAINED_CONNECTION_TIME) {
+      return login_(true);
+    }
+
+    reset_websocket_conn("to login, loginx()");
     connect();
   }
 
   void logout() {
-    credential("","");
-    connect();
+    if (sess == "") return;
+
+    JSONObject cmd_obj = new JSONObjectImpl();
+
+    cmd_obj["obj"] = "person";
+    cmd_obj["act"] = "logout";
+
+    set_state("LOGIN_SCREEN_ENABLED", true);
+    send_obj_now(cmd_obj);
   }
 
   void register(JSONObject reg) {
     registration = reg;
+    target_state = "REGISTRATION";
+
+    // reuse the connection for performance, risky
+    var now = getUnixTime();
+    if (now-last_resp < REUSE_UNMAINTAINED_CONNECTION_TIME) {
+      return send_registration();
+    }
+
+    reset_websocket_conn("to register, register()");
     connect();
   }
 
@@ -325,20 +329,6 @@ class APIConnectionImpl implements APIConnection {
     if (verbose) set_state("INITIAL_LOGIN", true);
     // reconnection, do not notify clients
     else set_state("SESSION_LOGIN", false);
-
-    send_obj_now(cmd_obj);
-  }
-
-  void logout_() {
-
-    if (sess == "") return;
-
-    JSONObject cmd_obj = new JSONObjectImpl();
-
-    cmd_obj["obj"] = "person";
-    cmd_obj["act"] = "logout";
-
-    set_state("LOGIN_SCREEN_ENABLED", true);
 
     send_obj_now(cmd_obj);
   }
@@ -482,7 +472,7 @@ class APIConnectionImpl implements APIConnection {
       if (websocket != null) {
         // reuse the connection for performance, risky
         var now = getUnixTime();
-        if (now-last_resp < GUEST_SEND_KEEPALIVE_TIME) {
+        if (now-last_resp < REUSE_UNMAINTAINED_CONNECTION_TIME) {
           return send_all_after_connect();
         }
       }
