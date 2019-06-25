@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <script src="APIConnection.min.js"></script>
+    <script>
+    
+    // global sdk handle
+    var apiconn;
+    
+    function sdk_init() {
+    
+        apiconn = new APIConnection();
+
+        apiconn.client_info.clienttype = "web";
+
+        apiconn.state_changed_handler = function() {
+
+            if (apiconn.conn_state == "IN_SESSION") {
+        
+                sessionStorage.setItem("login_name", apiconn.login_name);
+                sessionStorage.setItem("login_passwd", apiconn.login_passwd);
+
+            } else if (apiconn.conn_state == "LOGIN_SCREEN_ENABLED") {
+        
+                // auto re login after page refresh
+                
+                if (apiconn.login_name == "" && apiconn.credential_data == null) {
+        
+                    // auto login here
+                    // apiconn.login(login_name, login_passwd);
+                    
+                    // auto login from saved credentials
+                    var login_name = sessionStorage.getItem("login_name");
+                    var login_passwd = sessionStorage.getItem("login_passwd");
+                
+                    var cred = sessionStorage.getItem("credential_data");
+                    var cred_obj = null;
+                    if (cred !== "") cred_obj = JSON.parse(cred);
+        
+                    // reset stored cred to prevent infinite loop in case of failure
+                    sessionStorage.setItem("login_name", "");
+                    sessionStorage.setItem("login_passwd", "");
+                    sessionStorage.setItem("credential_data", "");
+                    
+                    if (login_name != "" && login_name != null) {
+                        apiconn.login(login_name, login_passwd);
+        
+                    } else if (cred_obj != null) {
+                        apiconn.loginx(cred_obj);
+                        
+                    } else {
+                    }
+                }
+                
+            }
+        };
+
+        apiconn.response_received_handler = function(jo) {
+             
+            if (jo.ustr != null && jo.ustr != "" && jo.uerr != "ERR_CONNECTION_EXCEPTION") alert(jo.ustr);
+            
+            if (jo.obj == "person" && jo.act == "login" && jo.user_info && jo.server_info) {
+            }
+            
+            if (jo.obj == "person" && jo.act == "logout") {
+            }
+
+            if (jo.obj == "test" && jo.act == "echo") {
+                document.getElementById("msg").innerHTML = "Server returned: " + jo.echo;
+            }
+            
+        };
+
+        apiconn.wsUri = "ws://47.92.169.34:51700/demo";
+        apiconn.connect();
+    }
+    
+    function btn_click() {
+        apiconn.send_obj({
+            "obj": "test",
+            "act": "echo",
+            "echo": Math.round(new Date().getTime()/1000),
+        });
+        
+        // or
+        // apiconn.send_obj_str('{"obj":"test","act":"echo"}');
+    }
+    
+    </script>
+  </head>
+  <body onload="sdk_init()">
+  <span id="msg">No message returned from server yet.</span><br>
+  <button onclick="btn_click()">Echo Test</button>
+  </body>
+</html>
