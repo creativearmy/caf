@@ -3,6 +3,12 @@
 my $PROJ = $ARGV[0]; # lower case project codename
 die unless -f "/var/www/games/app/$PROJ/app.pl";
 
+my @files = split /\n/, `ls /var/www/games/app/$PROJ/app_*.pl`;
+foreach my $file (@files) {
+	next unless -s $file;
+	do $file;
+}
+
 do "/var/www/games/app/$PROJ/app.pl";
 
 # first line of the document is the title
