@@ -316,7 +316,7 @@ class APIConnectionImpl implements APIConnection {
       cmd_obj["login_name"] = login_name;
       cmd_obj["login_passwd"] = login_passwd;
     } else {
-      cmd_obj["credential_data"] = credential_data;
+      cmd_obj["credential_data"] = credential_data.data;
     }
 
     if (verbose) cmd_obj["verbose"] = 1;
