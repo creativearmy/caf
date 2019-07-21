@@ -87,8 +87,8 @@ if (-s $request_str) {
 	
 # request is a json string, specify proj in one of the field
 } else {
-    @request_strs = ($request_str);
     $request_str = Encode::decode("utf8", $request_str);
+    @request_strs = ($request_str);
     #print Log "decode_utf8: ".$RSP."\n";
     my $request_json = $json->decode($request_str);
     $WS_SERVER = $WS_URLS->{$request_json->{proj}};
