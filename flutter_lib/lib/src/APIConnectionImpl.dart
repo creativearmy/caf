@@ -827,7 +827,7 @@ class APIConnectionImpl implements APIConnection {
     from_state = conn_state;
     conn_state = s;
 	
-    if (notify) state_changed_handlers_post();
+    if (notify || user_pref.s("all_state_changes") == "true") state_changed_handlers_post();
 
     clog("set_state: "+from_state+" => "+conn_state);
 
