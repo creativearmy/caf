@@ -7,6 +7,11 @@ $UPLOAD_ROOT = "/var/www/games/files";
 
 # do not use my !! causing problems!
 $cgi = CGI->new();
+if ( my $error = $cgi->cgi_error ) {
+    print $cgi->header( -status => $error );
+    print "Error: $error";
+    exit 0;
+}
 
 my $local_file = $cgi->param('local_file');
 my $data_url = $cgi->param('data_url');
@@ -22,7 +27,12 @@ my $THUMB = obj_id();
 
 my $flag = 0;
 
-open(LOCAL, ">$UPLOAD_ROOT/$FILE_ID");
+if (!open(LOCAL, ">$UPLOAD_ROOT/$FILE_ID")) {
+    print $cgi->header( -status => "500 Internal Server Error" );
+    print "Error: No write permission of dir, $UPLOAD_ROOT";
+    exit 0;
+}
+
 if ($data_url) {
 	if ($data_url =~ s/^data:image\/png;base64,//) {
 		$flag = 1;
