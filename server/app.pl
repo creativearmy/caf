@@ -1479,6 +1479,8 @@ sub load_configuration {
 $man_ds_person = <<EOF;
 user record, store personal information other than account information
 
+    account_id: linked account id
+
     display_name:123
     
     devicetoken: unique device id
