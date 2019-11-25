@@ -67,11 +67,21 @@
             }
 
             if (jo.obj == "test" && jo.act == "echo") {
-                document.getElementById("msg").innerHTML = "Server returned: " + jo.echo;
+                document.getElementById("msg").innerHTML = "[Single handler] Server returned: " + jo.echo;
             }
             
         };
-
+        
+        var h = apiconn.response_received_handlers_add(function(jo) {
+            if (jo.obj == "test" && jo.act == "echo") {
+                document.getElementById("msg").innerHTML += "<br>[Multple handlers] Server returned: " + jo.echo;
+            }
+        });
+        
+        // to remove this reponse handler list
+        // handler list works for state_changed_handlers_[add|remove] as well
+        //apiconn.response_received_handlers_remove(h);
+        
         apiconn.wsUri = "ws://47.92.169.34:51700/demo";
         apiconn.connect();
     }
