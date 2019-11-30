@@ -135,19 +135,22 @@ EOF
 
 sub p_person_register {
 
-    my $p = $gr->{data};
-
-    return jr() unless assert(length($gr->{login_name}), "login name not set", "ERR_LOGIN_NAME", "Login name not set");
-    return jr() unless assert(length($gr->{display_name}), "display name not set", "ERR_DISPLAY_NAME", "Display name not set");
+    return jr() unless assert(length($gr->{login_name}), "Login name not set");
+    return jr() unless assert(length($gr->{display_name}), "Display name not set");
+    
+    # if only phone number is permitted, uncomment this. Note the scalar context
+    # return jr() unless assert(scalar($gr->{login_name} =~ /^\d+$/), "Login name should be a phone number");   
     
     # Create an account record with login_name and login_passwd. It will return an associate person record
     # to store other person infomation.
     # $gr->{server} - The server where this api request is made.
     my $pref = account_create($gr->{server}, $gr->{display_name}, "", $gr->{login_name}, $gr->{login_passwd});
     
-    return jr() unless assert($pref, "account creation failed");
+    return jr() unless assert($pref, "Account creation failed");
     
     # Store other data as-is in the person record.
+	my $p = $gr->{data};
+
     obj_expand($pref, $p);
 
     sess_server_create($pref);
@@ -195,14 +198,14 @@ sub p_person_login {
 
     if ($gr->{credential_data} && $gr->{credential_data}->{ctype} eq "device") {
         
-        return jr() unless assert(length($gr->{credential_data}->{device_id}), "device id not set", "ERR_LOGIN_DEVICE_IDING", "device id not set");        
+        return jr() unless assert(length($gr->{credential_data}->{device_id}), "Device id not set");        
         
         # check for device_id, login without password
         my $mcol = mdb()->get_collection("account");
         my $aref = $mcol->find_one({device_id => "device:".$gr->{credential_data}->{device_id}});
         
         if($gr->{client_info}->{clienttype} eq "iOS"){
-            return jr({status=>"failed"}) unless assert(length($gr->{credential_data}->{devicetoken}), "devicetoken is missing", "ERR_DEVICE_TOKENING", "Apple devicetoken missing");
+            return jr({status=>"failed"}) unless assert(length($gr->{credential_data}->{devicetoken}), "Apple devicetoken missing");
         }
 
         if ($aref) {
@@ -232,7 +235,7 @@ sub p_person_login {
 
         my $pref = account_create($gr->{server}, "device:".$gr->{credential_data}->{device_id}, "device:".$gr->{credential_data}->{device_id});
 
-        return jr() unless assert($pref, "account creation failed");
+        return jr() unless assert($pref, "Account creation failed");
 
         sess_server_create($pref);
 
@@ -257,7 +260,7 @@ sub p_person_login {
     ($name, $pass) = ($gr->{credential_data}->{login_name}, $gr->{credential_data}->{login_passwd}) unless $name;
     
     my $pref = account_login_with_credential($gr->{server}, $name, $pass);
-    return jr() unless assert($pref, "login failed", "ERR_LOGIN_FAILED", "login failed");
+    return jr() unless assert($pref, "Login failed");
     
     # Purge other login of the same login_name. Uncomment this if single login is enforced.
     #account_force_logout($pref->{_id});
@@ -298,7 +301,7 @@ EOF
 
 sub p_person_qr_login {
 
-    return jr() unless assert($gr->{conn}, "connection id is missing");
+    return jr() unless assert($gr->{conn}, "Connection id is missing");
 
     my $rt_sess = sess_server_clone($gr->{conn});
 
@@ -363,7 +366,7 @@ PUSH:
 EOF
 
 sub p_push_message_chat {
-    return jr() unless assert(0, "", "ERROR", "push data only, not a callable API");
+    return jr() unless assert(0, "Push dummy sub, not callable");
 }
 
 $p_push_message_group = <<EOF;
@@ -385,7 +388,7 @@ PUSH:
 EOF
 
 sub p_push_message_group {
-    return jr() unless assert(0, "", "ERROR", "push data only, not a callable API");
+    return jr() unless assert(0, "Push dummy sub, not callable");
 }
 
 ##############################################
@@ -411,11 +414,11 @@ EOF
 
 sub p_message_chat_send {
 
-    return jr() unless assert($gs->{pid}, "login first", "ERR_LOGIN", "Login first");
+    return jr() unless assert($gs->{pid}, "Login first");
 	
-    return jr() unless assert($gr->{header_id}, "header_id is missing", "ERR_TO_ID", "Chat partner person id is not specified.");
+    return jr() unless assert($gr->{header_id}, "Chat partner person id is not specified");
 
-    return jr() unless assert($gs->{pid} ne $gr->{header_id}, "from_id header_id identical", "ERR_SEND_TO_SELF", "Sending chat to self is not supported.");
+    return jr() unless assert($gs->{pid} ne $gr->{header_id}, "Sending chat to self is not permitted");
     
     # Chat header record is empty. Chat is just started. Create a record for this conversation.
     my $col = mdb()->get_collection("chat");
@@ -458,7 +461,7 @@ EOF
 
 
 sub p_group_join {
-    return jr() unless assert($gs->{pid}, "login first", "ERR_LOGIN", "Login first");
+    return jr() unless assert($gs->{pid}, "Login first");
     
    	my $header;
    	
@@ -516,12 +519,12 @@ EOF
 
 sub p_message_group_send {
 
-    return jr() unless assert($gs->{pid}, "login first", "ERR_LOGIN", "Login first");
+    return jr() unless assert($gs->{pid}, "Login first");
 	
-    return jr() unless assert($gr->{header_id}, "header_id is missing", "ERR_GROUP_ID", "Group id is not specified.");
+    return jr() unless assert($gr->{header_id}, "Group id is not specified");
     
    	my $header = obj_read("group", $gr->{header_id});
-    return jr() unless assert($header, "header_id is not valid", "ERR_GROUP_ID", "Group id is not valid.");
+    return jr() unless assert($header, "Group id is not valid");
 	
 	my @other_parties = keys %{$header->{members}};
 	
@@ -547,11 +550,11 @@ sub message_common_send {
 	
 	my $header = shift @other_parties;
 	
-    return jr() unless assert($gs->{pid}, "login first", "ERR_LOGIN", "Login first");
+    return jr() unless assert($gs->{pid}, "Login first");
     
-    return jr() unless assert($gr->{content}, "content is missing", "ERR_CONTENT", "Message content is empty.");
+    return jr() unless assert($gr->{content}, "Message content is empty");
     
-    return jr() unless assert($gr->{mtype}, "mtype is missing", "ERR_MTYPE", "Message content type is not specified.");
+    return jr() unless assert($gr->{mtype}, "Message content type is not specified");
     
     my $from_person = obj_read("person", $gs->{pid});
     
@@ -718,7 +721,7 @@ EOF
 sub p_message_chat_get {
 
     # $gs stores the data for this login session. It contains pid of the api caller.
-    return jr() unless assert($gs->{pid}, "login first", "ERR_LOGIN", "Login first");
+    return jr() unless assert($gs->{pid}, "Login first");
 	
     if($gr->{header_id}){
     
@@ -819,7 +822,7 @@ EOF
 sub p_message_group_get {
 
     # $gs stores the data for this login session. It contains pid of the api caller.
-    return jr() unless assert($gs->{pid}, "login first", "ERR_LOGIN", "Login first");
+    return jr() unless assert($gs->{pid}, "Login first");
 	
     if($gr->{header_id}){
     		
@@ -920,7 +923,7 @@ EOF
 sub p_message_mailbox {
 
     # $gs stores the data for this log in session. It contains pid of the api caller.
-    return jr() unless assert($gs->{pid}, "login first", "ERR_LOGIN", "Login first");
+    return jr() unless assert($gs->{pid}, "Login first");
     
     my @messages = (); 
     
@@ -945,7 +948,7 @@ sub add_new_message_entry{
 
     my ($header, $from_id, $mtype, $content) = @_;
     
-    return unless assert($header, "", "ERR_HEADER", "Invalid header data structure.");
+    return unless assert($header, "Invalid header data structure");
 	
     my $pref = obj_read("person", $from_id);
 	
@@ -1115,15 +1118,15 @@ EOF
 
 sub p_test_apns {
     
-    return jr() unless assert($gr->{phone}, "phone missing", "ERR_PHONE", "Who to send to?");
+    return jr() unless assert($gr->{phone}, "Who to send to?");
 
     my $account =mdb()->get_collection("account")->find_one({login_name => $gr->{phone}});
 
-    return jr() unless assert($account, "account missing", "ERR_ACCOUNT", "No account found for that phone.");
+    return jr() unless assert($account, "No account found for that phone");
     my $p = obj_read("person", $account->{pids}->{default});
 
     my @apns_tokens = ($p->{apns_device_token});
-    return jr() unless assert(scalar(@apns_tokens), "deice id missing", "ERR_DEVICE_ID", "Tokens list not found.");
+    return jr() unless assert(scalar(@apns_tokens), "Tokens list not found");
 
     net_apns_batch({alert=>"apns_test, ".time(), cmd=>"apns_test"}, @apns_tokens);
 
