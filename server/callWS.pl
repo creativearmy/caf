@@ -28,11 +28,23 @@ $| = 1;
 $json = JSON->new;
 $json_pretty = JSON->new->pretty;
 
+#############################################################################################
+
 # project WS server for development and production
 $WS_URLS = {
 	xxx => "ws://1.2.3.4:51717/xxx",
 	xxx_ga => "ws://1.2.3.4:80/xxx_ga",
 };
+
+# send the next request after receiving response,
+# but not these responses which are pushed from server
+sub response_is_server_push {
+	my $resp_obj = $_[0];
+    return 1 if ($resp_obj->{act} eq "push");
+	return 0;
+}
+
+#############################################################################################
 
 my ($request_str) = @ARGV;
 
@@ -146,8 +158,11 @@ $ua->websocket($WS_SERVER => sub {
             my $resp_obj = $json->decode($resp_buf);
 			print $json_pretty->encode($resp_obj)."\n" if $PRETTY;
 
-            $sess = $resp_obj->{sess};
+            $sess = $resp_obj->{sess} if $resp_obj->{sess};
             
+			# filter those responses that are pushed from server
+			return if response_is_server_push($resp_obj);
+
             my $req = shift @request_strs;
 		    exit unless $req;;
 		    

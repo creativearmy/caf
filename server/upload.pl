@@ -1,12 +1,22 @@
 use CGI;
 use Time::HiRes qw(gettimeofday usleep);
 use MIME::Base64;
+use Data::Dumper;
 
 # files uploaded into this directory
 $UPLOAD_ROOT = "/var/www/games/files";
 
 # do not use my !! causing problems!
 $cgi = CGI->new();
+
+# uncomment this to debug upload problem, dump to $UPLOAD_ROOT/upload.log
+#debug_dump_cgi();
+
+if ( my $error = $cgi->cgi_error ) {
+    print $cgi->header( -status => $error );
+    print "Error: $error";
+    exit 0;
+}
 
 my $local_file = $cgi->param('local_file');
 my $data_url = $cgi->param('data_url');
@@ -22,7 +32,12 @@ my $THUMB = obj_id();
 
 my $flag = 0;
 
-open(LOCAL, ">$UPLOAD_ROOT/$FILE_ID");
+if (!open(LOCAL, ">$UPLOAD_ROOT/$FILE_ID")) {
+    print $cgi->header( -status => "500 Internal Server Error" );
+    print "Error: No write permission of dir, $UPLOAD_ROOT";
+    exit 0;
+}
+
 if ($data_url) {
 	if ($data_url =~ s/^data:image\/png;base64,//) {
 		$flag = 1;
@@ -100,8 +115,9 @@ print "Content-Length: ".length($output)."\r\n\r\n";
 print $output;
 
 ######################################################################################################################################################################
-$LAST_OBJ_ID = 0;
+# utilities
 
+$LAST_OBJ_ID = 0;
 sub obj_id {
 	# scheme id determines how to intepret the file id, version and algo etc.
 	my $SCHEME_ID = "001";
@@ -121,3 +137,18 @@ sub obj_id {
 		return $file_id;
 	}
 }
+
+sub debug_dump_cgi {
+
+    if (!open(UPLOADLOG, ">$UPLOAD_ROOT/upload.log")) {
+    #if (!open(UPLOADLOG, ">>$UPLOAD_ROOT/upload.log")) {
+    
+        print $cgi->header( -status => "500 Internal Server Error" );
+        print "Error: debug_dump_cgi No write permission of dir $UPLOAD_ROOT";
+        exit 0;
+    }
+
+    print UPLOADLOG "[".localtime(time)."] ".Dumper($cgi);
+    close UPLOADLOG;
+}
+
