@@ -17,7 +17,8 @@ sub response_handler {
 	if ($jo->{obj} eq "server" && $jo->{act} eq "info" && !$session) {
 		# Go on and start the login process automatically.
 		if ($login_name && $login_passwd) {
-		    send_obj_str('{"obj":"person","act":"login","login_name":"'.$login_name.'","login_passwd":"'.$login_passwd.'"}');
+		    # verbose: 1 to return user_info and server_info
+		    send_obj_str('{"obj":"person","act":"login","login_name":"'.$login_name.'","login_passwd":"'.$login_passwd.'","verbose":"1"}');
 		}
     }
 	
@@ -26,6 +27,15 @@ sub response_handler {
 	if ($jo->{obj} eq "server" && $jo->{act} eq "info" && $jo->{ipc}) {
 		# Simply forward this test ipc message to server
 		send_obj_str('{"obj":"server","act":"info"}');
+    }
+    
+	# test message comming from server, and forward to locally connected TCP client
+	if ($jo->{obj} eq "objA" && $jo->{act} eq "actA" && $jo->{pushed}) {
+	    if($last_local_connection_id) {
+	        errlog("last_local_connection_id $last_local_connection_id\n");
+	        my $stream = Mojo::IOLoop->stream($last_local_connection_id);
+	        $stream->write("Hello, from our server!\n") if $stream;
+	    }
     }
 	
 	####################################
@@ -42,7 +52,6 @@ sub response_handler {
 	if ($jo->{obj} eq "objA" && $jo->{act} eq "actA") {
 	    # quit once commmand execution returns from server
 	    # $json_input, '{"obj":"objA","act":"actA"}''
-	    exit;
     }        
 }
 
@@ -61,6 +70,10 @@ $MINDER_TIME = 30; # Check to see if ping needs to fire
 $AUTOCONNECT_TIME = 2; # In case of loss of connection, retry at this interval.
 $PING_INTERVAL = 180; # 3 mins, recurring pings to server
 $LOCAL_LISTENING_PORT = 3000; # If local line input is no required, set this to 0.
+
+# for practical application, it should be a connection table to keep track of
+# local connections to send data to
+$last_local_connection_id = "";
 
 ################################################################################
 use Mojo::UserAgent;
@@ -209,6 +222,9 @@ Mojo::IOLoop->server({port => $LOCAL_LISTENING_PORT} => sub {
     
     # Line command shell input, or for inter process communication
     # Only stringified json string server api call is accepted.
+    
+    errlog("Local connection: $id\n");   
+    $last_local_connection_id = $id;
     
     # TO TEST: echo '{"obj":"server","act":"info"}' |netcat 127.0.0.1 3000
     $stream->on(read => sub {
