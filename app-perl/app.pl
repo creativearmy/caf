@@ -225,7 +225,10 @@ Mojo::IOLoop->server({port => $LOCAL_LISTENING_PORT} => sub {
     
     errlog("Local connection: $id\n");   
     $last_local_connection_id = $id;
-    
+
+    # increase the inactivity timeout to 300s or more
+    $stream->timeout(300);
+
     # TO TEST: echo '{"obj":"server","act":"info"}' |netcat 127.0.0.1 3000
     $stream->on(read => sub {
         my ($stream, $bytes) = @_;  chomp $bytes;
